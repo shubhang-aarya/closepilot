@@ -1,4 +1,4 @@
-# ATTEST — the whole product in one process: static UI and JSON API, same origin.
+# ClosePilot — Continuous AI Finance Controller.
 #
 # The Rust kernel is built rather than skipped. Without it `subsetsum` falls back
 # to the numpy reference, whose envelope is Rs 30,000 instead of Rs 2,00,000 — a
@@ -45,6 +45,7 @@ WORKDIR /app
 # the worst way to find out.
 COPY pyproject.toml README.md ./
 COPY attest/ ./attest/
+COPY closepilot/ ./closepilot/
 COPY benchmark/ ./benchmark/
 COPY FAILURES.md ./
 COPY docs/ ./docs/
@@ -70,4 +71,4 @@ assert d['seed_basis']['held_out'] is True, d['seed_basis']; \
 print('OK: kernel', subsetsum.MAX_TARGET_PAISE, '| seed', d['seed'], d['seed_basis']['short'])"
 
 EXPOSE 8420
-CMD ["python", "-m", "attest.web"]
+CMD ["python", "-m", "closepilot"]
