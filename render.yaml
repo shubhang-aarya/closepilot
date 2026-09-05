@@ -8,7 +8,7 @@ services:
     dockerfilePath: ./Dockerfile
     plan: free
     region: singapore          # settlement data is INR; keep the demo close to it
-    healthCheckPath: /
+    healthCheckPath: /health   # lightweight — no benchmark execution
     autoDeploy: true
     envVars:
       # Render assigns the port and requires binding every interface.
@@ -16,3 +16,7 @@ services:
         value: 0.0.0.0
       - key: ATTEST_OPEN_BROWSER
         value: "0"
+      # Optional: AI Investigator uses Groq when present. Application starts and
+      # dashboard remains fully functional if this key is absent.
+      - key: GROQ_API_KEY
+        sync: false

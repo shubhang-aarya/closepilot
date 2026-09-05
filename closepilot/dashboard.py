@@ -316,7 +316,9 @@ class DashboardHandler(BaseHTTPRequestHandler):
 
         state: dict[str, Any] = self.server.controller_state  # type: ignore
 
-        if path == "/api/closepilot/readiness":
+        if path == "/health":
+            self.send_json({"status": "ok"})
+        elif path == "/api/closepilot/readiness":
             self._handle_readiness(state)
         elif path == "/api/closepilot/why-blocked":
             self._handle_why_blocked(state)

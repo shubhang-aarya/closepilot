@@ -251,6 +251,48 @@ Open your browser at **`http://127.0.0.1:8430`** to access the interactive contr
 
 ---
 
+## Deployment
+
+### Live Demo
+
+_[Deployment URL will be inserted after deployment]_
+
+### Local
+
+```bash
+python3 -m closepilot
+```
+
+or the canonical ATTEST web server (same product, different UI skin):
+
+```bash
+python3 -m attest.web
+```
+
+Open **`http://127.0.0.1:8430`** (ClosePilot dashboard) or **`http://127.0.0.1:8420`** (ATTEST instrument) in your browser.
+
+### Docker
+
+```bash
+docker build -t closepilot .
+docker run -p 8420:8420 closepilot
+```
+
+The container binds `0.0.0.0:8420` and reads the `PORT` environment variable when set by the platform:
+
+```bash
+docker run -e PORT=9000 -p 9000:9000 closepilot
+```
+
+Health check (responds immediately, no benchmark execution):
+
+```bash
+curl http://localhost:8420/health
+# {"status":"ok"}
+```
+
+---
+
 ## Evaluation Methodology & Limitations
 
 1. **Synthetic Benchmark Data**: Evaluation utilizes synthetically generated datasets with known ground truth to measure false-proof rates with mathematical precision. The hazard taxonomy was frozen prior to matcher authoring to prevent overfitting.

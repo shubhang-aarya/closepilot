@@ -93,7 +93,10 @@ class Handler(BaseHTTPRequestHandler):
         u = urlparse(self.path)
         q = parse_qs(u.query)
 
-        if u.path == "/api/run":
+        if u.path == "/health":
+            self._json({"status": "ok"})
+
+        elif u.path == "/api/run":
             n = max(10, min(5000, int(q.get("n", ["250"])[0])))
             self._json(api.summary(_run(n)))
 
