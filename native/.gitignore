@@ -1,0 +1,6 @@
+# Build artefacts of the optional extension. The repository must clone and run
+# without any of this, so none of it is tracked.
+/target/
+/.venv/
+/bench/pybench.json
+*.so

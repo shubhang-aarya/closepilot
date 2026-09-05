@@ -1,0 +1,22 @@
+[project]
+name = "attest"
+version = "0.1.0"
+description = "Settlement reconciliation as constrained optimization"
+requires-python = ">=3.11"
+dependencies = ["numpy>=1.26", "scipy>=1.11", "scikit-learn>=1.4", "matplotlib>=3.8"]
+
+# Without this, `pip install -e .` fails on a clean checkout: setuptools finds
+# eval/, native/, reports/ and contracts/ next to attest/ and refuses flat-layout
+# auto-discovery rather than guessing. Found by cloning into an empty directory
+# and running the documented commands — see docs/REPRODUCE.md. The local venv
+# predated those directories, so nothing here ever noticed.
+[tool.setuptools.packages.find]
+include = ["attest*"]
+
+[tool.mypy]
+strict = true
+warn_unreachable = true
+
+[tool.ruff]
+line-length = 96
+target-version = "py311"

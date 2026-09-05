@@ -1,0 +1,26 @@
+[build-system]
+requires = ["maturin>=1.9,<2.0"]
+build-backend = "maturin"
+
+[project]
+name = "attest-native"
+version = "0.1.0"
+description = "Packed 2-bit counting DP for ATTEST layer 3, with a numpy fallback shim"
+requires-python = ">=3.11"
+dependencies = ["numpy>=2.0"]
+
+[tool.maturin]
+# The Rust extension is `attest_native`; `attest_fast` is the pure-Python shim
+# that picks between it and the numpy reference. Shipping both from one wheel is
+# what makes the fallback automatic rather than something a caller wires up.
+features = ["python"]
+module-name = "attest_native"
+python-packages = ["attest_fast"]
+
+[tool.ruff]
+line-length = 96
+target-version = "py311"
+
+[tool.mypy]
+strict = true
+python_version = "3.13"

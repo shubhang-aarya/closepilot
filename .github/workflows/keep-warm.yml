@@ -1,0 +1,66 @@
+# Render's free tier stops a service after fifteen minutes without traffic, and
+# the next visitor gets Render's "service waking up" splash for ~50 seconds
+# before the app is even reached. A judge does not read that as "sleeping". They
+# read it as broken, and they leave.
+#
+# THE OBVIOUS VERSION OF THIS FILE DOES NOT WORK. A `*/5` schedule looks like a
+# ping every five minutes and is not one: GitHub queues scheduled workflows and
+# drops them under load, with no error and no retry. Measured on this repository
+# — one fire in two hours against a schedule asking for twenty-four. The service
+# slept through it. A cron line here is a request, not a guarantee.
+#
+# So the schedule is only the STARTER. Each run then holds itself open and pings
+# from inside a loop for just under six hours, which is GitHub's ceiling for a
+# job. That inverts the dependency: instead of needing the scheduler to be
+# punctual twelve times an hour, it needs to fire once every few hours, which is
+# a bar it clears. Actions minutes are unlimited on public repositories, so the
+# long job costs nothing.
+
+name: keep the demo warm
+
+on:
+  schedule:
+    - cron: "*/5 * * * *"
+  workflow_dispatch:
+  push:
+    branches: [main]          # a deploy is exactly when the container restarts
+
+concurrency:
+  group: keep-warm
+  cancel-in-progress: true    # one live pinger; the newest run replaces the last
+
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+    timeout-minutes: 355      # GitHub's ceiling is 360
+    steps:
+      - name: Hold the service awake
+        env:
+          URL: https://attest-69mi.onrender.com
+          INTERVAL: 240       # four minutes, against a fifteen-minute threshold
+          RUN_FOR: 20700      # 5h45m, inside the job timeout
+        run: |
+          set -u
+          deadline=$(( $(date +%s) + RUN_FOR ))
+          n=0
+
+          while [ "$(date +%s)" -lt "$deadline" ]; do
+            n=$((n + 1))
+
+            # A cold container cannot answer until it has started, so a failure
+            # here is information, not an error — waking it is the point.
+            code=$(curl -s -o /dev/null -w '%{http_code}' --max-time 120 "$URL/" || echo 000)
+
+            # Ask for the run itself, not just the front door. web.py memoises
+            # the run per portfolio size, so this keeps the container alive AND
+            # leaves the answer warm inside it — the next real visitor gets a
+            # lookup instead of ~25s of engine on a shared core.
+            t=$(curl -s -o /dev/null -w '%{time_total}' --max-time 180 "$URL/api/run?n=250" || echo "-")
+
+            echo "$(date -u +%H:%M:%S)  ping #$n  front=$code  run=${t}s"
+
+            [ "$code" = "200" ] || echo "::warning::front door returned $code"
+            sleep "$INTERVAL"
+          done
+
+          echo "window closed after $n pings; the schedule or the next push starts the following one"

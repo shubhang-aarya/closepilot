@@ -1,0 +1,181 @@
+#!/usr/bin/env bash
+# One command. Loads the canonical dataset, starts the engine, opens the Case
+# Desk. No credentials, no external services, no hidden steps.
+#
+# The demo runs on GENERATED data — seed 555001, 250 settlements, 2,328
+# orders — because ground truth is what makes a false-proof rate knowable. 555001
+# is one of the two HELD-OUT evaluation seeds; the policy was never calibrated
+# against it, which is why the headline is lower here than on a calibration
+# seed and why it is the one worth showing. No
+# live Razorpay account is contacted, and the product says so itself on the
+# Trust lens. See docs/RAZORPAY-DEMO.md.
+
+set -euo pipefail
+cd "$(dirname "$0")"
+PY=${PY:-./.venv/bin/python}
+PORT=8420
+
+[ -x "$PY" ] || { echo "no venv — see docs/REPRODUCE.md:"; \
+  echo "  python3.13 -m venv .venv && ./.venv/bin/pip install -e ."; exit 1; }
+
+"$PY" -c 'import attest' || exit 1
+
+if lsof -ti:$PORT >/dev/null 2>&1; then
+  echo "  something is already listening on :$PORT — reusing it"
+else
+  echo "  starting the engine (it reconciles 250 settlements before first paint)"
+  "$PY" -m attest.web > /tmp/attest-demo.log 2>&1 &
+  for _ in $(seq 1 40); do
+    curl -sf -o /dev/null "http://127.0.0.1:$PORT/api/observatory" && break
+    sleep 1
+  done
+fi
+
+curl -sf -o /dev/null "http://127.0.0.1:$PORT/api/observatory" || {
+  echo "  the engine did not come up. log:"; tail -20 /tmp/attest-demo.log; exit 1; }
+
+# The journey's figures are READ from the run rather than typed into this
+# file, and this comment is the reason. Two earlier versions of it quoted a
+# narrowing and a settlement amount that had both moved underneath it — once
+# when the solver envelope changed, once when the demo moved to a seed the
+# policy had not been calibrated on. Neither was caught, because the claim
+# register checks percentages and a candidate count is not a percentage.
+#
+# So nothing below is a literal. Both case ids ARE literals, and they are
+# pinned by tests/test_invariants.py::test_the_two_demo_cases_are_what_the
+# _demo_says_they_are, which asserts the verdict, the amount and correctness
+# against ground truth for each.
+CASE=${CASE:-setl_000225}          # AMBIGUOUS — the loop refusing
+OKCASE=${OKCASE:-setl_000233}      # PROVEN    — the loop closing
+J=$("$PY" - "$PORT" "$CASE" "$OKCASE" <<'PYEOF'
+import json, sys, urllib.request
+port, case, okcase = sys.argv[1], sys.argv[2], sys.argv[3]
+def get(p):
+    with urllib.request.urlopen(f"http://127.0.0.1:{port}{p}") as r:
+        return json.load(r)
+r0  = get("/api/run?n=250")
+run = r0["run_id"]
+sp  = get(f"/api/spine?run={run}&type=portfolio&review=25000&exposure=10000000")
+det = get(f"/api/settlement?run={run}&id={case}")
+src = get(f"/api/subject?run={run}&type=portfolio&id=portfolio").get("source", {})
+inv = get(f"/api/investigation?run={run}&type=settlement&id={case}")
+cl  = get(f"/api/claims?run={run}")
+lp  = get(f"/api/loop?run={run}&id={okcase}&review=25000")
+lq  = get(f"/api/loop?run={run}&id={case}&review=25000")
+def stg(d, k): return next((x for x in d["stages"] if x["key"] == k), {})
+stop = next((s for s in sp["stages"] if s["state"] == "stopped"), {})
+space = det.get("space") or {}
+adv = cl.get("adversarial") or {}
+iso = cl.get("isolation") or {}
+c = r0.get("counts", {})
+eng = (src.get("engine") or {})
+native = bool(eng.get("native"))
+print("\n".join([
+    "NATIVE KERNEL" if native else "PORTABLE",
+    format(int((eng.get("envelope_paise") or 0) / 100), ",d"),
+    f'{c.get("PROVEN",0)} proven · {c.get("AMBIGUOUS",0)} ambiguous · '
+    f'{c.get("CONTRADICTED",0)} contradicted'
+    + (f' · {c["INSUFFICIENT"]} insufficient' if c.get("INSUFFICIENT") else ""),
+    str(c.get("INSUFFICIENT", 0)),
+    sp["stages"][0]["value"],
+    stop.get("held_value", "—"),
+    str(stop.get("held", "—")),
+    sp["stages"][-1]["value"],
+    f'{space.get("universe", "?"):,} → {space.get("candidates", "?"):,} → {len(det.get("proofs") or [])}',
+    det.get("verdict", "?"),
+    f'{inv.get("tested", 0)} tested, {inv.get("discriminative", 0)} discriminative',
+    f'{adv.get("attacks", "?")} attacks, {adv.get("breached", "?")} breached' if adv.get("present") else "not run",
+    f'{iso.get("clean", "?")} of {iso.get("modules", "?")} engine modules',
+    f'{src.get("label", "?")} · {(src.get("engine") or {}).get("label", "?")}',
+    # the loop that closes
+    f'{okcase} · {stg(lp,"ledger")["headline"]}',
+    stg(lp, "verifier")["narrowing_line"],
+    (stg(lp, "advisor").get("advisor") or {}).get("outcome", "—"),
+    stg(lp, "policy")["detail"],
+    # the loop that refuses
+    stg(lq, "verifier")["headline"],
+    (stg(lq, "advisor").get("advisor") or {}).get("outcome", "—"),
+]))
+PYEOF
+)
+IFS=$'\n' read -rd '' PATHNAME ENVELOPE SPLIT INSUFF PROCESSED HELD HELDN POSTED \
+  CHAIN VERDICT TESTED ADV ISO SRC OKLEDGER OKCHAIN OKADV OKPOLICY \
+  HELDVERDICT HELDADV <<<"$J" || true
+
+cat <<TXT
+
+  ATTEST · GENERATED · $PATHNAME
+  solver envelope ₹$ENVELOPE per settlement
+
+TXT
+
+if [ "$PATHNAME" = "PORTABLE" ]; then
+cat <<TXT
+  The optional native kernel is not built, so the portable solver is running
+  with a smaller resource envelope. $INSUFF settlements exceed it and are
+  reported INSUFFICIENT — the engine declining to search a space it cannot
+  finish, not a failure to reconcile them.
+
+  Portfolio-wide figures below therefore differ from the recorded demo, which
+  uses the native kernel. The canonical case $CASE is identical on both paths.
+
+  To match the recording:  cd native && maturin develop --release
+
+TXT
+fi
+
+cat <<TXT
+  ATTEST is running.   http://127.0.0.1:$PORT/
+
+  $SPLIT
+
+  The canonical journey. Every figure below was just read from the run.
+
+   0:00  the decision        http://127.0.0.1:$PORT/
+                             the AI was allowed to be wrong; the ledger wasn't.
+                             money arrives, then four parties in order of
+                             authority — advisor proposes · verifier proves ·
+                             policy permits · ledger records
+                             $PROCESSED entered. $HELD held at verification
+                             across $HELDN settlements. $POSTED reached the ledger.
+
+   0:30  the record acts     scroll one screen — $OKCASE
+                             advisor: $OKADV · $OKCHAIN
+                             $OKPOLICY
+                             $OKLEDGER
+
+   1:00  the record holds    same page, next block — $CASE
+                             the advisor is $HELDADV here: it would pick one of
+                             four. it is right 27 times in 63.
+                             verifier says $HELDVERDICT · no financial action
+
+   1:40  open the instrument any "open the instrument" link drops into the
+                             workspace on this case; the bar carries a way back
+
+   2:00  the collapse        #/settlement/$CASE/evidence
+                             $CHAIN
+                             hover a cut to see why it was made, and whether
+                             it was a fact or a convention
+
+   2:30  the authority chain #/settlement/$CASE/investigate
+                             ◇ advisor proposes · ● verifier proves · ● policy permits · ● ledger records
+                             $TESTED — VERDICT UNCHANGED, NO FINANCIAL ACTION
+
+   2:40  the threshold       #/settlement/$CASE/policy
+                             expected loss UNPRICED, because no unique
+                             explanation was established. The scale is drawn
+                             with nothing on it.
+
+   3:10  the books           #/settlement/$CASE/journal
+                             debit ₹0.00, credit ₹0.00 — BALANCED BY ABSENCE
+
+   3:40  what is not proved  #/portfolio/trust
+                             $ADV · $ISO contain no reference to the provider
+
+   4:20  the workspace       http://127.0.0.1:$PORT/app#/portfolio/control
+
+  The settlement is $VERDICT. Everything above is produced by the run;
+  there is no demo-only code path.
+
+TXT
+command -v open >/dev/null && open "http://127.0.0.1:$PORT/" || true

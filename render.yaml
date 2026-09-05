@@ -1,0 +1,18 @@
+# Render blueprint. `render.yaml` in the repo root means the service can be
+# created from the dashboard by pointing at this repository — no console
+# clicking, and the configuration is reviewable in the diff like everything else.
+services:
+  - type: web
+    name: attest
+    runtime: docker
+    dockerfilePath: ./Dockerfile
+    plan: free
+    region: singapore          # settlement data is INR; keep the demo close to it
+    healthCheckPath: /
+    autoDeploy: true
+    envVars:
+      # Render assigns the port and requires binding every interface.
+      - key: HOST
+        value: 0.0.0.0
+      - key: ATTEST_OPEN_BROWSER
+        value: "0"

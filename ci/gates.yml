@@ -1,0 +1,74 @@
+name: attest
+
+# The build fails on SAFETY, never on accuracy. Exact-set match may fall; the
+# false-proof rate may not rise, and money wrongly auto-posted may not rise at
+# all. See attest/eval/gate.py and FAILURES.md D20 for why the asymmetry is the
+# whole policy.
+#
+# Every stage is in ci/verify.sh, so what CI runs is what you can run locally
+# with one command. A workflow that drifts from the local command is a workflow
+# nobody trusts a red build from.
+
+on: [push, pull_request]
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        # Pinned rather than "3.x". FAILURES.md D1: macOS ships 3.9 as python3
+        # and `dataclass(slots=True)` needs 3.10, so the interpreter version is
+        # part of the contract, not an implementation detail.
+        with: { python-version: "3.13" }
+
+      - name: install
+        run: |
+          python -m venv .venv
+          ./.venv/bin/pip install -q -e .
+          ./.venv/bin/pip install -q pytest ortools playwright
+          ./.venv/bin/python -m playwright install --with-deps chromium
+
+      # No Rust toolchain here on purpose: the engine must run without the
+      # extension, on the numpy path, with a narrower envelope. If it cannot,
+      # the fallback is decorative.
+      - name: verify
+        run: ./ci/verify.sh
+
+      - name: a protected-core change carries a report and a regression
+        # attest/verdict.py, model.py, subsetsum.py, blocking.py, layers.py and
+        # pipeline.py decide whether money moves. A local pre-commit hook blocks
+        # them unless the author sets ATTEST_CORE=1 — but that is an environment
+        # variable at commit time, which leaves no trace CI can inspect. So this
+        # checks the signal the real process actually leaves behind.
+        #
+        # A change there is not forbidden. It is required to be DELIBERATE, and
+        # deliberate looks like this: a report in reports/ stating what was
+        # proved before and what is proved now, and a test that fails against
+        # the old behaviour. CORE-001 and CORE-002 both carry both.
+        if: github.event_name == 'pull_request'
+        run: |
+          base=${{ github.event.pull_request.base.sha }}
+          changed=$(git diff --name-only "$base"...HEAD)
+          core=$(echo "$changed" | grep -E '^attest/(verdict|model|subsetsum|blocking|layers|pipeline)\.py$|^attest/generate/' || true)
+          [ -z "$core" ] && { echo "protected core untouched"; exit 0; }
+
+          echo "protected core changed:"; echo "$core" | sed 's/^/  /'
+          missing=""
+          echo "$changed" | grep -q '^reports/'  || missing="$missing a report in reports/"
+          echo "$changed" | grep -q '^tests/'    || missing="$missing a regression test"
+
+          if [ -n "$missing" ]; then
+            echo "::error::a protected-core change is missing:$missing"
+            echo ""
+            echo "The core decides whether money moves. Changing it needs more"
+            echo "than a passing build, because a passing build is exactly what"
+            echo "CORE-001 had: postable() failed open, every gate held at"
+            echo "+0.0000, and nothing was red. Green is not evidence."
+            echo ""
+            echo "Required: reports/<ID>.md saying what was proved before and"
+            echo "what is proved now, and a test that fails against the old"
+            echo "behaviour before it passes against the new."
+            exit 1
+          fi
+          echo "report and regression both present"

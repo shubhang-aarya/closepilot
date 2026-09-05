@@ -1,0 +1,51 @@
+# The SECOND keeper. Deliberately a separate workflow file rather than a second
+# job in the first one.
+#
+# GitHub throttles and drops scheduled runs per WORKFLOW. Two workflows are
+# scheduled independently, so a drop that silences one does not silence the
+# other, and their concurrency groups are separate so they never cancel each
+# other. The offset schedule means they do not queue at the same instant and get
+# deprioritised together.
+#
+# This is redundancy rather than recursion, because recursion is not available:
+# a job cannot start its own successor — GitHub refuses to let events raised
+# with the built-in GITHUB_TOKEN trigger new workflow runs, specifically to
+# prevent infinite loops. Doing it properly needs a PAT in a repo secret.
+#
+# Two independent 5h45m windows, each pinging every four minutes, against a
+# fifteen-minute sleep threshold. Both have to fail at once to lose the service.
+
+name: keep the demo warm (second keeper)
+
+on:
+  schedule:
+    - cron: "7,27,47 * * * *"   # offset from the first keeper's */5
+  workflow_dispatch:
+
+concurrency:
+  group: keep-warm-2            # separate group: must not cancel keeper one
+  cancel-in-progress: true
+
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+    timeout-minutes: 355
+    steps:
+      - name: Hold the service awake
+        env:
+          URL: https://attest-69mi.onrender.com
+          INTERVAL: 240
+          RUN_FOR: 20700
+        run: |
+          set -u
+          deadline=$(( $(date +%s) + RUN_FOR ))
+          n=0
+          while [ "$(date +%s)" -lt "$deadline" ]; do
+            n=$((n + 1))
+            code=$(curl -s -o /dev/null -w '%{http_code}' --max-time 120 "$URL/" || echo 000)
+            t=$(curl -s -o /dev/null -w '%{time_total}' --max-time 180 "$URL/api/run?n=250" || echo "-")
+            echo "$(date -u +%H:%M:%S)  ping #$n  front=$code  run=${t}s"
+            [ "$code" = "200" ] || echo "::warning::front door returned $code"
+            sleep "$INTERVAL"
+          done
+          echo "window closed after $n pings"

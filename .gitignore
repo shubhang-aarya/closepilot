@@ -1,0 +1,21 @@
+.venv/
+venv/
+__pycache__/
+*.pyc
+.pytest_cache/
+.DS_Store
+__MACOSX/
+.env
+.env.*
+*.log
+data/
+native/target/
+*.so
+.maturin/
+report.html
+*.png
+# ...except the one the README renders. `*.png` keeps stray screenshots out
+# of the tree, and it was also keeping the product out of the front page:
+# the README had no image at all, and the first one added would have been
+# committed as a broken link on GitHub without anyone seeing it locally.
+!docs/img/product-control.png

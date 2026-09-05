@@ -1,0 +1,70 @@
+ATTEST — FINAL FREEZE
+
+commit             (uncommitted working tree at the time of writing — see
+                    `git rev-parse HEAD` after the productization commit)
+
+thesis             A control layer for financial AI: AI may investigate and
+                   propose; independently provable evidence is required before
+                   any financial action. Reconciliation is the first
+                   implementation of that control model.
+
+the loop           ADVISOR proposes · SOLVER tests · ENGINE proves ·
+                   POLICY decides · LEDGER acts · OPERATOR resolves
+                   demonstrated on two held-out settlements, both directions:
+                     setl_000233  Rs 6,523.53   PROVEN   → AUTO_POST → posted
+                     setl_000225  Rs 23,922.07  AMBIGUOUS → REVIEW  → no entry
+
+verification
+  tests              385 (383 + 2 control-loop regressions)
+  browser contracts  included above
+  gates              6/6, safety flat, safe-resolution +0.0440
+  adversarial        35/35 defended, 0 breached, 0 harness errors
+  claim audit        PASS, idempotent
+  artifact drift     none
+
+evaluation panel   unchanged methodology
+  calibration seeds  [20260821, 314159, 271828]
+  evaluation seeds   [555001, 999983]  (held out)
+  settlements/seed   250
+  review cost        Rs 250 (adopted on evidence — accuracy and safety are
+                     identical at Rs 150; auto-posting goes 11 → 33)
+
+held-out results
+  exact set recovery      16.0%
+  ambiguity rate          82.4%
+  proof precision         0.9524
+  false proofs            4
+  auto-posted             33 settlements, Rs 2,52,431.44
+  wrongly auto-posted     Rs 0.00   (33/33 exact against ground truth)
+
+kernel                CORE-003 and CORE-004 both closed
+  forged adjustments the kernel accepts        0 of 726
+  kernel-rejected proofs reaching the ledger   0 (was 131)
+
+versions
+  rules_version      rules_d4cb21a4b0ac
+  policy_version     policy_76b7dd4eabcc
+  solver_version     solver_000589bed531   (moved: verdict.py CORE-003,
+                     ledger.py CORE-004 — provenance tracking the change)
+  dataset_version    synthetic_n250_s555001   (the HELD-OUT seed the demo runs)
+  model_version      none   (the advisor is a deterministic capture-batch
+                     ranking heuristic and is labelled as one on every screen)
+
+artifact hashes (sha256, first 16)
+  76de325936028509   benchmark/results.json
+  391ad4d079cffc77   benchmark/baseline.json
+  3977fea46ffde9c7   benchmark/baselines.json
+  9d76dea51ee0c693   benchmark/anchoring.json
+  864491022bc49ada   benchmark/adversarial.json
+
+boundaries that remain
+  live Razorpay account   NOT VERIFIED
+  bank statement          SIMULATED
+  order-level join        NOT IMPLEMENTED, and not claimed
+  advisor                 heuristic, measured at 27/63, disabled as a RESOLVER
+                          and retained as an ADVISOR — it can propose and can
+                          never authorize
+  ledger                  ATTEST's own journal; no external system is written
+  pagination stop         UNVERIFIED against a real response
+  adapter rejections      do not outlive the process
+  numbers describe        generated data (ground truth is why they are knowable)

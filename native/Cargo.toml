@@ -1,0 +1,42 @@
+[package]
+name = "attest-native"
+version = "0.1.0"
+edition = "2021"
+description = "Packed 2-bit saturating counting DP for ATTEST layer 3 (subset-sum over the amount axis)"
+license = "MIT"
+
+[lib]
+name = "attest_native"
+# cdylib for the PyO3 extension module; rlib so `cargo bench`/`cargo test` can
+# link the pure-Rust core without dragging in libpython.
+crate-type = ["cdylib", "rlib"]
+
+[dependencies]
+pyo3 = { version = "0.28", features = ["extension-module"], optional = true }
+numpy = { version = "0.28", optional = true }
+
+[features]
+default = []
+# maturin builds with this on (see pyproject.toml). `cargo bench` leaves it off,
+# which is what keeps the benchmark linkable outside a Python interpreter.
+python = ["dep:pyo3", "dep:numpy"]
+
+[dev-dependencies]
+criterion = { version = "0.7", features = ["html_reports"] }
+
+[[bench]]
+name = "reachable"
+harness = false
+
+[profile.release]
+opt-level = 3
+lto = true
+codegen-units = 1
+# Deliberately NOT panic = "abort": this ships inside a Python process, and an
+# out-of-bounds here should surface as an exception the engine can report, not
+# take the interpreter down mid-reconciliation.
+
+[profile.bench]
+opt-level = 3
+lto = true
+codegen-units = 1

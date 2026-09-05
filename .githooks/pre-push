@@ -1,0 +1,34 @@
+#!/bin/sh
+# Refuse to push this repository with any Pronto identity.
+#
+# The machine carries two GitHub accounts, two SSH keys and a global
+# url.insteadOf rewrite that silently redirects HTTPS to the work key. Any one of
+# them can quietly attach the wrong name to this work, so the check runs at the
+# last moment before anything leaves the machine.
+
+REMOTE_URL="$2"
+EMAIL=$(git config user.email)
+FAIL=0
+
+case "$REMOTE_URL" in
+  *kunalKumar-13*) ;;
+  *) echo "  ✖ remote is not the personal account: $REMOTE_URL" >&2; FAIL=1 ;;
+esac
+
+case "$EMAIL" in
+  *withpronto.com*) echo "  ✖ committer identity is Pronto: $EMAIL" >&2; FAIL=1 ;;
+  Kunalsain0324@gmail.com) ;;
+  *) echo "  ✖ committer identity is not personal: $EMAIL" >&2; FAIL=1 ;;
+esac
+
+if git log --format='%ae' origin/main..HEAD 2>/dev/null | grep -q 'withpronto.com'; then
+  echo "  ✖ commits authored with a Pronto email are staged for push" >&2
+  FAIL=1
+fi
+
+[ "$FAIL" = 0 ] && exit 0
+echo "" >&2
+echo "  Push blocked. This repository is personal and must never carry a" >&2
+echo "  Pronto identity. Check: git config user.email && git remote -v" >&2
+echo "" >&2
+exit 1

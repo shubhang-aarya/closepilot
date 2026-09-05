@@ -1,0 +1,17 @@
+{
+  "attacks": 35,
+  "defended": 35,
+  "breached": 0,
+  "harness_errors": 0,
+  "stages": [
+    "ACTION",
+    "LEDGER",
+    "MEMBERSHIP",
+    "NORMALIZATION",
+    "PROOF",
+    "SEARCH SPACE",
+    "SOLVER",
+    "SOURCE"
+  ],
+  "breaches": []
+}

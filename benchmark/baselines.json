@@ -1,0 +1,67 @@
+{
+ "methods": {
+  "attest": {
+   "coverage": 0.16,
+   "decided": 84,
+   "declined": 416,
+   "exact_sets": 80,
+   "false_proof_rate": 0.0476,
+   "pair_fn": 4165,
+   "pair_fp": 15,
+   "pair_precision": 0.9587,
+   "pair_tp": 348,
+   "seconds": 4.56,
+   "settlements": 500,
+   "wrong": 4
+  },
+  "exact_only": {
+   "coverage": 0.044,
+   "decided": 22,
+   "declined": 478,
+   "exact_sets": 22,
+   "false_proof_rate": 0.0,
+   "pair_fn": 4491,
+   "pair_fp": 0,
+   "pair_precision": 1.0,
+   "pair_tp": 22,
+   "seconds": 0.05,
+   "settlements": 500,
+   "wrong": 0
+  },
+  "fuzzy": {
+   "coverage": 0.036,
+   "decided": 30,
+   "declined": 470,
+   "exact_sets": 18,
+   "false_proof_rate": 0.4,
+   "pair_fn": 4495,
+   "pair_fp": 12,
+   "pair_precision": 0.6,
+   "pair_tp": 18,
+   "seconds": 0.04,
+   "settlements": 500,
+   "wrong": 12
+  },
+  "greedy": {
+   "coverage": 0.046,
+   "decided": 462,
+   "declined": 38,
+   "exact_sets": 23,
+   "false_proof_rate": 0.9502,
+   "pair_fn": 4088,
+   "pair_fp": 2146,
+   "pair_precision": 0.1653,
+   "pair_tp": 425,
+   "seconds": 0.05,
+   "settlements": 500,
+   "wrong": 439
+  }
+ },
+ "note": "Every method saw the same generated portfolios and was scored by the same evaluator. Coverage and false-proof rate are reported together because either alone is easy to win: declining everything gives a perfect error rate.",
+ "seeds": [
+  555001,
+  999983
+ ],
+ "settlements": 500,
+ "settlements_per_seed": 250
+}

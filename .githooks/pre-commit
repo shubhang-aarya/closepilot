@@ -1,0 +1,34 @@
+#!/bin/sh
+# Enforce the boundary in AGENTS.md.
+#
+# The agent floor runs with permissions bypassed, so the working agreement is
+# advisory unless something checks it. This is that check: the solver core and
+# the frozen generator cannot be committed by anyone but the author.
+#
+# Same shape as the product it guards -- workers propose, a small deterministic
+# gate decides. Override for genuine human edits with:  ATTEST_CORE=1 git commit
+
+PROTECTED='^(attest/(model|verdict|subsetsum|blocking|layers|pipeline)\.py|attest/generate/)'
+
+[ -n "$ATTEST_CORE" ] && exit 0
+
+BAD=$(git diff --cached --name-only | grep -E "$PROTECTED")
+[ -z "$BAD" ] && exit 0
+
+cat >&2 <<MSG
+
+  ✖ BLOCKED — protected files in this commit:
+
+$(echo "$BAD" | sed 's/^/      /')
+
+  attest/generate/** is frozen: the benchmark was written before the matcher so
+  it cannot be tuned to flatter the engine. Editing it invalidates every number
+  in PRD.md.
+
+  The solver core is human-authored and defended by a human in review.
+
+  Found a real bug? Report it to the inbox with a reproduction. Do not patch it.
+  Human edit? Re-run with:  ATTEST_CORE=1 git commit ...
+
+MSG
+exit 1

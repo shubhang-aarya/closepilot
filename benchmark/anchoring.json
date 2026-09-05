@@ -1,0 +1,27 @@
+{
+ "ambiguous": 1020,
+ "correct": 27,
+ "note": "The loop selects among explanations the solver already validated; it never constructs one. Three rounds resolve exactly what one round resolves, so the exploration added by D22 is free and inconsequential \u2014 the second-densest capture day never yields an anchor contained in exactly one explanation. Underneath that: 53% of candidate pools span a single capture date, and on those the lens is true of every order in the pool. The feature stays disabled.",
+ "one_round": {
+  "correct": 27,
+  "precision": 0.4286,
+  "resolved": 63,
+  "wrong": 36
+ },
+ "pools": 1250,
+ "precision": 0.4286,
+ "proposals": 1562,
+ "proposals_per_settlement": 1.53,
+ "resolved": 63,
+ "seeds": [
+  11,
+  23,
+  37,
+  53,
+  71
+ ],
+ "settlements_per_seed": 250,
+ "single_date_pools": 662,
+ "single_date_share": 0.5296,
+ "wrong": 36
+}

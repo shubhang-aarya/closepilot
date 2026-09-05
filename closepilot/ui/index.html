@@ -1,0 +1,355 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CLOSEPILOT — Financial Controller Dashboard</title>
+  <link rel="stylesheet" href="/style.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+</head>
+<body>
+  <div class="app-layout">
+    <!-- Top Header -->
+    <header class="app-header">
+      <div class="brand-area">
+        <div class="brand-logo">
+          <span class="logo-accent">✦</span> CLOSEPILOT
+        </div>
+        <div class="brand-tagline">Continuous AI Finance Controller</div>
+      </div>
+
+      <div class="period-badge-container">
+        <span class="badge badge-fact">FACT</span>
+        <span class="period-text" id="period-name">Period: Loading...</span>
+      </div>
+
+      <div class="header-status">
+        <span class="connection-pill"><span class="status-dot online"></span> Controller Authoritative</span>
+      </div>
+    </header>
+
+    <!-- Main Decision Stage (CAN I CLOSE?) -->
+    <section class="verdict-stage" id="verdict-stage">
+      <div class="decision-prompt">CAN I CLOSE?</div>
+      
+      <!-- Primary Big Verdict Box -->
+      <div class="verdict-card verdict-blocked" id="verdict-card">
+        <div class="verdict-badge-row">
+          <span class="badge badge-fact">AUTHORITATIVE VERDICT</span>
+          <span class="badge-timestamp" id="verdict-timestamp">Automated Evaluation</span>
+        </div>
+        <div class="verdict-title" id="verdict-title">EVALUATING...</div>
+        <div class="verdict-subtitle" id="verdict-subtitle">Querying Close Controller...</div>
+        
+        <div class="verdict-impact-bar">
+          <span class="impact-label">Close Impact:</span>
+          <span class="impact-value" id="verdict-impact-text">-</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- Visual Ontology Legend -->
+    <div class="ontology-legend">
+      <div class="legend-item"><span class="badge badge-fact">FACT</span> Proven by engine & verified ledger</div>
+      <div class="legend-item"><span class="badge badge-prediction">PREDICTION</span> Statistical resolution forecast</div>
+      <div class="legend-item"><span class="badge badge-recommendation">RECOMMENDATION</span> Advisory AI routing guidance</div>
+      <div class="legend-item"><span class="badge badge-simulation">HYPOTHETICAL SIMULATION</span> Counterfactual what-if projection</div>
+    </div>
+
+    <!-- Financial Metric Ribbon -->
+    <section class="metric-ribbon">
+      <div class="metric-card">
+        <div class="metric-header"><span class="badge badge-fact">FACT</span> Total Period Value</div>
+        <div class="metric-value" id="metric-total-value">₹0.00</div>
+        <div class="metric-subtext">Sum of gateway settlements</div>
+      </div>
+
+      <div class="metric-card">
+        <div class="metric-header"><span class="badge badge-fact">FACT</span> Reconciled Value</div>
+        <div class="metric-value text-emerald" id="metric-reconciled-value">₹0.00</div>
+        <div class="metric-subtext" id="metric-reconciled-pct">0% Proven</div>
+      </div>
+
+      <div class="metric-card">
+        <div class="metric-header"><span class="badge badge-fact">FACT</span> Net Unresolved Exposure</div>
+        <div class="metric-value text-rose" id="metric-unresolved-exposure">₹0.00</div>
+        <div class="metric-subtext" id="metric-exception-count">0 exceptions</div>
+      </div>
+
+      <div class="metric-card">
+        <div class="metric-header"><span class="badge badge-fact">FACT</span> Materiality Threshold</div>
+        <div class="metric-value text-amber" id="metric-materiality-threshold">₹0.00</div>
+        <div class="metric-subtext" id="metric-material-exposure-subtext">Material: ₹0.00</div>
+      </div>
+
+      <div class="metric-card">
+        <div class="metric-header"><span class="badge badge-fact">FACT</span> Active Blocker Rule Instances</div>
+        <div class="metric-value text-crimson" id="metric-blocker-count">0</div>
+        <div class="metric-subtext">Rule evaluations fired</div>
+      </div>
+
+      <div class="metric-card">
+        <div class="metric-header"><span class="badge badge-fact">FACT</span> Unique Blocked Exceptions</div>
+        <div class="metric-value text-amber" id="metric-blocked-exceptions">0</div>
+        <div class="metric-subtext">Distinct exception entities</div>
+      </div>
+
+      <div class="metric-card">
+        <div class="metric-header"><span class="badge badge-fact">FACT</span> Unique Blocked Settlements</div>
+        <div class="metric-value text-amber" id="metric-blocked-settlements">0</div>
+        <div class="metric-subtext">Distinct settlement batches</div>
+      </div>
+
+      <div class="metric-card">
+        <div class="metric-header"><span class="badge badge-fact">FACT</span> Gross Contested Claim Exposure</div>
+        <div class="metric-value text-purple" id="metric-gross-exposure">₹0.00</div>
+        <div class="metric-subtext">Diagnostic candidate sum</div>
+      </div>
+    </section>
+
+    <!-- Navigation Tabs for the 6 Primary Controller Interactions -->
+    <nav class="interaction-tabs">
+      <button class="tab-btn active" data-tab="tab-why-blocked">1. Why can't I close?</button>
+      <button class="tab-btn" data-tab="tab-materiality">2. What is financially material?</button>
+      <button class="tab-btn" data-tab="tab-simulate">3. Simulate closing now</button>
+      <button class="tab-btn" data-tab="tab-predictions">4. What will likely resolve?</button>
+      <button class="tab-btn" data-tab="tab-evidence">5. Show evidence</button>
+      <button class="tab-btn" data-tab="tab-review-queue">6. Review exceptions</button>
+    </nav>
+
+    <!-- Tab 1: Why can't I close? -->
+    <section class="tab-content active" id="tab-why-blocked">
+      <div class="section-card">
+        <div class="section-header">
+          <div>
+            <h2 class="section-title">Why can't I close?</h2>
+            <p class="section-desc">Active blocker rule instances, contradictory proofs, and safety rule violations.</p>
+          </div>
+          <span class="badge badge-fact">FACT: ACTIVE SAFETY RULES</span>
+        </div>        
+
+        <div id="blockers-list" class="items-grid">
+          <!-- Populated by JavaScript -->
+          <div class="empty-state">Loading active close blockers...</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Tab 2: What is financially material? -->
+    <section class="tab-content" id="tab-materiality">
+      <div class="section-card">
+        <div class="section-header">
+          <div>
+            <h2 class="section-title">What is financially material?</h2>
+            <p class="section-desc">Economic threshold policy boundary and exception materiality breakdown.</p>
+          </div>
+          <span class="badge badge-fact">FACT: MATERIALITY POLICY</span>
+        </div>
+
+        <div class="materiality-summary-card" id="materiality-policy-box">
+          <!-- Policy version, threshold, floor, ceiling -->
+        </div>
+
+        <div class="table-container">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Exception ID</th>
+                <th>Settlement</th>
+                <th>Exposure</th>
+                <th>% of Allowable Threshold</th>
+                <th>Classification</th>
+              </tr>
+            </thead>
+            <tbody id="materiality-table-body">
+              <!-- Populated by JavaScript -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- Tab 3: Simulate closing now -->
+    <section class="tab-content" id="tab-simulate">
+      <div class="section-card simulation-panel">
+        <div class="section-header">
+          <div>
+            <h2 class="section-title">Simulate closing now</h2>
+            <p class="section-desc">Non-mutating counterfactual close simulator. Tests hypothetical outcomes without touching financial truth.</p>
+          </div>
+          <span class="badge badge-simulation">HYPOTHETICAL SIMULATION</span>
+        </div>
+
+        <div class="simulation-controls">
+          <label class="control-label">Select Simulation Scenario:</label>
+          <div class="scenario-buttons">
+            <button class="scenario-btn active" data-scenario="CLOSE_NOW">Close Now (As-Is)</button>
+            <button class="scenario-btn" data-scenario="CARRY_FORWARD_IMMATERIAL">Carry-Forward Immaterial</button>
+            <button class="scenario-btn" data-scenario="WAIT_PREDICTED_RESOLUTIONS">Wait for Predicted Resolves (T+2)</button>
+            <button class="scenario-btn" data-scenario="CLEAR_HYPOTHETICAL_BLOCKER">Waive Blockers (Hypothetical)</button>
+          </div>
+        </div>
+
+        <!-- Simulation Comparison Stage -->
+        <div class="simulation-results" id="simulation-results-stage">
+          <div class="comparison-grid">
+            <!-- Actual State -->
+            <div class="comparison-col actual-state-col">
+              <div class="col-header"><span class="badge badge-fact">FACT</span> ACTUAL STATE</div>
+              <div class="comparison-verdict" id="sim-actual-verdict">BLOCKED</div>
+              <div class="comparison-stat"><span>Net Unresolved Exposure:</span> <strong id="sim-actual-exposure">₹0.00</strong></div>
+              <div class="comparison-stat"><span>Active Blocker Rule Instances:</span> <strong id="sim-actual-blockers">0</strong></div>
+              <div class="comparison-stat"><span>Carry Forward:</span> <strong id="sim-actual-cf">0</strong></div>
+            </div>
+
+            <!-- Hypothetical State -->
+            <div class="comparison-col hypothetical-state-col">
+              <div class="col-header"><span class="badge badge-simulation">HYPOTHETICAL SIMULATION</span> PROJECTED STATE</div>
+              <div class="comparison-verdict" id="sim-proj-verdict">EVALUATING...</div>
+              <div class="comparison-stat"><span>Projected Net Exposure:</span> <strong id="sim-proj-exposure">₹0.00</strong></div>
+              <div class="comparison-stat"><span>Projected Active Blocker Rule Instances:</span> <strong id="sim-proj-blockers">0</strong></div>
+              <div class="comparison-stat"><span>Projected Carry Forward:</span> <strong id="sim-proj-cf">0</strong></div>
+            </div>
+          </div>
+
+          <div class="simulation-notes" id="simulation-notes-text">
+            No mutation to source records. Authoritative close controller remains unchanged.
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Tab 4: What will likely resolve? -->
+    <section class="tab-content" id="tab-predictions">
+      <div class="section-card">
+        <div class="section-header">
+          <div>
+            <h2 class="section-title">What will likely resolve?</h2>
+            <p class="section-desc">Deterministic statistical resolution predictions, expected horizons, and confidence tiers.</p>
+          </div>
+          <span class="badge badge-prediction">PREDICTION: RESOLUTION FORECAST</span>
+        </div>
+
+        <div class="table-container">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Exception</th>
+                <th>Probability</th>
+                <th>Horizon</th>
+                <th>Confidence</th>
+                <th>Recommended Routing</th>
+                <th>Rationale</th>
+              </tr>
+            </thead>
+            <tbody id="predictions-table-body">
+              <!-- Populated by JavaScript -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- Tab 5: Show evidence -->
+    <section class="tab-content" id="tab-evidence">
+      <div class="section-card">
+        <div class="section-header">
+          <div>
+            <h2 class="section-title">Show evidence & AI investigation</h2>
+            <p class="section-desc">Grounded causal lineage trace, bank statements, and advisory discrepancy analysis.</p>
+          </div>
+          <span class="badge badge-recommendation">RECOMMENDATION: ADVISORY AI</span>
+        </div>
+
+        <div class="evidence-selector">
+          <label>Select Exception / Settlement to inspect:</label>
+          <select id="evidence-target-select" class="form-select">
+            <option value="EX-00004">EX-00004 (setl_004 - Multiple Valid Assignments)</option>
+            <option value="EX-00005">EX-00005 (setl_005 - Missing Transaction)</option>
+            <option value="EX-00006">EX-00006 (setl_006 - Timing Mismatch)</option>
+          </select>
+          <button id="btn-run-investigation" class="btn btn-primary">Run Grounded AI Investigation</button>
+        </div>
+
+        <!-- Evidence & Lineage Display -->
+        <div class="evidence-display-grid">
+          <div class="evidence-col">
+            <h3 class="col-title"><span class="badge badge-fact">FACT</span> Lineage Trace Chain</h3>
+            <div id="lineage-chain-box" class="chain-box">Select an entity above to trace backward.</div>
+          </div>
+
+          <div class="evidence-col">
+            <h3 class="col-title"><span class="badge badge-recommendation">RECOMMENDATION</span> AI Grounded Analysis</h3>
+            <div id="ai-report-box" class="report-box">Click "Run Grounded AI Investigation" to inspect.</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Tab 6: Review exceptions -->
+    <section class="tab-content" id="tab-review-queue">
+      <div class="section-card">
+        <div class="section-header">
+          <div>
+            <h2 class="section-title">Human Review Queue</h2>
+            <p class="section-desc">Deterministic priority queue (Safety + Financial Impact + Urgency) with auditable actions.</p>
+          </div>
+          <span class="badge badge-fact">FACT: REVIEW QUEUE</span>
+        </div>
+
+        <div class="queue-list" id="queue-items-container">
+          <!-- Populated by JavaScript -->
+        </div>
+
+        <!-- Audit Action Modal / Form -->
+        <div class="audit-history-section">
+          <h3 class="col-title"><span class="badge badge-fact">FACT</span> Live Audit Trail</h3>
+          <div id="audit-log-container" class="audit-log-box">No human actions recorded yet this session.</div>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <!-- Action Modal -->
+  <div class="modal-backdrop hidden" id="action-modal">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h3 id="modal-title">Record Human Review Action</h3>
+        <button class="modal-close" id="btn-modal-close">&times;</button>
+      </div>
+      <div class="modal-body">
+        <input type="hidden" id="modal-exception-id">
+        
+        <div class="form-group">
+          <label>Action Type:</label>
+          <select id="modal-action-type" class="form-select">
+            <option value="APPROVE_MANUAL_ADJUSTMENT">APPROVE_MANUAL_ADJUSTMENT (Book manual journal entry)</option>
+            <option value="SUBMIT_GATEWAY_DISPUTE">SUBMIT_GATEWAY_DISPUTE (Initiate gateway inquiry)</option>
+            <option value="APPROVE_CARRY_FORWARD">APPROVE_CARRY_FORWARD (Authorize carry-forward)</option>
+            <option value="DEFER_REVIEW">DEFER_REVIEW (Defer to next cycle)</option>
+            <option value="REJECT_AND_ESCALATE">REJECT_AND_ESCALATE (Escalate to senior controller)</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label>Reviewer (Controller ID / Email):</label>
+          <input type="text" id="modal-reviewer" class="form-input" placeholder="lead.controller@company.com" value="lead.controller@company.com">
+        </div>
+
+        <div class="form-group">
+          <label>Justification (Required):</label>
+          <textarea id="modal-justification" class="form-textarea" rows="3" placeholder="Provide clear audit justification..."></textarea>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" id="btn-modal-cancel">Cancel</button>
+        <button class="btn btn-primary" id="btn-modal-submit">Sign & Record Action</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="/app.js"></script>
+</body>
+</html>

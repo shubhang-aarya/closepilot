@@ -1,0 +1,2283 @@
+<!doctype html>
+<meta charset=utf-8>
+<meta name=viewport content="width=device-width,initial-scale=1">
+<title>ATTEST — the investigation</title>
+<link rel=preconnect href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel=stylesheet>
+<style>
+/* ═══════════════════════════════════════════════════════════════════════════
+   ATTEST — THE INVESTIGATION
+
+   Rebuilt against the reference's DARK rendering. The last pass measured its
+   light theme — the page carries an APPEARANCE control in its own footer and
+   headless Chromium had picked LIGHT — so the ground, the accents and the
+   whole feel were measured off the wrong half of the site.
+
+   Measured with color_scheme=dark:
+     canvas       rgb(14,14,14)
+     surface      rgb(17,17,17)
+     primary      #fff
+     secondary    rgba(255,255,255,.68)
+     tertiary     rgba(255,255,255,.42)
+     coral        rgb(255,101,90)   — 45 uses: eyebrows, current nav, refusals
+     lime         rgb(231,245,61)   — actions only
+     warm         ≈#2b1817          — the chapter that changes state
+
+   THE GRAMMAR, taken; the content and identity, ATTEST's own:
+     · fixed narrow left nav — wordmark, grouped links, one in the accent,
+       a bordered utility block pinned to the floor
+     · a mono utility strip along the top carrying provenance
+     · an editorial column of about 580px: coral eyebrow, white statement,
+       coral sub-statement, grey body
+     · a large ARTIFACT to its right, framed with corner registration marks
+     · a full-width action bar in the action colour, with an ↗
+     · faint enormous circle and diagonal traces on the near-black
+     · bordered specimen blocks, radius 0, mono status rows with ✓ and ✗
+
+   COLOUR DISCIPLINE — the reason the reference works. Coral is unresolved,
+   risk, refusal. Lime is only ever an action you can take. Grey is
+   infrastructure. White is a stated truth. Nothing else is coloured, and
+   neither accent is ever used decoratively.
+
+   Every figure is fetched from the running engine at load. The scoreboard's
+   false-proof rates come from benchmark/baselines.json through the API, so
+   the correctness argument on this page is the artifact's, not a template's.
+   ═════════════════════════════════════════════════════════════════════════ */
+:root{
+  --canvas:#0e0e0e;
+  --sur:#141414;
+  --sur2:#191919;
+  --warm:#2b1817;          /* the chapter where the system stops */
+  --paper:#f0ede6;
+  --ink:#ffffff;
+  --dim:rgba(255,255,255,.68);
+  --dim2:rgba(255,255,255,.46);
+  --dim3:rgba(255,255,255,.30);
+  --rule:rgba(255,255,255,.10);
+  --rule2:rgba(255,255,255,.20);
+  --coral:#ff655a;         /* unresolved · risk · refusal */
+  --lime:#dcf23c;          /* action, and nothing else */
+  --proven:#5fbf9b;
+  --advisory:#8fa6ff;     /* the advisory party — never an action colour */
+  --advisory-bg:rgba(143,166,255,.06);
+
+  --s:"Space Grotesk",ui-sans-serif,-apple-system,system-ui,sans-serif;
+  --m:"Space Mono",ui-monospace,SFMono-Regular,Menlo,monospace;
+
+  /* leading = size, tracking ≈ −.045em on display */
+  --t-hero:clamp(30px,3.1vw,46px);
+  --t-chapter:clamp(28px,3.2vw,44px);
+  --t-huge:clamp(44px,7.4vw,116px);
+  --t-sect:clamp(21px,1.9vw,28px);
+  --t-body:clamp(15px,1.05vw,17px);
+  --t-small:13px;
+  --t-micro:11px;
+  --t-nano:9px;
+
+  --nav:196px;
+  --gut:clamp(18px,2.6vw,42px);
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html{-webkit-text-size-adjust:100%;scroll-behavior:smooth;background:var(--canvas)}
+@media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
+body{background:var(--canvas);color:var(--ink);font-family:var(--s);
+  font-size:var(--t-body);line-height:1.55;-webkit-font-smoothing:antialiased;
+  overflow-x:hidden}
+a{color:inherit}
+
+/* ── the field ───────────────────────────────────────────────────────────
+   An engineering drawing on black paper: a 44px graphite grid that is only
+   visible if you look for it, two enormous circle traces and two long
+   diagonals. No glow, no gradient blob, no noise texture. */
+#field{position:fixed;inset:0;z-index:0;pointer-events:none;
+  background-image:
+    linear-gradient(rgba(255,255,255,.022) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,255,255,.022) 1px, transparent 1px);
+  background-size:44px 44px}
+/* The traces that were here — two circles and two diagonals — represented
+   nothing. Every other shape on this page names a job: a bar is a quantity, a
+   dot is a settlement, a diamond proposes, a ring tests, a disc decides, a
+   dashed rule is a capability limit. Those four were the only marks that could
+   not answer "what does this represent", so they are gone rather than
+   restyled. The graphite field stays: it is the ground the objects are
+   measured on. */
+
+/* ── the standing nav ────────────────────────────────────────────────────
+   Left, fixed, quiet. Grouped like a contents page, not a menu bar. It never
+   competes: 9px group labels, 13px links, and the held one carries the accent.
+
+   (This block and the strip below were deleted by accident when the decorative
+   traces were removed — the cut ran from the traces' first rule to `main{`,
+   and both of these sat between them. Overflow and console checks both stayed
+   green; only the screenshot showed the navigation had stopped being fixed.) */
+#nav{position:fixed;left:0;top:0;bottom:0;width:var(--nav);z-index:6;
+  padding:24px 0 22px 24px;display:flex;flex-direction:column;
+  background:var(--canvas);border-right:1px solid var(--rule);
+  overflow-y:auto;scrollbar-width:none}
+#nav::-webkit-scrollbar{display:none}
+#nav .wm{font-family:var(--m);font-weight:700;letter-spacing:.26em;
+  font-size:13px;margin-bottom:30px}
+#nav .grp{font-family:var(--m);font-size:var(--t-nano);letter-spacing:.2em;
+  text-transform:uppercase;color:var(--dim3);margin:22px 0 9px;
+  padding-top:16px;border-top:1px solid var(--rule);margin-right:24px}
+#nav .grp:first-of-type{border-top:0;padding-top:0;margin-top:0}
+#nav a{display:flex;gap:9px;text-decoration:none;color:var(--dim);
+  font-size:var(--t-small);padding:4px 0;transition:color .16s}
+#nav a:hover{color:var(--ink)}
+#nav a.on{color:var(--coral)}
+#nav a .k{font-family:var(--m);font-size:var(--t-nano);color:var(--dim3)}
+#nav a.on .k{color:var(--coral)}
+#nav .sys{font-family:var(--m);font-size:var(--t-nano);letter-spacing:.14em;
+  text-transform:uppercase;color:var(--dim2);line-height:2}
+#nav .sp{flex:1;min-height:16px}
+/* the way in, in the corner the reference keeps its shortcuts panel — ATTEST
+   has no shortcuts, and an affordance that leads nowhere is worse than none */
+#nav .enter{display:flex;justify-content:space-between;gap:8px;
+  border:1px solid var(--lime);color:var(--lime);margin-right:24px;flex:none;
+  font-family:var(--m);font-size:var(--t-micro);letter-spacing:.14em;
+  text-transform:uppercase;text-decoration:none;padding:11px 12px;
+  transition:background .18s,color .18s}
+#nav .enter:hover{background:var(--lime);color:var(--canvas)}
+#nav .enter i{font-style:normal}
+
+/* ── the strip ───────────────────────────────────────────────────────────
+   What produced the page, in the machine's own voice, pinned above it. */
+#strip{position:fixed;top:0;left:var(--nav);right:0;z-index:7;
+  background:var(--sur);border-bottom:1px solid var(--rule);
+  font-family:var(--m);font-size:var(--t-micro);letter-spacing:.06em;
+  padding:0 var(--gut);height:38px;display:flex;gap:0;align-items:stretch;
+  white-space:nowrap;overflow:hidden;color:var(--dim)}
+#strip span{display:flex;align-items:center;padding:0 16px;
+  border-left:1px solid var(--rule)}
+#strip span:first-child{padding-left:0;border-left:0;color:var(--ink)}
+#strip b{font-weight:400;color:var(--ink)}
+#strip .sp{flex:1;border-left:0;padding:0}
+
+main{position:relative;z-index:1;margin-left:var(--nav);padding-top:38px}
+
+/* ── rows ────────────────────────────────────────────────────────────── */
+section{padding:clamp(52px,7vh,92px) var(--gut);position:relative}
+#open{padding-bottom:clamp(40px,5vh,64px)}
+.row{display:grid;grid-template-columns:var(--mk,150px) minmax(0,var(--st,1fr))
+  minmax(0,var(--as,.8fr));gap:clamp(18px,2.6vw,44px);align-items:start}
+/* A grid item's automatic minimum is its content, so a long unbroken headline
+   pushes its own track wider than the fraction it was given and prints over
+   the artifact beside it. Every column here is allowed to be narrower than
+   its contents; the type sizes are what keep it readable. */
+.row > *{min-width:0}
+/* The hero declares its own tracks rather than going through the row's
+   variables: with only the artifact carrying a floor, the statement column
+   had none and shrank to 185px while the artifact kept 300. Both need one,
+   and the statement's is the larger. */
+.hero-row{grid-template-columns:132px minmax(360px,1.25fr) minmax(320px,.85fr)}
+@media (max-width:1240px){
+  .hero-row{grid-template-columns:112px minmax(0,1fr)}
+  .hero-row > *:last-child{grid-column:1/-1;margin-top:26px;max-width:520px}
+}
+.mk{font-family:var(--m);font-size:var(--t-micro);letter-spacing:.16em;
+  text-transform:uppercase;color:var(--coral);line-height:1.55;padding-top:.45em}
+.mk b{display:block;font-weight:700}
+.mk em{display:block;font-style:normal;color:var(--dim3);margin-top:4px}
+h1,h2,h3{font-weight:500;letter-spacing:-.045em;line-height:1}
+.hero-t{font-size:var(--t-hero);max-width:16ch;text-wrap:balance;
+  overflow-wrap:break-word}
+.chapter{font-size:var(--t-chapter);max-width:17ch;text-wrap:balance}
+.sub{font-size:clamp(16px,1.35vw,20px);color:var(--coral);letter-spacing:-.02em;
+  line-height:1.25;max-width:34ch;font-weight:500;margin-top:18px}
+.say{font-size:var(--t-body);color:var(--dim);max-width:44ch;line-height:1.6}
+.say + .say{margin-top:.85em}
+.say b{color:var(--ink);font-weight:500}
+.mono{font-family:var(--m);font-variant-numeric:tabular-nums}
+.lbl{font-family:var(--m);font-size:var(--t-micro);letter-spacing:.16em;
+  text-transform:uppercase;color:var(--dim2)}
+hr.rule{border:0;border-top:1px solid var(--rule);margin:clamp(20px,3vh,34px) 0}
+
+/* ── the action colour, used only for actions ───────────────────────── */
+.act-line{display:inline-flex;align-items:center;gap:10px;
+  font-family:var(--m);font-size:var(--t-micro);letter-spacing:.16em;
+  text-transform:uppercase;text-decoration:none;color:var(--lime);
+  border-bottom:1px solid var(--lime);padding-bottom:5px;
+  transition:gap .2s}
+.act-line:hover{gap:18px}
+
+.rise{opacity:0;transform:translateY(14px);
+  transition:opacity .55s cubic-bezier(.16,1,.3,1),
+             transform .55s cubic-bezier(.16,1,.3,1)}
+.rise.in{opacity:1;transform:none}
+.rise.d1{transition-delay:.06s} .rise.d2{transition-delay:.12s}
+.rise.d3{transition-delay:.18s} .rise.d4{transition-delay:.24s}
+@media (prefers-reduced-motion:reduce){.rise{opacity:1;transform:none;transition:none}}
+</style>
+<style>
+/* ── THE SPECIMEN ────────────────────────────────────────────────────────
+   The hero object. Not a card: a document. It is framed by four corner
+   registration marks rather than a border, punched down its left edge the way
+   a filed record is, and every field on it is a real value from the run.
+
+   The rule against skeuomorphism holds — there is no paper texture, no bevel,
+   no drop shadow pretending to be light. What makes it read as an object is
+   that its internal grammar is a form's: labelled fields on a fixed measure,
+   a stamped state, a punched edge, and a serial along the foot. */
+.spec{position:relative;background:var(--sur);padding:34px 30px 30px 46px;
+  border:1px solid var(--rule)}
+.spec::before,.spec::after{content:"";position:absolute;width:11px;height:11px;
+  border:1px solid var(--coral);pointer-events:none}
+.spec::before{left:-1px;top:-1px;border-right:0;border-bottom:0}
+.spec::after{right:-1px;bottom:-1px;border-left:0;border-top:0}
+.spec-c{position:absolute;width:11px;height:11px;border:1px solid var(--coral);
+  pointer-events:none}
+.spec-c.tr{right:-1px;top:-1px;border-left:0;border-bottom:0}
+.spec-c.bl{left:-1px;bottom:-1px;border-right:0;border-top:0}
+/* the punched edge */
+.spec-punch{position:absolute;left:17px;top:30px;bottom:30px;width:6px;
+  background-image:radial-gradient(circle,rgba(255,255,255,.16) 2.4px,transparent 2.5px);
+  background-size:6px 26px}
+.spec-h{display:flex;align-items:baseline;justify-content:space-between;
+  gap:14px;padding-bottom:14px;border-bottom:1px solid var(--rule2)}
+.spec-h b{font-family:var(--m);letter-spacing:.24em;font-size:12px;font-weight:700}
+.spec-h span{font-family:var(--m);font-size:var(--t-nano);letter-spacing:.16em;
+  text-transform:uppercase;color:var(--dim2)}
+.spec-f{display:grid;grid-template-columns:96px minmax(0,1fr);
+  gap:0 16px;align-items:baseline;padding:13px 0;
+  border-bottom:1px solid var(--rule)}
+.spec-f i{font-style:normal;font-family:var(--m);font-size:var(--t-nano);
+  letter-spacing:.16em;text-transform:uppercase;color:var(--dim2)}
+.spec-f b{font-family:var(--m);font-weight:400;font-variant-numeric:tabular-nums;
+  letter-spacing:-.03em;font-size:clamp(15px,1.5vw,20px);text-align:right;
+  justify-self:end}
+.spec-f.hot b{color:var(--coral)}
+.spec-f.big b{font-size:clamp(19px,2.1vw,29px)}
+/* the stamp */
+.spec-stamp{margin-top:16px;display:inline-block;border:1px solid var(--coral);
+  color:var(--coral);font-family:var(--m);font-size:var(--t-micro);
+  letter-spacing:.2em;padding:7px 11px;text-transform:uppercase}
+/* ── the pipeline, on the specimen ──────────────────────────────────────
+   The whole system, printed on the object a judge sees before scrolling:
+   evidence goes in, the model proposes, the solver tests, the engine decides.
+   Four marks, each a different shape, because the roles are different: a bar
+   is an input, a diamond proposes, a ring tests, a filled disc decides. */
+.spec-pipe{margin-top:18px;padding-top:14px;border-top:1px solid var(--rule)}
+.spec-pipe .lbl{display:block;margin-bottom:10px;font-size:var(--t-nano)}
+.spec-pipe-r{display:grid;grid-template-columns:16px 62px minmax(0,1fr);
+  gap:9px;align-items:center;padding:4px 0;position:relative}
+.spec-pipe-r i{justify-self:center;width:9px;height:9px;font-style:normal;
+  position:relative;z-index:1;background:var(--sur)}
+.spec-pipe-r i.e{width:11px;height:2px;background:var(--dim2)}
+.spec-pipe-r i.m{border:1.5px solid var(--dim);transform:rotate(45deg)}
+.spec-pipe-r i.s{border:1.5px solid var(--dim);border-radius:999px}
+.spec-pipe-r i.g{background:var(--ink);border-radius:999px}
+/* the connector runs between the marks, not through them */
+.spec-pipe-r:not(:last-child)::before{content:"";position:absolute;left:7.5px;
+  top:calc(50% + 6px);height:calc(100% - 12px);width:1px;background:var(--rule2)}
+.spec-pipe-r b{font-family:var(--m);font-size:var(--t-nano);letter-spacing:.16em;
+  text-transform:uppercase;font-weight:400}
+.spec-pipe-r em{font-style:normal;font-size:var(--t-nano);color:var(--dim2);
+  letter-spacing:.04em}
+.spec-note{margin-top:10px;font-family:var(--m);font-size:var(--t-nano);
+  letter-spacing:.12em;text-transform:uppercase;color:var(--dim2)}
+.spec-foot{display:flex;justify-content:space-between;gap:12px;margin-top:18px;
+  padding-top:12px;border-top:1px solid var(--rule);
+  font-family:var(--m);font-size:var(--t-nano);letter-spacing:.14em;
+  text-transform:uppercase;color:var(--dim3)}
+
+/* ── THE SCOREBOARD ──────────────────────────────────────────────────────
+   The horizontal information strip. This is where the page stops being a
+   description and becomes evidence: the run's four verdicts, then the same
+   measurement run against three other methods, from the artifact. */
+.score{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));
+  border-top:1px solid var(--rule2);border-bottom:1px solid var(--rule)}
+.score-c{padding:18px 20px 20px;border-left:1px solid var(--rule)}
+.score-c:first-child{border-left:0;padding-left:0}
+.score-c b{display:block;font-family:var(--m);font-weight:400;
+  font-variant-numeric:tabular-nums;font-size:clamp(24px,2.7vw,40px);
+  letter-spacing:-.05em;line-height:1}
+.score-c span{display:block;font-family:var(--m);font-size:var(--t-nano);
+  letter-spacing:.18em;text-transform:uppercase;color:var(--dim2);margin-top:8px}
+.score-c.a b{color:var(--coral)} .score-c.p b{color:var(--proven)}
+.bench{margin-top:26px}
+.bench-r{display:grid;grid-template-columns:96px minmax(0,1fr) 80px minmax(0,1fr) 58px 92px;
+  gap:0 12px;align-items:center;padding:9px 0;border-bottom:1px solid var(--rule)}
+.bench-r > *{min-width:0}
+.bench-r i{font-style:normal;letter-spacing:.1em;text-transform:uppercase;
+  font-family:var(--m);font-size:var(--t-nano);color:var(--dim2)}
+.bench-r.me i{color:var(--ink)}
+.bench-t{height:5px;background:rgba(255,255,255,.07);position:relative}
+.bench-t u.q{position:absolute;top:0;bottom:0;left:0;width:100%;
+  transform-origin:left;transform:scaleX(var(--w,0));background:var(--coral);
+  transition:transform .7s cubic-bezier(.2,.7,.3,1)}
+.bench-t u.q.cov{background:var(--dim2)}
+.bench-r.me .bench-t u.q.cov{background:var(--ink)}
+.rise:not(.in) .bench-t u.q{transform:scaleX(0)}
+@media (prefers-reduced-motion:reduce){.bench-t u.q{transition:none}}
+.bench-r b{font-weight:400;font-variant-numeric:tabular-nums;text-align:right;
+  font-family:var(--m);font-size:var(--t-micro);color:var(--dim)}
+.bench-r em{font-style:normal;color:var(--dim2);font-size:var(--t-nano);
+  text-align:right;font-family:var(--m);font-variant-numeric:tabular-nums}
+/* correct = decided − wrong. Both fields are published in the artifact; the
+   subtraction is the comparison's whole point and is not a new metric. */
+.bench-r em.bench-ok{font-size:clamp(15px,1.5vw,21px);color:var(--ink);
+  letter-spacing:-.02em}
+.bench-r.me em.bench-ok{color:var(--proven);font-weight:700}
+.bench-r.me em,.bench-r.me b{color:var(--ink)}
+.bench-h{display:grid;grid-template-columns:96px minmax(0,1fr) 80px minmax(0,1fr) 58px 92px;
+  gap:0 12px;padding-bottom:7px;border-bottom:1px solid var(--rule2);
+  font-family:var(--m);font-size:var(--t-nano);letter-spacing:.13em;
+  text-transform:uppercase;color:var(--dim3)}
+.bench-h span:nth-child(3),.bench-h span:nth-child(5),
+.bench-h span:nth-child(6){text-align:right}
+
+/* ── the population field ────────────────────────────────────────────── */
+.stage{position:relative;width:100%;min-height:clamp(170px,24vh,250px);
+  padding-bottom:74px}
+.stage canvas{position:absolute;inset:0 0 74px 0;display:block;
+  width:100%;height:calc(100% - 74px)}
+.stage.tall{min-height:clamp(210px,30vh,320px)}
+
+/* ── the collapse ────────────────────────────────────────────────────── */
+.fall-r{display:grid;grid-template-columns:minmax(0,1fr) auto;
+  gap:7px clamp(14px,2vw,30px);align-items:baseline;
+  padding:clamp(11px,1.8vh,20px) 0;border-top:1px solid var(--rule)}
+.fall-r:first-child{border-top:0}
+.fall-v{font-family:var(--m);font-variant-numeric:tabular-nums;
+  letter-spacing:-.045em;text-align:right;white-space:nowrap;
+  font-size:clamp(15px,1.6vw,21px)}
+.fall-m{grid-column:1/3;height:clamp(5px,.8vh,8px);background:var(--dim3);
+  transform-origin:left;transform:scaleX(var(--w,1));
+  transition:transform 1.05s cubic-bezier(.16,1,.3,1)}
+.rise:not(.in) .fall-m{transform:scaleX(0)}
+.fall-r.stop .fall-m{background:var(--coral)}
+.fall-x{grid-column:1/3;display:flex;flex-wrap:wrap;align-items:baseline;
+  gap:5px 12px;padding-top:5px}
+.fall-x b{font-family:var(--m);font-variant-numeric:tabular-nums;font-weight:400;
+  font-size:clamp(20px,2.4vw,36px);letter-spacing:-.05em;color:var(--coral)}
+.fall-x span{color:var(--dim2);font-size:var(--t-small);max-width:46ch}
+
+/* ── the reduction ───────────────────────────────────────────────────── */
+.red-n{display:flex;align-items:baseline;gap:clamp(11px,1.8vw,24px);
+  flex-wrap:wrap;padding:clamp(7px,1.2vh,14px) 0}
+.red-n b{font-family:var(--m);font-weight:400;font-variant-numeric:tabular-nums;
+  letter-spacing:-.055em;line-height:.92;font-size:clamp(32px,4.8vw,78px)}
+.red-n.end b{color:var(--coral)}
+.red-c{display:grid;grid-template-columns:auto minmax(0,1fr);
+  gap:4px clamp(11px,1.8vw,24px);align-items:baseline;
+  padding:clamp(8px,1.3vh,14px) 0 clamp(8px,1.3vh,14px) clamp(13px,2vw,30px);
+  margin-left:clamp(5px,1vw,14px);border-left:1px solid var(--rule2)}
+.red-c b{font-family:var(--m);font-weight:400;font-variant-numeric:tabular-nums;
+  font-size:var(--t-small);color:var(--dim)}
+.red-c i{font-style:normal;font-family:var(--m);font-size:var(--t-nano);
+  letter-spacing:.16em;text-transform:uppercase}
+.red-c.conv i{color:var(--coral)} .red-c.det i{color:var(--proven)}
+.red-c p{grid-column:2;color:var(--dim2);font-size:var(--t-small);max-width:60ch}
+
+/* ── the three actors ────────────────────────────────────────────────── */
+
+/* ── the threshold ───────────────────────────────────────────────────── */
+.thr-h{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));
+  gap:clamp(14px,2.2vw,36px);margin-bottom:clamp(16px,2.4vh,28px)}
+.thr-h b{display:block;font-family:var(--m);font-weight:400;
+  font-variant-numeric:tabular-nums;font-size:clamp(22px,2.9vw,42px);
+  letter-spacing:-.05em;line-height:1}
+.thr-h.none b{color:var(--coral);letter-spacing:0}
+.thr-s{position:relative;height:clamp(26px,3.6vh,40px);
+  background:rgba(255,255,255,.05);border:1px solid var(--rule)}
+.thr-line{position:absolute;top:-6px;bottom:-6px;width:1px;background:var(--ink)}
+.thr-mark{position:absolute;top:50%;width:12px;height:12px;margin:-6px 0 0 -6px;
+  border-radius:999px;background:var(--proven);box-shadow:0 0 0 4px var(--canvas)}
+.thr-z{position:absolute;top:50%;transform:translateY(-50%);font-family:var(--m);
+  font-size:var(--t-nano);letter-spacing:.16em;text-transform:uppercase;
+  color:var(--dim2)}
+.thr-r{margin-top:clamp(14px,2.2vh,26px);font-size:var(--t-body);
+  color:var(--dim);max-width:52ch}
+.thr-r b{font-family:var(--m);color:var(--ink);font-weight:400;
+  font-variant-numeric:tabular-nums;letter-spacing:-.04em}
+
+/* ── the ledger sheet ────────────────────────────────────────────────── */
+.sheet{background:var(--sur);border:1px solid var(--rule);position:relative;
+  padding:clamp(30px,4.6vh,58px) clamp(30px,4vw,58px)}
+.sheet::before,.sheet::after{content:"";position:absolute;top:20px;bottom:20px;
+  width:5px;background-image:radial-gradient(circle,rgba(255,255,255,.14) 2px,transparent 2.1px);
+  background-size:5px 20px}
+.sheet::before{left:13px} .sheet::after{right:13px}
+.book-t{display:grid;grid-template-columns:auto minmax(0,150px);
+  gap:7px clamp(18px,2.6vw,40px);align-items:baseline;
+  margin-top:clamp(16px,2.4vh,28px)}
+.book-t i{font-style:normal;font-family:var(--m);font-size:var(--t-micro);
+  letter-spacing:.16em;text-transform:uppercase;color:var(--dim2)}
+.book-t b{font-family:var(--m);font-weight:400;font-variant-numeric:tabular-nums;
+  font-size:clamp(15px,1.6vw,21px);text-align:right;color:var(--dim)}
+.book-t i.net,.book-t b.net{border-top:1px solid var(--ink);padding-top:8px;
+  margin-top:5px;color:var(--ink)}
+.stamp{margin-top:clamp(20px,3vh,36px);font-family:var(--m);
+  font-size:clamp(18px,2.6vw,36px);letter-spacing:-.045em;line-height:1.06;
+  text-transform:uppercase;font-weight:700;color:var(--coral);max-width:12ch}
+
+/* ── the causal trace ────────────────────────────────────────────────── */
+.chain-e{display:grid;grid-template-columns:92px minmax(0,1fr);
+  gap:clamp(10px,1.6vw,22px);padding:clamp(9px,1.5vh,16px) 0;
+  border-top:1px solid var(--rule)}
+.chain-e:first-child{border-top:0}
+.chain-e i{font-style:normal;font-family:var(--m);font-size:var(--t-micro);
+  letter-spacing:.16em;text-transform:uppercase;color:var(--dim2)}
+.chain-e.engine i{color:var(--ink)}
+.chain-e span{color:var(--dim);font-size:var(--t-small)}
+.chain-b{grid-column:2;color:var(--dim3);font-size:var(--t-small);padding-top:3px}
+.chain-b::before{content:"↳ ";color:var(--coral)}
+
+/* ── trust ───────────────────────────────────────────────────────────── */
+.refuse-r{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.25fr) auto;
+  gap:5px clamp(14px,2.2vw,36px);align-items:baseline;
+  padding:clamp(10px,1.6vh,18px) 0;border-top:1px solid var(--rule)}
+.refuse-r b{font-weight:500}
+.refuse-r span{color:var(--dim2);font-size:var(--t-small)}
+.refuse-r i{font-style:normal;font-family:var(--m);font-size:var(--t-nano);
+  letter-spacing:.16em;text-transform:uppercase;color:var(--coral);
+  justify-self:end;white-space:nowrap}
+
+/* ── the warm room, and the ending on paper ──────────────────────────── */
+.warm{background:var(--warm);padding:clamp(74px,14vh,180px) var(--gut);
+  position:relative;z-index:1}
+.warm .mk{color:#f0a08f}
+.warm .say{color:rgba(255,255,255,.7)}
+.warm .say b{color:#fff}
+.warm .lbl{color:rgba(255,255,255,.5)}
+.warm .chapter{font-size:clamp(30px,5vw,72px);max-width:13ch}
+  letter-spacing:-.05em;font-size:clamp(24px,3.2vw,46px);color:#fff}
+.warm-figs .u{display:flex;flex-direction:column;gap:6px}
+.ask{margin-top:clamp(34px,6vh,80px);font-family:var(--m);
+  font-size:clamp(14px,1.5vw,20px);letter-spacing:.06em;color:#fff;
+  border-top:1px solid rgba(255,255,255,.28);padding-top:clamp(16px,2.6vh,28px);
+  max-width:34ch}
+#end{background:var(--paper);color:#12130f;
+  padding:clamp(70px,13vh,180px) var(--gut) clamp(50px,9vh,120px)}
+#end .ghost{font-family:var(--m);font-size:clamp(22px,3.4vw,52px);
+  letter-spacing:-.05em;line-height:1.04;color:transparent;
+  -webkit-text-stroke:1px rgba(18,19,15,.26);max-width:11ch;font-weight:700}
+#end .foot{margin-top:clamp(34px,6vh,80px);display:flex;flex-wrap:wrap;
+  gap:14px clamp(22px,3.6vw,58px);align-items:baseline;
+  border-top:1px solid rgba(18,19,15,.15);padding-top:clamp(16px,2.6vh,28px)}
+#end .foot p{color:#55564e;font-size:var(--t-small);max-width:54ch}
+#end .act-line{color:#12130f;border-color:#12130f}
+/* ── the handoff ─────────────────────────────────────────────────────────
+   §38.P0-3. The refusal used to end the page. "We stop here" and "we hand the
+   work to whoever can finish it" are different products; only the second is
+   finished. Lime because it is an action, which is the only thing lime is
+   ever used for. */
+.hand{margin-top:clamp(26px,4.4vh,52px);border-top:1px solid rgba(255,255,255,.28);
+  padding-top:clamp(16px,2.6vh,28px)}
+.hand-f{display:flex;flex-wrap:wrap;gap:14px clamp(20px,4vw,60px);
+  margin-top:clamp(14px,2.2vh,22px);align-items:baseline}
+.hand-f .u{display:flex;flex-direction:column;gap:6px}
+.hand-f b{font-family:var(--m);font-weight:400;font-variant-numeric:tabular-nums;
+  letter-spacing:-.04em;font-size:clamp(20px,2.4vw,34px);color:#fff}
+.hand-f .u:last-child b{font-size:clamp(14px,1.4vw,19px);letter-spacing:.04em;
+  text-transform:uppercase;color:var(--coral)}
+.hand-p{margin-top:clamp(16px,2.4vh,26px);max-width:52ch;color:rgba(255,255,255,.72);
+  font-size:var(--t-body);line-height:1.6}
+.hand-p b{color:#fff;font-weight:500}
+.hand-a{margin-top:clamp(16px,2.4vh,26px)}
+.hand-n{display:block;margin-top:12px;font-family:var(--m);
+  font-size:var(--t-nano);letter-spacing:.13em;text-transform:uppercase;
+  color:rgba(255,255,255,.44)}
+
+/* ── the whole game ──────────────────────────────────────────────────────
+   The page is fifteen screens. Measured, that is the thing that makes it feel
+   like homework rather than a product: no single screen is bad, there are just
+   fifteen of them and the thesis only assembles at the end. This block puts the
+   entire argument above the evidence, so everything after it is optional depth
+   rather than required reading. */
+
+/* ── §59 the compressed landing ──────────────────────────────────────────
+   Seven sections, one job each. Everything below exists because a block above
+   it needed a home, not because a page needs furniture. */
+.hero-cta{display:inline-flex;margin-top:34px;font-size:var(--t-body)}
+
+/* 02 — the case under discussion, stated before it is dissected */
+.case-h{display:flex;align-items:baseline;gap:10px 22px;flex-wrap:wrap;
+  padding-bottom:16px;border-bottom:1px solid var(--rule2);margin-bottom:26px}
+.case-m{font-size:clamp(30px,3.6vw,46px);letter-spacing:-.03em;color:var(--ink);
+  font-variant-numeric:tabular-nums;line-height:1}
+.case-s{font-family:var(--m);font-size:var(--t-micro);color:var(--dim3);
+  letter-spacing:.06em}
+.case-v{margin-left:auto;font-family:var(--m);font-size:var(--t-nano);
+  letter-spacing:.17em;text-transform:uppercase;color:var(--coral);
+  border:1px solid currentColor;padding:4px 10px;white-space:nowrap}
+
+/* 03 — four authorities, as four objects with one boundary each */
+.roles{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:1px;
+  background:var(--rule);border:1px solid var(--rule);margin:0}
+.roles > *{min-width:0}
+.role{background:var(--canvas);padding:20px 18px 18px;display:flex;
+  flex-direction:column;gap:9px}
+.role.adv{background:var(--advisory-bg)}
+.role-d{width:9px;height:9px;border-radius:50%;background:var(--dim3);
+  flex:0 0 auto}
+.role.adv .role-d{background:transparent;border:1.5px solid var(--advisory)}
+.role.act .role-d{background:var(--lime)}
+.role b{font-family:var(--m);font-weight:400;font-size:var(--t-body);
+  color:var(--ink);letter-spacing:-.01em}
+.role b em{display:block;font-style:normal;font-size:var(--t-nano);
+  letter-spacing:.17em;text-transform:uppercase;color:var(--dim3);margin-top:4px}
+.role.adv b{color:var(--advisory)}
+.role p{font-size:var(--t-small);line-height:1.5;color:var(--dim2);margin:0}
+.role-x{margin-top:auto;padding-top:12px;font-family:var(--m);
+  font-size:var(--t-nano);letter-spacing:.11em;text-transform:uppercase;
+  color:var(--coral)}
+.role-more{margin:0}
+.role-more summary{font-family:var(--m);font-size:var(--t-nano);
+  letter-spacing:.13em;text-transform:uppercase;color:var(--dim3);cursor:pointer;
+  list-style:none}
+.role-more summary::-webkit-details-marker{display:none}
+.role-more summary::before{content:"+ ";color:var(--dim3)}
+.role-more[open] summary::before{content:"− "}
+.role-more summary:hover{color:var(--ink)}
+.role-more p{margin-top:8px}
+@media(max-width:900px){.roles{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:560px){.roles{grid-template-columns:1fr}}
+
+/* 04 — the centrepiece: two outcomes, one machinery */
+.twin{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:1px;
+  background:var(--rule2);border:1px solid var(--rule2)}
+.twin > *{min-width:0}
+.tw{background:var(--canvas);padding:24px 22px 0;margin:0;display:flex;
+  flex-direction:column}
+.tw-h{display:flex;align-items:baseline;justify-content:space-between;gap:14px}
+.tw-h b{font-family:var(--m);font-weight:400;font-size:var(--t-micro);
+  letter-spacing:.17em}
+.tw.go .tw-h b{color:var(--proven)} .tw.stop .tw-h b{color:var(--coral)}
+.tw-h span{font-family:var(--m);font-size:var(--t-nano);color:var(--dim3)}
+.tw-m{font-size:clamp(30px,3.6vw,48px);letter-spacing:-.035em;color:var(--ink);
+  font-variant-numeric:tabular-nums;line-height:1;margin:18px 0 14px}
+.tw-n{font-family:var(--m);font-size:clamp(15px,1.3vw,19px);color:var(--ink);
+  font-variant-numeric:tabular-nums;letter-spacing:-.01em}
+.tw-n u{text-decoration:none;color:var(--dim3);padding:0 3px}
+.tw-l{margin:20px 0 22px;display:grid;gap:7px}
+.tw-l div{display:flex;justify-content:space-between;gap:16px;
+  font-family:var(--m);font-size:var(--t-micro);border-bottom:1px solid var(--rule);
+  padding-bottom:6px}
+.tw-l dt{color:var(--dim3);letter-spacing:.1em;text-transform:uppercase}
+.tw-l dd{margin:0;color:var(--ink);font-variant-numeric:tabular-nums;
+  text-align:right}
+.tw-o{margin-top:auto;margin-left:-22px;margin-right:-22px;padding:15px 22px;
+  border-top:1px solid var(--rule2);display:flex;align-items:baseline;gap:12px}
+.tw-o b{font-family:var(--m);font-weight:400;font-size:var(--t-body);
+  letter-spacing:.04em;text-transform:uppercase}
+.tw.go .tw-o{background:rgba(220,242,60,.05)}
+.tw.go .tw-o b{color:var(--lime)}
+.tw.stop .tw-o{background:rgba(255,101,90,.05)}
+.tw.stop .tw-o b{color:var(--coral)}
+.tw-o span{font-size:var(--t-small);color:var(--dim2)}
+@media(max-width:760px){.twin{grid-template-columns:1fr}}
+
+/* 05 — the evidence strip: five figures, no methodology */
+.strip-e{display:flex;flex-wrap:wrap;gap:26px 48px;padding:22px 0;
+  border-top:1px solid var(--rule2);border-bottom:1px solid var(--rule2)}
+.strip-e .u{display:flex;flex-direction:column;gap:5px}
+.strip-e b{font-family:var(--m);font-weight:400;font-size:clamp(20px,2vw,28px);
+  color:var(--ink);font-variant-numeric:tabular-nums;letter-spacing:-.02em}
+.strip-e b.w-p{color:var(--proven)}
+
+/* progressive disclosure — the depth is reachable, not in the way */
+.deep{margin-top:34px;border-top:1px solid var(--rule)}
+.deep > summary{list-style:none;cursor:pointer;padding:16px 0;
+  font-family:var(--m);font-size:var(--t-micro);letter-spacing:.13em;
+  text-transform:uppercase;color:var(--dim3);display:flex;gap:10px;
+  align-items:baseline}
+.deep > summary::-webkit-details-marker{display:none}
+.deep > summary::before{content:"+";color:var(--dim3);font-size:var(--t-body)}
+.deep[open] > summary::before{content:"−"}
+.deep > summary:hover{color:var(--ink)}
+
+/* 07 — the footer names the four places to go, and stops */
+.foot-n{display:flex;flex-wrap:wrap;gap:12px 28px;margin-top:18px}
+.foot-n a{font-family:var(--m);font-size:var(--t-micro);letter-spacing:.11em;
+  text-transform:uppercase;color:var(--dim);text-decoration:none;
+  border-bottom:1px solid var(--rule2);padding-bottom:3px}
+.foot-n a:hover{color:var(--ink);border-color:var(--ink)}
+
+/* the collapse, as three numbers on one line — the per-cut justification is
+   behind a disclosure, because three numbers are the argument and eleven lines
+   are the evidence a reader asks for rather than is handed */
+.coll{display:flex;align-items:flex-end;gap:14px 26px;flex-wrap:wrap;
+  padding:22px 0;border-top:1px solid var(--rule);
+  border-bottom:1px solid var(--rule)}
+.coll-n{display:flex;flex-direction:column;gap:6px}
+.coll-n b{font-family:var(--m);font-weight:400;font-size:clamp(26px,3vw,40px);
+  color:var(--ink);letter-spacing:-.03em;font-variant-numeric:tabular-nums;
+  line-height:1}
+.coll-n.end b{color:var(--coral)}
+.coll-a{font-style:normal;color:var(--dim3);font-size:var(--t-sect);
+  padding-bottom:8px}
+.deep .red-c{margin-top:14px}
+
+/* ── §58 THE DECISION RECORD ──────────────────────────────────────────────
+   The primary object. Not a portfolio, not a lens — one financial event and
+   the four parties to the decision about it, in order of authority.
+
+   Two rules carry the whole idea and both are drawn rather than captioned:
+     · the advisory row is the only one in outline. Filled means this party can
+       change financial state.
+     · every row states what it MAY and what it MAY NOT do, in the same place,
+       so the boundary is a property of the row rather than a claim elsewhere. */
+.dr{border:1px solid var(--rule2);background:var(--sur);margin-top:24px}
+.dr-e{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:10px 24px;
+  align-items:baseline;padding:20px 22px;border-bottom:1px solid var(--rule2)}
+.dr-e > *{min-width:0}
+.dr-ek{font-family:var(--m);font-size:var(--t-nano);letter-spacing:.2em;
+  text-transform:uppercase;color:var(--dim3);display:block;margin-bottom:8px}
+.dr-ev{font-size:clamp(28px,3.4vw,44px);letter-spacing:-.03em;color:var(--ink);
+  line-height:1;font-variant-numeric:tabular-nums}
+.dr-eq{font-size:var(--t-body);color:var(--dim);margin-top:9px;line-height:1.5}
+.dr-em{font-family:var(--m);font-size:var(--t-micro);color:var(--dim3);
+  text-align:right;line-height:1.9;white-space:nowrap}
+
+.dr-r{display:grid;grid-template-columns:126px 22px minmax(0,1fr);gap:0 16px;
+  padding:16px 22px;border-bottom:1px solid var(--rule);align-items:start}
+.dr-r:last-child{border-bottom:0}
+.dr-r > *{min-width:0}
+.dr-a{display:flex;flex-direction:column;gap:4px}
+.dr-a b{font-family:var(--m);font-weight:400;font-size:var(--t-micro);
+  letter-spacing:.15em;color:var(--ink)}
+.dr-a em{font-style:normal;font-family:var(--m);font-size:var(--t-nano);
+  letter-spacing:.14em;text-transform:uppercase;color:var(--dim3)}
+.dr-r.adv .dr-a b{color:var(--advisory)}
+.dr-n{display:flex;justify-content:center;padding-top:4px}
+.dr-dot{width:9px;height:9px;border-radius:50%;background:var(--dim3);
+  flex:0 0 auto}
+.dr-r.adv .dr-dot{background:transparent;border:1.5px solid var(--advisory)}
+.dr-r.acts .dr-dot{background:var(--lime)}
+.dr-r.holds .dr-dot{background:var(--coral)}
+.dr-b b.dr-h{display:block;font-family:var(--m);font-weight:400;
+  font-size:clamp(15px,1.25vw,19px);color:var(--ink);letter-spacing:-.01em;
+  margin-bottom:6px}
+.dr-r.acts .dr-b b.dr-h{color:var(--lime)}
+.dr-r.holds .dr-b b.dr-h{color:var(--coral)}
+.dr-badge{font-family:var(--m);font-size:var(--t-nano);letter-spacing:.15em;
+  padding:2px 7px;border:1px solid currentColor;margin-left:10px;
+  vertical-align:2px;white-space:nowrap}
+.dr-r.adv .dr-badge{color:var(--advisory)}
+.dr-b p{font-size:var(--t-small);line-height:1.5;color:var(--dim2);margin:0}
+.dr-b p + p{margin-top:6px}
+/* may / may not, side by side, because the pair IS the boundary */
+.dr-may{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:1px;background:var(--rule);border:1px solid var(--rule);margin-top:11px}
+.dr-may > *{min-width:0;background:var(--canvas);padding:8px 11px}
+.dr-may i{font-style:normal;display:block;font-family:var(--m);
+  font-size:var(--t-nano);letter-spacing:.14em;text-transform:uppercase;
+  margin-bottom:4px}
+.dr-may .y i{color:var(--proven)} .dr-may .n i{color:var(--coral)}
+.dr-may span{font-size:var(--t-micro);line-height:1.5;color:var(--dim2)}
+.dr-ids{display:block;margin-top:7px;font-family:var(--m);
+  font-size:var(--t-micro);color:var(--advisory);word-break:break-all;
+  line-height:1.7}
+.dr-nar{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap;
+  font-family:var(--m);font-size:clamp(14px,1.15vw,17px);color:var(--ink);
+  margin-top:9px;font-variant-numeric:tabular-nums}
+.dr-nar u{text-decoration:none;color:var(--dim3)}
+.dr-cut{display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:3px 12px;
+  margin-top:8px;font-family:var(--m);font-size:var(--t-micro);color:var(--dim2);
+  align-items:baseline}
+.dr-cut > *{min-width:0}
+.dr-cut .rm{color:var(--ink);font-variant-numeric:tabular-nums}
+.dr-cut .k{letter-spacing:.1em;font-size:var(--t-nano);text-transform:uppercase}
+.dr-cut .k.c{color:var(--coral)} .dr-cut .k.d{color:var(--proven)}
+.dr-je{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:3px 18px;
+  margin-top:9px;font-family:var(--m);font-size:var(--t-micro);color:var(--dim2)}
+.dr-je > *{min-width:0}
+.dr-je .amt{text-align:right;color:var(--ink);font-variant-numeric:tabular-nums}
+.dr-out{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:10px 24px;
+  align-items:baseline;padding:18px 22px;border-top:1px solid var(--rule2);
+  background:var(--sur2)}
+.dr-out > *{min-width:0}
+.dr-oh{font-size:clamp(17px,1.5vw,23px);letter-spacing:-.02em;line-height:1.15}
+.dr-out.go .dr-oh{color:var(--lime)} .dr-out.stop .dr-oh{color:var(--coral)}
+.dr-oc{font-size:var(--t-small);color:var(--dim2);margin-top:6px;line-height:1.5}
+.dr-ov{font-family:var(--m);font-size:var(--t-nano);letter-spacing:.15em;
+  text-transform:uppercase;padding:3px 9px;border:1px solid currentColor;
+  white-space:nowrap}
+.dr-out.go .dr-ov{color:var(--lime)} .dr-out.stop .dr-ov{color:var(--coral)}
+@media(max-width:760px){
+  .dr-r{grid-template-columns:1fr;gap:9px}
+  .dr-n{display:none}
+  .dr-may{grid-template-columns:1fr}
+  .dr-e,.dr-out{grid-template-columns:1fr}
+  .dr-em{text-align:left}
+}
+
+/* the authority chain, as four boundaries rather than four boxes */
+.auth{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:1px;
+  background:var(--rule);border:1px solid var(--rule);margin-top:26px}
+.auth > *{min-width:0}
+.auth-c{background:var(--canvas);padding:16px 16px 18px;display:flex;
+  flex-direction:column;gap:6px}
+.auth-c.adv{background:var(--advisory-bg)}
+.auth-w{font-family:var(--m);font-size:var(--t-nano);letter-spacing:.17em;
+  text-transform:uppercase;color:var(--dim3)}
+.auth-c.adv .auth-w{color:var(--advisory)}
+.auth-n{font-size:clamp(16px,1.4vw,21px);letter-spacing:-.02em;color:var(--ink);
+  line-height:1.1}
+.auth-d{font-size:var(--t-micro);line-height:1.5;color:var(--dim2)}
+@media(max-width:820px){.auth{grid-template-columns:repeat(2,minmax(0,1fr))}}
+
+/* The advisor's own number, directly under the column that claims a boundary
+   for it. It was two-thirds of the way down the page, which meant the AI story
+   in the first screen was an assertion and the evidence for it was somewhere a
+   judge would never reach. Coral because it is a refusal, not a result. */
+.advm{margin-top:14px;border-left:2px solid var(--coral);padding:10px 0 10px 14px;
+  display:flex;flex-direction:column;gap:5px;max-width:88ch}
+.advm-k{font-family:var(--m);font-size:var(--t-nano);letter-spacing:.17em;
+  text-transform:uppercase;color:var(--coral)}
+.advm-v{font-size:clamp(14px,1.15vw,17px);color:var(--ink);line-height:1.45}
+.advm-v b{font-variant-numeric:tabular-nums}
+.advm-x{font-size:var(--t-micro);line-height:1.5;color:var(--dim2)}
+
+/* the evidence, disclosed rather than scrolled */
+.eviz{border-top:1px solid var(--rule2);margin-top:clamp(60px,9vh,110px);
+  padding-top:26px}
+.eviz-h{display:flex;justify-content:space-between;align-items:baseline;
+  gap:16px;flex-wrap:wrap}
+.eviz-h h2{font-size:var(--t-sect);letter-spacing:-.02em;margin:0;color:var(--ink)}
+.eviz-h span{font-family:var(--m);font-size:var(--t-nano);letter-spacing:.15em;
+  text-transform:uppercase;color:var(--dim3)}
+.eviz-p{font-size:var(--t-body);line-height:1.55;color:var(--dim);
+  max-width:64ch;margin:12px 0 0}
+
+/* ── the control loop ────────────────────────────────────────────────────
+   §57. Five stages in AUTHORITY order, so the one thing a reader has to
+   take away is structural rather than argued: the row that proposes and the
+   row that acts are different rows, and the arrow only ever points one way.
+
+   The advisory row is deliberately the only one drawn in outline. Filled
+   means "this stage can change financial state"; the advisor cannot, and
+   the rule is a border-style rather than a caption because a caption is
+   something you have to read. */
+.chain{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:1px;
+  background:var(--rule);border:1px solid var(--rule);margin-top:26px}
+.chain > *{min-width:0}
+.chain-c{background:var(--canvas);padding:18px 18px 20px;display:flex;
+  flex-direction:column;gap:7px}
+.chain-a{font-family:var(--m);font-size:var(--t-micro);letter-spacing:.16em;
+  text-transform:uppercase;color:var(--dim3)}
+.chain-c.ai .chain-a{color:#8fa6ff}
+.chain-v{font-size:clamp(17px,1.5vw,23px);letter-spacing:-.02em;color:var(--ink);
+  line-height:1.15}
+.chain-w{font-size:var(--t-small);line-height:1.45;color:var(--dim2)}
+@media(max-width:820px){.chain{grid-template-columns:repeat(2,minmax(0,1fr))}}
+
+.cloop{border:1px solid var(--rule2);background:var(--sur);margin-top:22px}
+.cloop-h{display:flex;justify-content:space-between;align-items:baseline;
+  gap:14px;flex-wrap:wrap;padding:15px 20px;border-bottom:1px solid var(--rule)}
+.cloop-h b{font-family:var(--m);font-weight:400;font-size:var(--t-body);
+  color:var(--ink);letter-spacing:-.01em}
+.cloop-h i{font-style:normal;font-family:var(--m);font-size:var(--t-nano);
+  letter-spacing:.18em;text-transform:uppercase;color:var(--dim3)}
+.cloop-h u{text-decoration:none;font-family:var(--m);font-size:var(--t-micro);
+  letter-spacing:.1em;padding:3px 9px;border:1px solid currentColor}
+.cloop-h u.ok{color:var(--proven)} .cloop-h u.no{color:var(--coral)}
+
+.cloop-r{display:grid;grid-template-columns:132px 26px minmax(0,1fr);
+  gap:0 16px;padding:17px 20px;border-bottom:1px solid var(--rule);
+  align-items:start}
+.cloop-r:last-child{border-bottom:0}
+.cloop-r > *{min-width:0}
+.cloop-actor{display:flex;flex-direction:column;gap:4px}
+.cloop-actor b{font-family:var(--m);font-weight:400;font-size:var(--t-micro);
+  letter-spacing:.16em;color:var(--ink)}
+.cloop-actor em{font-style:normal;font-family:var(--m);font-size:var(--t-nano);
+  letter-spacing:.13em;text-transform:uppercase;color:var(--dim3)}
+.cloop-r.ai .cloop-actor b{color:#8fa6ff}
+
+/* the spine: filled node = may change financial state, hollow = may not */
+.cloop-node{position:relative;display:flex;justify-content:center;padding-top:3px}
+.cloop-dot{width:9px;height:9px;border-radius:50%;background:var(--dim3);
+  position:relative;z-index:1;flex:0 0 auto}
+.cloop-r.ai .cloop-dot{background:transparent;border:1.5px solid #8fa6ff}
+.cloop-r.acts .cloop-dot{background:var(--lime)}
+.cloop-r.holds .cloop-dot{background:var(--coral)}
+.cloop-node::after{content:"";position:absolute;top:12px;bottom:-30px;
+  width:1px;background:var(--rule2)}
+.cloop-r:last-child .cloop-node::after{display:none}
+
+.cloop-body b.cloop-hd{display:block;font-family:var(--m);font-weight:400;
+  font-size:clamp(14px,1.15vw,17px);color:var(--ink);letter-spacing:-.01em;
+  margin-bottom:5px}
+.cloop-r.acts .cloop-body b.cloop-hd{color:var(--lime)}
+.cloop-r.holds .cloop-body b.cloop-hd{color:var(--coral)}
+.cloop-body p{font-size:var(--t-small);line-height:1.5;color:var(--dim2);margin:0}
+.cloop-body p + p{margin-top:6px}
+.cloop-auth{font-family:var(--m);font-size:var(--t-nano);letter-spacing:.11em;
+  text-transform:uppercase;color:var(--dim3);margin-top:8px;display:block}
+.cloop-ids{font-family:var(--m);font-size:var(--t-micro);color:var(--dim2);
+  margin-top:7px;word-break:break-all;line-height:1.6}
+.cloop-ids b{color:#8fa6ff;font-weight:400}
+.cloop-je{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:3px 16px;
+  margin-top:9px;font-family:var(--m);font-size:var(--t-micro);color:var(--dim2)}
+.cloop-je > *{min-width:0}
+.cloop-je .amt{text-align:right;color:var(--ink);font-variant-numeric:tabular-nums}
+.cloop-cut{display:grid;grid-template-columns:auto minmax(0,1fr) auto;
+  gap:3px 12px;margin-top:9px;font-family:var(--m);font-size:var(--t-micro);
+  color:var(--dim2);align-items:baseline}
+.cloop-cut > *{min-width:0}
+.cloop-cut .rm{color:var(--ink);font-variant-numeric:tabular-nums}
+.cloop-cut .kind{letter-spacing:.1em;font-size:var(--t-nano);text-transform:uppercase}
+.cloop-cut .kind.conv{color:var(--coral)} .cloop-cut .kind.det{color:var(--proven)}
+@media(max-width:720px){
+  .cloop-r{grid-template-columns:1fr;gap:9px}
+  .cloop-node{display:none}
+}
+
+.whole{border:1px solid var(--rule2);background:var(--sur);position:relative;
+  padding:clamp(18px,2.2vw,30px);margin-top:clamp(22px,3vh,34px)}
+.whole::before,.whole::after{content:"";position:absolute;width:9px;height:9px;
+  border:1px solid var(--coral);pointer-events:none}
+.whole::before{top:-1px;left:-1px;border-right:0;border-bottom:0}
+.whole::after{bottom:-1px;right:-1px;border-left:0;border-top:0}
+.whole-h{display:flex;justify-content:space-between;align-items:baseline;gap:12px;
+  flex-wrap:wrap;border-bottom:1px solid var(--rule);padding-bottom:11px;
+  margin-bottom:4px}
+.whole-h i{font-style:normal;font-family:var(--m);font-size:var(--t-nano);
+  letter-spacing:.17em;text-transform:uppercase;color:var(--coral)}
+.whole-h span{font-family:var(--m);font-size:var(--t-nano);letter-spacing:.11em;
+  text-transform:uppercase;color:var(--dim3)}
+.whole-r{display:grid;grid-template-columns:104px minmax(0,1fr);gap:4px 18px;
+  align-items:baseline;padding:12px 0;border-bottom:1px solid var(--rule)}
+.whole-r:last-child{border-bottom:0;padding-bottom:0}
+.whole-r > *{min-width:0}
+.whole-k{font-family:var(--m);font-size:var(--t-nano);letter-spacing:.15em;
+  text-transform:uppercase;color:var(--dim3)}
+.whole-v{font-size:clamp(15px,1.15vw,18px);line-height:1.5;color:var(--dim)}
+.whole-v b{font-family:var(--m);font-weight:400;color:var(--ink);
+  font-variant-numeric:tabular-nums;letter-spacing:-.01em}
+.whole-v b.w-p{color:var(--proven)}
+.whole-v b.w-a{color:var(--coral)}
+@media (max-width:720px){
+  .whole-r{grid-template-columns:minmax(0,1fr);gap:6px}
+}
+
+/* ── in plain terms ──────────────────────────────────────────────────────
+   Measured: the page never said what a settlement is, what reconciliation is,
+   who does it, or why getting it wrong is expensive. Every figure assumed a
+   reader who already worked in finance ops. Typographic rather than another
+   bordered specimen — there are two of those within a screen of here, and a
+   third box would read as more instrument panel instead of an explanation. */
+.plain{margin-top:clamp(26px,4vh,48px)}
+/* The step labels hang above each column's rule, so the section label needs
+   room for them or the two sit on the same line. */
+.plain .lbl{display:block;margin-bottom:38px;color:var(--coral)}
+/* Three beats, three columns. As one 60ch column this ran 440px tall down the
+   left with the right half of a 1316px content area empty — the single worst
+   case of the narrow-column reading that made the page feel like a document
+   with the lights off. Side by side it fills the measure, halves the height,
+   and the three steps read as three steps. */
+.plain-g{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));
+  gap:clamp(20px,2.6vw,44px);align-items:start}
+.plain-g > *{min-width:0}
+.plain-p{font-size:clamp(15px,1.05vw,17px);line-height:1.6;color:var(--dim);
+  letter-spacing:-.01em;position:relative;padding-top:15px;
+  border-top:1px solid var(--rule)}
+.plain-p::before{content:attr(data-step);position:absolute;top:-1px;left:0;
+  font-family:var(--m);font-size:var(--t-nano);letter-spacing:.16em;
+  color:var(--dim3);transform:translateY(-140%)}
+.plain-p b{color:var(--ink);font-weight:500}
+@media (max-width:900px){
+  .plain-g{grid-template-columns:minmax(0,1fr);gap:22px}
+}
+
+/* The close stated one half of the rule. The product automates 52 settlements
+   and refuses 198; "only evidence moves money" is the refusal, and a reader who
+   left here had never been told the system says yes to anything. Both halves,
+   in the order they happen. */
+#end .rule2{margin-bottom:clamp(26px,4.5vh,56px)}
+#end .rule2-r{display:flex;flex-wrap:wrap;align-items:baseline;
+  gap:.5em clamp(12px,1.6vw,26px);padding:clamp(10px,1.4vh,16px) 0;
+  border-top:1px solid rgba(18,19,15,.16)}
+#end .rule2-r b{font-size:clamp(19px,2.5vw,38px);font-weight:500;
+  letter-spacing:-.035em;color:#12130f}
+#end .rule2-r span{font-family:var(--m);font-size:clamp(17px,2.1vw,32px);
+  letter-spacing:-.02em;color:#8a3d33}
+
+/* ── the instrument ──────────────────────────────────────────────────────
+   The old opening was a headline on the left and a tall manifest card on the
+   right with a void between them: a landing page with a widget. This is one
+   object — the money, the population it resolves into, what each state means,
+   and what that leaves a person to do. Nothing here is decoration; every mark
+   in the field is one settlement. */
+.mast{display:flex;align-items:baseline;gap:14px clamp(14px,2vw,28px);
+  flex-wrap:wrap;padding-bottom:clamp(14px,2vh,20px);
+  border-bottom:1px solid var(--rule2)}
+.mast-n{font-family:var(--m);font-size:var(--t-small);letter-spacing:.34em;
+  color:var(--ink)}
+.mast-t{font-family:var(--m);font-size:var(--t-nano);letter-spacing:.2em;
+  text-transform:uppercase;color:var(--coral)}
+.mast-r{margin-left:auto;font-family:var(--m);font-size:var(--t-nano);
+  letter-spacing:.1em;text-transform:uppercase;color:var(--dim3)}
+
+.claim-p{margin-top:clamp(16px,2.4vh,26px);max-width:56ch;
+  font-size:clamp(16px,1.25vw,20px);line-height:1.55;color:var(--dim)}
+.claim-p b{color:var(--ink);font-weight:500}
+
+.inst{margin-top:clamp(30px,5vh,64px);border-top:1px solid var(--rule2);
+  padding-top:clamp(20px,3vh,32px)}
+.inst-h{display:flex;align-items:baseline;gap:10px clamp(16px,2.4vw,34px);
+  flex-wrap:wrap}
+.inst-m{font-family:var(--m);font-weight:400;font-variant-numeric:tabular-nums;
+  font-size:clamp(34px,6.6vw,104px);letter-spacing:-.05em;line-height:.92;
+  color:var(--ink)}
+.inst-s{font-family:var(--m);font-size:var(--t-nano);letter-spacing:.13em;
+  text-transform:uppercase;color:var(--dim3)}
+.inst-s b{color:var(--dim);font-weight:400}
+
+/* the population: 250 marks, one per settlement, laid out by verdict */
+.inst-field{margin-top:clamp(18px,2.6vh,30px)}
+.inst-field{min-height:clamp(150px,22vh,230px)}
+
+.inst-states{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));
+  gap:1px;margin-top:clamp(16px,2.4vh,26px);background:var(--rule);
+  border:1px solid var(--rule)}
+.st-c{appearance:none;background:var(--canvas);border:0;text-align:left;
+  padding:clamp(13px,1.8vh,19px) clamp(12px,1.4vw,18px);cursor:pointer;
+  display:flex;flex-direction:column;gap:5px;font:inherit;
+  transition:background .16s}
+.st-c:hover,.st-c:focus-visible{background:var(--sur)}
+.st-c b{font-family:var(--m);font-weight:400;font-variant-numeric:tabular-nums;
+  font-size:clamp(26px,3vw,44px);letter-spacing:-.04em;line-height:1;
+  color:var(--ink)}
+.st-c i{font-style:normal;font-family:var(--m);font-size:var(--t-nano);
+  letter-spacing:.19em;text-transform:uppercase;color:var(--dim2)}
+.st-c em{font-style:normal;font-size:var(--t-small);line-height:1.45;
+  color:var(--dim3);max-height:0;opacity:0;overflow:hidden;
+  transition:max-height .22s cubic-bezier(.2,.7,.3,1),opacity .18s}
+.st-c:hover em,.st-c:focus-visible em,.st-c[aria-pressed=true] em{
+  max-height:6em;opacity:1}
+.st-c.p b{color:var(--proven)} .st-c.p i{color:var(--proven)}
+.st-c.a b{color:var(--coral)}  .st-c.a i{color:var(--coral)}
+.st-c.c b,.st-c.i b{color:var(--ink)}
+@media (prefers-reduced-motion:reduce){
+  .st-c em{transition:none;max-height:6em;opacity:1}}
+
+.inst-foot{display:flex;flex-wrap:wrap;gap:16px clamp(24px,4vw,64px);
+  margin-top:clamp(18px,2.6vh,28px);align-items:baseline}
+.inst-foot .u{display:flex;flex-direction:column;gap:5px}
+.inst-foot b{font-family:var(--m);font-weight:400;letter-spacing:-.035em;
+  font-variant-numeric:tabular-nums;font-size:clamp(21px,2.5vw,36px);color:var(--ink)}
+.inst-foot b.hot{color:var(--coral)}
+@media (max-width:720px){
+  .mast-r{margin-left:0;width:100%}
+  .inst-states{grid-template-columns:minmax(0,1fr)}
+  .st-c em{max-height:6em;opacity:1}
+}
+
+/* focusing one state dims the rest of the population */
+.inst-field #heroField{position:relative;height:clamp(150px,22vh,230px)}
+/* `.stage canvas` carries the sizing rule for every other field. The hero's
+   field is deliberately not a `.stage` — it takes a different config — which
+   also meant it inherited no size and rendered at its device-pixel buffer
+   width, spilling over the states beneath it. */
+.inst-field #heroField canvas{position:absolute;inset:0;display:block;
+  width:100%;height:100%;transition:opacity .18s}
+@media (prefers-reduced-motion:reduce){
+  .inst-field #heroField canvas{transition:none}}
+
+/* The verdict names a state; the action says what the state COSTS you. Hover
+   opened a fuller sentence, which meant a reader who did not hover — or could
+   not — got a taxonomy instead of a product. The action word is always on. */
+.st-c i u{text-decoration:none;color:var(--ink);margin-left:.55em;
+  padding-left:.55em;border-left:1px solid var(--rule2)}
+.st-c.p i u{color:var(--proven)}
+.st-c.a i u{color:var(--coral)}
+
+.err{font-family:var(--m);color:var(--coral);border:1px solid var(--coral);
+  padding:20px;max-width:56ch;font-size:var(--t-small)}
+
+@media (max-width:1000px){
+  :root{--nav:0px}
+  #nav{position:static;width:auto;flex-direction:row;align-items:center;gap:12px;
+    padding:10px var(--gut);border-right:0;border-bottom:1px solid var(--rule);
+    overflow-x:auto;scrollbar-width:none}
+  #nav::-webkit-scrollbar{display:none}
+  #nav .grp,#nav .sp,#nav .sys{display:none}
+  /* #index is the vertical rail on desktop and was left as a block here, so
+     the seven instruments stacked into a 96px column inside a row-direction
+     nav and pushed the action off the right edge. It scrolls, so no overflow
+     check saw it; only the phone screenshot did. */
+  #nav #index{display:flex;flex-direction:row;align-items:center;
+    gap:0 16px;flex:0 0 auto}
+  #nav #index a{white-space:nowrap}
+  #nav .enter{margin:0;padding:8px 10px;flex:0 0 auto;white-space:nowrap}
+  #nav .wm{margin:0 8px 0 0}
+  #nav a{white-space:nowrap;padding:2px 0}
+  /* `flex-wrap:wrap` never got the chance to wrap: the provenance span is one
+     unbreakable mono line, so at 390px the strip held 434px of content behind
+     `overflow:hidden` and the run id was silently cut off. Nothing on this page
+     may hide a figure it claims to publish. */
+  #strip{position:static;left:0;height:auto;padding:8px var(--gut);
+    flex-wrap:wrap;gap:6px 0;overflow-x:auto;scrollbar-width:none}
+  #strip::-webkit-scrollbar{display:none}
+  #strip span{padding:0 10px}
+  main{margin-left:0;padding-top:0}
+  .row{grid-template-columns:minmax(0,1fr);gap:12px}
+  .mk{padding-top:0}
+  .hero-t,.chapter,.say,.sub{max-width:none}
+  .score{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .score-c{padding:14px 14px 16px;border-left:1px solid var(--rule);
+    border-top:1px solid var(--rule)}
+  .score-c:nth-child(odd){padding-left:0;border-left:0}
+  .bench-r,.bench-h{grid-template-columns:74px minmax(0,1fr) minmax(0,1fr) 58px;
+    gap:0 9px}
+  .bench-r b,.bench-h span:nth-child(3),.bench-h span:nth-child(5){display:none}
+  .refuse-r{grid-template-columns:minmax(0,1fr);gap:4px}
+  .refuse-r i{justify-self:start}
+  .chain-e{grid-template-columns:minmax(0,1fr)}
+  .chain-b,.chain-e span{grid-column:1}
+  .sheet::before,.sheet::after{display:none}
+  .book-t{grid-template-columns:auto minmax(0,1fr)}
+}
+
+/* ── THE SYSTEM BOUNDARY ─────────────────────────────────────────────────
+   Not a timeline. A timeline says "then, then, then"; this has to say that
+   four different KINDS of thing are happening, and that only one of them is
+   allowed to decide.
+
+   The role is carried by the mark, and each mark is a different shape:
+     ─  evidence   an input, so it is a bar
+     ◇  model      proposes, so it is open and turned
+     ○  solver     tests, so it is a ring — a thing you pass through
+     ●  engine     decides, so it is solid and filled
+
+   The left column names the VERB rather than the actor, because "proposes /
+   tests / decides" is the sentence a reader needs and "model / solver /
+   engine" is the one they already saw. */
+
+/* ── THE COUNTERFACTUAL ──────────────────────────────────────────────────
+   The boundary, demonstrated instead of asserted: what the loop concluded,
+   beside what the engine kept, beside whether anything moved. */
+.cf-c b{display:block;font-family:var(--m);font-weight:400;
+  font-size:clamp(19px,2.4vw,34px);letter-spacing:-.04em;line-height:1;
+  margin:9px 0 7px}
+.cf-c em{font-style:normal;font-family:var(--m);font-size:var(--t-nano);
+  letter-spacing:.14em;text-transform:uppercase;color:var(--dim3)}
+
+/* ── THE SAFE STOP ───────────────────────────────────────────────────────
+   Four statements down a rule, each one a consequence of the one above it.
+   The last is coral, which in this product means unresolved — not error. */
+.safe{margin-top:clamp(30px,5vh,62px);padding-left:clamp(16px,2.6vw,34px);
+  border-left:2px solid var(--rule2)}
+.safe-s{font-family:var(--m);font-size:clamp(15px,1.7vw,24px);
+  letter-spacing:-.02em;text-transform:uppercase;padding:clamp(5px,.9vh,9px) 0;
+  color:var(--dim)}
+.safe-s.hot{color:var(--coral);font-weight:700}
+.safe-n{margin-top:clamp(14px,2.2vh,24px);color:var(--dim2);
+  font-size:var(--t-small);max-width:56ch}
+.safe-n b{color:var(--ink)}
+
+@media (max-width:1000px){
+}
+
+/* ── THE ADAPTER BOUNDARY ────────────────────────────────────────────────
+   Three stations and the line between them, so "the engine does not know
+   Razorpay exists" is a diagram a reader can check rather than a sentence
+   they have to take. The middle station is the boundary itself. */
+.adapter{margin-top:clamp(8px,1.4vh,16px)}
+.ad-r{display:grid;grid-template-columns:190px minmax(0,1fr);
+  gap:clamp(12px,2vw,26px);align-items:baseline;padding:clamp(9px,1.5vh,16px) 0}
+.ad-r b{font-family:var(--m);font-size:var(--t-micro);letter-spacing:.18em;
+  text-transform:uppercase;font-weight:400;color:var(--dim)}
+.ad-r.eng b{color:var(--ink);font-weight:700}
+.ad-r span{color:var(--dim2);font-size:var(--t-small)}
+.ad-r em{font-style:normal;font-family:var(--m);color:var(--ink)}
+.ad-b{font-family:var(--m);font-size:var(--t-nano);letter-spacing:.2em;
+  text-transform:uppercase;color:var(--coral);padding:2px 0 2px 0;
+  border-top:1px dashed rgba(255,101,90,.4);width:190px}
+@media (max-width:1000px){
+  .ad-r{grid-template-columns:minmax(0,1fr);gap:4px}
+  .ad-b{width:100%}
+}
+
+/* ── the run's disposition, on the record ───────────────────────────────
+   Three counts and three bars, on the object itself, so the record says it is
+   a BATCH before a reader has scrolled anywhere. The bar lengths are the
+   shares of the run — 197 dominates because 197 is the operational problem. */
+.spec-disp{margin-top:16px;padding-top:14px;border-top:1px solid var(--rule)}
+.spec-disp .lbl{display:block;margin-bottom:9px;font-size:var(--t-nano)}
+.spec-disp-r{display:grid;grid-template-columns:38px 84px minmax(0,1fr);
+  gap:10px;align-items:center;padding:3px 0}
+.spec-disp-r b{font-family:var(--m);font-weight:400;font-size:var(--t-small);
+  font-variant-numeric:tabular-nums;text-align:right}
+.spec-disp-r b.p{color:var(--proven)} .spec-disp-r b.a{color:var(--coral)}
+.spec-disp-r b.c{color:var(--ink)}
+.spec-disp-r i{font-style:normal;font-family:var(--m);font-size:var(--t-nano);
+  letter-spacing:.14em;text-transform:uppercase;color:var(--dim2)}
+.spec-disp-r u{display:block;height:3px;text-decoration:none;
+  background:rgba(255,255,255,.10);position:relative}
+.spec-disp-r u::after{content:"";position:absolute;top:0;bottom:0;left:0;
+  width:calc(var(--w) * 100%);background:currentColor}
+.spec-disp-r:nth-child(2) u{color:var(--proven)}
+.spec-disp-r:nth-child(3) u{color:var(--coral)}
+.spec-disp-r:nth-child(4) u{color:var(--ink)}
+
+/* ── the benchmark's claim ──────────────────────────────────────────────
+   The measurement is a table; this is the argument it supports, and without
+   it the table reads as a leaderboard ATTEST does not win. */
+/* ── the signature frame ─────────────────────────────────────────────────
+   §38.P0-1. The three actors, the counterfactual, the measurement and the
+   consequence used to be four blocks spread over 1,545px starting at y=5374.
+   Every fact was present and none of it was a frame: it could be read, and it
+   could not be screenshotted. This composes the same values — no new data —
+   into one specimen sheet that fits a viewport.
+
+   Glyphs are the page's existing grammar: ◇ proposes, ○ tests, ● decides.
+   The tick row is a population, drawn the way every other population on this
+   page is drawn, so 42.9% is seen rather than asserted. */
+.sig{border:1px solid var(--rule2);background:var(--sur);position:relative;
+  padding:clamp(18px,2.1vw,30px);margin-top:26px}
+.sig::before,.sig::after{content:"";position:absolute;width:9px;height:9px;
+  border:1px solid var(--coral);pointer-events:none}
+.sig::before{top:-1px;left:-1px;border-right:0;border-bottom:0}
+.sig::after{bottom:-1px;right:-1px;border-left:0;border-top:0}
+.sig-h{display:flex;justify-content:space-between;align-items:baseline;gap:14px;
+  flex-wrap:wrap;border-bottom:1px solid var(--rule);padding-bottom:11px}
+.sig-h i{font-style:normal;font-family:var(--m);font-size:var(--t-nano);
+  letter-spacing:.17em;text-transform:uppercase;color:var(--coral)}
+.sig-h span{font-family:var(--m);font-size:var(--t-nano);letter-spacing:.11em;
+  text-transform:uppercase;color:var(--dim3)}
+
+/* three actor rows */
+.sig-r{display:grid;grid-template-columns:26px 104px minmax(0,1fr);
+  gap:0 14px;align-items:start;padding:14px 0;border-bottom:1px solid var(--rule)}
+.sig-r > *{min-width:0}
+.sig-gl{width:11px;height:11px;margin-top:5px;display:block}
+.sig-r.model .sig-gl{background:var(--dim2);
+  clip-path:polygon(50% 0,100% 50%,50% 100%,0 50%)}          /* ◇ proposes */
+.sig-r.solver .sig-gl{border:1.5px solid var(--dim2);border-radius:50%}  /* ○ tests */
+.sig-r.engine .sig-gl{background:var(--ink);border-radius:50%}           /* ● decides */
+.sig-a{font-size:15px;font-weight:600;letter-spacing:-.02em;line-height:1.3}
+.sig-a em{display:block;font-style:normal;font-family:var(--m);
+  font-size:var(--t-nano);letter-spacing:.14em;text-transform:uppercase;
+  color:var(--dim3);font-weight:400;margin-top:3px}
+.sig-r.engine .sig-a{color:var(--ink)}
+.sig-v{display:flex;flex-wrap:wrap;align-items:baseline;gap:8px 12px}
+.sig-o{font-family:var(--m);font-size:13px;font-weight:400;color:var(--ink);
+  background:var(--sur2);border:1px solid var(--rule);padding:2px 7px;
+  letter-spacing:.02em}
+.sig-r.solver .sig-o{color:var(--coral);border-color:rgba(255,101,90,.34)}
+.sig-w{flex:1 1 200px;color:var(--dim2);font-size:var(--t-small);line-height:1.5}
+.sig-w b{color:var(--dim);font-weight:500}
+
+/* the counterfactual pair */
+.sig-cf{display:grid;grid-template-columns:minmax(0,1fr) 34px minmax(0,1fr);
+  gap:0 10px;align-items:center;padding:15px 0;border-bottom:1px solid var(--rule)}
+.sig-cf > *{min-width:0}
+.cf-c{display:flex;flex-direction:column;gap:4px}
+.cf-c .lbl{font-family:var(--m);font-size:var(--t-nano);letter-spacing:.14em;
+  text-transform:uppercase;color:var(--dim3)}
+.cf-c b{font-size:clamp(19px,1.9vw,26px);font-weight:500;letter-spacing:-.035em;
+  color:var(--ink);line-height:1.1}
+.cf-c em{font-style:normal;font-family:var(--m);font-size:var(--t-nano);
+  letter-spacing:.1em;text-transform:uppercase;color:var(--dim3)}
+.sig-op{font-family:var(--m);font-size:19px;color:var(--dim3);text-align:center}
+
+/* the measurement — one tick per case the model spoke on, filled if right */
+.sig-m{padding:15px 0 0}
+.sig-mh{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap}
+.sig-mh b{font-family:var(--m);font-size:clamp(20px,2.1vw,29px);font-weight:400;
+  color:var(--ink);letter-spacing:-.02em;font-variant-numeric:tabular-nums}
+.sig-mh span{font-family:var(--m);font-size:var(--t-nano);letter-spacing:.14em;
+  text-transform:uppercase;color:var(--dim2)}
+.sig-mh u{text-decoration:none;font-family:var(--m);font-size:var(--t-micro);
+  color:var(--coral);letter-spacing:.06em;margin-left:auto}
+.sig-ticks{display:flex;gap:2px;margin-top:10px;position:relative;height:19px;
+  align-items:stretch}
+.sig-tk{flex:1 1 0;min-width:0;background:rgba(255,255,255,.09);display:block}
+.sig-tk.hit{background:var(--dim)}
+.sig-half{position:absolute;top:-4px;bottom:-4px;left:50%;width:1px;
+  background:var(--coral);pointer-events:none}
+.sig-half b{position:absolute;top:-13px;left:5px;font-family:var(--m);
+  font-size:var(--t-nano);letter-spacing:.11em;text-transform:uppercase;
+  color:var(--coral);font-weight:400;white-space:nowrap}
+.sig-mn{margin-top:15px;color:var(--dim2);font-size:var(--t-small);
+  line-height:1.5;max-width:66ch}
+.sig-mn b{color:var(--dim);font-weight:500}
+
+/* the consequence — the largest thing in the section, by contract */
+.sig-x{margin-top:clamp(16px,1.9vw,24px);border-top:1px solid rgba(255,101,90,.34);
+  padding-top:clamp(13px,1.5vw,18px);display:flex;justify-content:space-between;
+  align-items:baseline;gap:12px;flex-wrap:wrap}
+.sig-x b{font-size:clamp(32px,4.1vw,58px);font-weight:600;letter-spacing:-.045em;
+  color:var(--coral);line-height:1;text-transform:uppercase}
+.sig-x span{font-family:var(--m);font-size:var(--t-nano);letter-spacing:.13em;
+  text-transform:uppercase;color:var(--dim3);text-align:right}
+@media (max-width:720px){
+  .sig-r{grid-template-columns:20px minmax(0,1fr);gap:0 10px}
+  .sig-r .sig-v{grid-column:1 / -1;margin-top:9px}
+  /* all three actors stack the same way: the engine's note is short enough to
+     sit beside its value while the other two wrap, which read as a different
+     kind of row rather than the same row with less text. */
+  .sig-w{flex:1 1 100%}
+  .sig-cf{grid-template-columns:minmax(0,1fr);gap:12px}
+  .sig-op{text-align:left}
+  /* the tick row: one tick per case the model answered, filled if it was
+     right. */
+  .sig-mh u{margin-left:0;flex:1 1 100%}
+  /* the marker's label hangs 13px above the tick row; once the ratio wraps to
+     its own full-width line that space is occupied, so the ticks take the gap
+     the label needs rather than the label moving somewhere it means less. */
+  .sig-ticks{margin-top:26px}
+}
+.bench-note{display:grid;grid-template-columns:minmax(0,.85fr) minmax(0,1.15fr);
+  gap:clamp(16px,2.6vw,44px);margin-top:clamp(18px,2.6vh,30px);
+  padding-top:clamp(16px,2.4vh,26px);border-top:1px solid var(--rule)}
+.bench-claim{font-size:clamp(17px,1.9vw,26px);letter-spacing:-.035em;
+  line-height:1.1;font-weight:500;max-width:14ch;margin:0}
+@media (max-width:1000px){.bench-note{grid-template-columns:minmax(0,1fr);gap:12px}}
+
+/* ── the lifecycle ──────────────────────────────────────────────────────
+   Six stations, quiet, in the nav. The station the reader is standing in is
+   lit; the rest are ground. This is the mental model the seven instruments
+   share — without it a reader meets seven questions and no reason they belong
+   to one another. */
+#loop{display:flex;flex-direction:column;gap:0;margin-right:24px}
+#loop span{display:flex;align-items:center;gap:9px;font-family:var(--m);
+  font-size:var(--t-nano);letter-spacing:.16em;text-transform:uppercase;
+  color:var(--dim3);padding:3px 0;transition:color .2s}
+#loop span i.st{width:5px;height:5px;background:currentColor;flex:none;
+  transition:background .2s,transform .2s}
+#loop span.on{color:var(--ink)}
+#loop span.on i.st{background:var(--coral);transform:scale(1.5)}
+@media (max-width:1000px){#loop{display:none}}
+
+/* the field's own legend, pinned under the lane it names */
+.fld-l{position:absolute;font-family:var(--m);font-size:var(--t-nano);
+  letter-spacing:.16em;text-transform:uppercase;
+  display:flex;flex-direction:column;gap:5px;pointer-events:none;
+  max-width:15ch;line-height:1.35;padding-right:12px}
+.fld-l b{white-space:nowrap}
+.fld-l b{font-size:clamp(15px,1.5vw,20px);font-weight:400;letter-spacing:-.04em;
+  font-variant-numeric:tabular-nums;line-height:1}
+.fld-l::before{content:"";display:block;height:1px;background:currentColor;
+  opacity:.45;margin-bottom:7px;width:100%}
+
+/* ── §32.B · THE REFUSAL IS THE HERO ─────────────────────────────────────
+   The hierarchy was backwards: a 44px section headline, a 34px counterfactual,
+   and NO FINANCIAL ACTION — the sentence the product exists for — at 24px. A
+   judge scrolling at pace read the headline and passed the claim.
+
+   It leads the section now, at chapter scale, in coral. Everything below it is
+   the working: who proposed, who tested, who decided, and what did not change. */
+
+/* ── colour semantics ───────────────────────────────────────────────────
+   Both verdicts are the same state. Painting the engine's coral and the
+   model's white implied the engine's was worse — coral means unresolved, and
+   they are equally unresolved. Coral is spent on the CONSEQUENCE only. */
+.cf-c b{color:var(--ink)}
+.safe-s.hot{color:var(--coral)}
+
+/* ── §32.C · THE NARROWING ───────────────────────────────────────────────
+   Six steps down the marker column, the current one lit. Steps already passed
+   keep their figure at reading weight and drop their label; steps still ahead
+   are barely there. The reader always knows what the number in front of them
+   narrowed from. */
+.nrw{margin-top:18px;padding-top:14px;border-top:1px solid var(--rule);
+  display:flex;flex-direction:column;gap:0}
+.nrw-r{display:flex;align-items:baseline;gap:8px;padding:3px 0;
+  color:var(--dim3);transition:color .2s}
+.nrw-r b{font-family:var(--m);font-weight:400;font-variant-numeric:tabular-nums;
+  font-size:var(--t-micro);letter-spacing:-.02em;min-width:4.2ch;text-align:right}
+.nrw-r span{font-family:var(--m);font-size:var(--t-nano);letter-spacing:.14em;
+  text-transform:uppercase;opacity:.75}
+.nrw-r.past{color:var(--dim2)}
+.nrw-r.past span{opacity:0}
+.nrw-r.on{color:var(--coral)}
+.nrw-r.on b{font-size:var(--t-small)}
+.nrw-r.on span{opacity:1}
+@media (max-width:1000px){
+  .nrw{flex-direction:row;flex-wrap:wrap;gap:4px 14px;margin-top:12px;
+    padding-top:10px}
+  .nrw-r span{display:none}
+  .nrw-r.on span{display:inline}
+}
+
+/* ── the two populations, said where they are compared ──────────────────
+   "84 / 500" printed directly under a live run of 250 reads as a
+   contradiction, and a judge who spots it stops trusting every other figure
+   on the page. The artifact says they are not in conflict: the same portfolio
+   size, two DIFFERENT seeds, neither of them the seed the live run uses.
+   Held out, in other words — which is a strength, and it was being kept to
+   ourselves. Both figures come from the payload; neither is written down. */
+.bench-pop{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));
+  gap:clamp(14px,2.4vw,40px);padding-bottom:clamp(16px,2.4vh,26px);
+  margin-bottom:clamp(14px,2.2vh,22px);border-bottom:1px solid var(--rule)}
+.bench-pop span{display:flex;flex-direction:column;gap:5px}
+.bench-pop i{font-style:normal;font-family:var(--m);font-size:var(--t-nano);
+  letter-spacing:.18em;text-transform:uppercase;color:var(--dim3)}
+.bench-pop b{font-family:var(--m);font-weight:400;font-size:clamp(15px,1.5vw,20px);
+  letter-spacing:-.03em;font-variant-numeric:tabular-nums}
+.bench-pop em{font-style:normal;font-size:var(--t-small);color:var(--dim2);
+  line-height:1.45}
+
+/* ── §34.P0-4 · THE MACHINERY ────────────────────────────────────────────
+   The strongest engineering evidence lived on screen 16, inside Trust, where
+   a judge at pace never arrives. Four properties, four figures, one screen —
+   placed directly after the refusal, because this is what a reader wants the
+   moment they have been told the engine declined to act: on what authority.
+
+   Not cards. Four columns on the page's own grammar: a micro label, one
+   measured figure, one sentence. */
+.proofs{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));
+  gap:clamp(20px,3vw,52px);margin-top:clamp(26px,4vh,48px);
+  border-top:1px solid var(--rule2);padding-top:clamp(22px,3.4vh,40px)}
+.pf b{display:flex;align-items:baseline;gap:9px;flex-wrap:wrap;
+  font-family:var(--m);font-weight:400;font-size:clamp(26px,3.2vw,46px);
+  letter-spacing:-.05em;line-height:1;margin:10px 0 12px;
+  font-variant-numeric:tabular-nums}
+.pf b i{font-style:normal;font-size:var(--t-nano);letter-spacing:.16em;
+  text-transform:uppercase;color:var(--dim2);font-family:var(--m)}
+.pf p{color:var(--dim2);font-size:var(--t-small);line-height:1.55;max-width:34ch}
+.pf p em{font-style:normal;color:var(--coral)}
+</style>
+<div id=field aria-hidden=true></div>
+
+
+<nav id=nav>
+  <span class=wm>ATTEST</span>
+  <div id=index></div>
+  <span class=sp></span>
+  <a class=enter href="/app">open control room <i>↗</i></a>
+</nav>
+
+<div id=strip>
+  <span><b>ATTEST</b></span>
+  <span>settlement reconciliation</span>
+  <span class=sp></span>
+  <span id=prov>reading the engine…</span>
+</div>
+
+<main id=main><section><p class=say>Reading the engine…</p></section></main>
+
+<script>
+'use strict';
+const esc = s => String(s ?? '').replace(/[&<>"]/g,
+  c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const api = async p => { const r = await fetch(p);
+  if (!r.ok) throw new Error(`${p} → ${r.status}`); return r.json(); };
+const STILL = matchMedia('(prefers-reduced-motion: reduce)').matches;
+const REVIEW = 25000;   // the policy's own default — see attest/policy.py Costs
+/* The two cases the front door demonstrates. Both are settlements in the
+   HELD-OUT evaluation seed, chosen because between them they show the loop
+   closing and the loop refusing — and verified against ground truth by
+   tests/test_invariants.py::test_the_two_demo_cases_are_what_the_demo_says
+   _they_are, because an id is not a percentage and the claim register cannot
+   catch it drifting. */
+const PROVEN_CASE = 'setl_000233';   // PROVEN -> AUTO_POST -> ledger entry
+const CASE = 'setl_000225';          // AMBIGUOUS -> held, evidence requested
+const cap = s => esc(String(s ?? '').trim().replace(/[.\s]+$/, ''))
+  .replace(/^./, c => c.toUpperCase());
+
+const SECTIONS = [
+  ['open','control'], ['proof','evidence'], ['product','investigate'],
+  ['outcomes','policy'], ['population','journal'], ['ai','activity'],
+  ['proofs','trust'],
+];
+/* The seven instruments name the nav, because they are what the product is.
+   The sections below map onto them; a reader who clicks EVIDENCE lands on the
+   part of the story that instrument answers. */
+/* The product is one loop, and the seven instruments are seven points on it.
+   The engine may stop early — that is the product, not a failure — so ABSTAIN
+   is a station rather than an error branch. */
+const LOOP = [
+  ['ingest','ingest'], ['reconcile','reconcile'], ['prove','prove'],
+  ['decide','decide'], ['act','act'], ['audit','audit'],
+];
+/* which stage of the loop each section is standing in */
+const STAGE = {
+  open:'ingest', proof:'reconcile', product:'prove', outcomes:'act',
+  population:'decide', ai:'prove', proofs:'audit', end:'audit',
+};
+/* Seven instruments, seven anchors — the index names what the product HAS,
+   and each entry lands on the part of the story that instrument answers. */
+const NAV = [
+  ['open','01','CONTROL'], ['proof','02','EVIDENCE'], ['product','03','INVESTIGATE'],
+  ['outcomes','04','POLICY'], ['population','05','JOURNAL'], ['ai','06','ACTIVITY'],
+  ['proofs','07','TRUST'],
+];
+
+/* ── the population field ────────────────────────────────────────────────
+   One point per settlement, coloured by the verdict the engine reached, in
+   lanes sized by their own counts. The lone contradicted point sits alone,
+   which is the honest picture of a run with one of them in it. */
+function Field(host, spec) {
+  const cv = document.createElement('canvas'); host.appendChild(cv);
+  const cx = cv.getContext('2d');
+  let W=0,H=0,pts=[],lanes=[],shown=false,raf=0,t0=0,seed=20260821;
+  const rnd=()=>(seed=(seed*1664525+1013904223)%4294967296)/4294967296;
+  const TONE={ink:'#ffffff',dim:'rgba(255,255,255,.26)',coral:'#ff655a',
+              proven:'#5fbf9b',lit:'#dcf23c'};
+  function build(){
+    seed=20260821; pts=[];
+    const dpr=Math.min(devicePixelRatio||1,2);
+    W=host.clientWidth; H=host.clientHeight;
+    cv.width=W*dpr; cv.height=H*dpr; cx.setTransform(dpr,0,0,dpr,0,0);
+    const gs=spec.groups, total=gs.reduce((a,g)=>a+g.n,0)||1;
+    const gap=Math.min(spec.lane||40, W*.07), gaps=gs.length-1;
+    const per=(W-gaps*gap)/total;
+    let x0=0;
+    lanes=[];
+    gs.forEach(g=>{
+      /* Squarish blocks by default. The opening instrument passes a wider
+         aspect so the population spans the measure instead of huddling in the
+         middle of it — same primitive, different job. */
+      const cols=Math.max(1,Math.round(Math.sqrt(g.n*(spec.aspect||1.7))));
+      const rows=Math.ceil(g.n/cols);
+      const cell=Math.min((g.n*per)/cols, H/rows, spec.cell||13);
+      const top=(H-rows*cell)/2;
+      for(let i=0;i<g.n;i++)
+        pts.push({x:x0+(i%cols)*cell+cell/2+(rnd()-.5)*1.3,
+                  y:top+((i/cols)|0)*cell+cell/2+(rnd()-.5)*1.3,
+                  r:g.r||1.9, c:g.tone, d:rnd()});
+      // the lane's own rect, so a label can be pinned to the points it names
+      lanes.push({g, x:x0, w:cols*cell, y:top, h:rows*cell});
+      x0+=cols*cell+gap;
+    });
+    const shift=Math.max(0,(W-(x0-gap))/2);
+    pts.forEach(p=>{p.x+=shift;});
+    lanes.forEach(l=>{l.x+=shift;});
+    paintLabels();
+  }
+
+  /* §32.A — the field carries its own legend.
+   *
+   * The population rendered as two coloured blocks and a lone dot with the
+   * counts three sections away, on the specimen. A reader saw an ornament.
+   * Every label here is pinned to the lane it names and reads its count from
+   * the same group that drew the points, so the two cannot disagree — change
+   * the disposition and the label changes with it.
+   *
+   * They are DOM, not canvas: a legend that cannot be selected, read by a
+   * screen reader, or found by the comprehension audit is not a legend. */
+  function paintLabels(){
+    if(!spec.groups.some(g=>g.label)) return;
+    host.querySelectorAll('.fld-l').forEach(n=>n.remove());
+    // one baseline for every label. Lanes are vertically centred and differ in
+    // height, so hugging each lane's own bottom edge staggered them and the
+    // legend read as three unrelated notes rather than one reading of one
+    // population.
+    const floor=Math.max(...lanes.map(l=>l.y+l.h))+11;
+    let floorX = 0;
+    for(const l of lanes){
+      if(!l.g.label) continue;
+      const el=document.createElement('span');
+      el.className='fld-l';
+      const wide = W > 620;
+      el.style.top=`${floor}px`;
+      el.style.minWidth=`${Math.max(l.w, 54)}px`;
+      el.style.maxWidth=`${Math.max(l.w + (wide ? 120 : 40), 90)}px`;
+      // never start a label where it cannot finish, and never start one on top
+      // of the label before it: a lane is as wide as its share of the
+      // population, and two small lanes running consecutively put their labels
+      // in the same place.
+      const want = Math.max(0, Math.min(l.x, W - 90));
+      el.style.left=`${Math.max(want, floorX)}px`;
+      if(!wide) el.style.whiteSpace='normal';
+      el.style.color=TONE[l.g.tone]||TONE.dim;
+      el.innerHTML=`<b>${l.g.n.toLocaleString()}</b>${esc(l.g.label)}`;
+      host.appendChild(el);
+      if(el.offsetLeft + el.offsetWidth > W)
+        el.style.left=`${Math.max(0, W - el.offsetWidth)}px`;
+      floorX = el.offsetLeft + el.offsetWidth + 14;
+    }
+  }
+  function draw(t){
+    cx.clearRect(0,0,W,H);
+    for(const p of pts){
+      const a=STILL?1:Math.max(0,Math.min(1,(t-p.d*.5)/.45));
+      if(a<=0) continue;
+      cx.globalAlpha=a; cx.fillStyle=TONE[p.c]||TONE.dim;
+      cx.beginPath(); cx.arc(p.x,p.y,p.r,0,6.2832); cx.fill();
+    }
+    cx.globalAlpha=1;
+  }
+  function run(ts){ if(!t0) t0=ts; const t=Math.min(1.1,(ts-t0)/850);
+    draw(t); if(t<1.1) raf=requestAnimationFrame(run); }
+  return {
+    show(){ if(shown) return; shown=true; build();
+      if(STILL){draw(1.1);return;} t0=0; raf=requestAnimationFrame(run); },
+    resize(){ if(!shown) return; build(); draw(1.1); },
+  };
+}
+</script>
+<script>
+'use strict';
+const rise=(c,h,d)=>`<div class="rise${d?' d'+d:''}${c?' '+c:''}">${h}</div>`;
+const mk=(n,l,note,step)=>`<div class=mk><b>${String(n).padStart(2,'0')}</b>${esc(l)}${
+  note?`<em>${esc(note)}</em>`:''}${step!==undefined?chain(step):''}</div>`;
+
+/* §32.C — THE NARROWING, carried between the sections that do it.
+ *
+ * 250 becomes 197 becomes one case becomes 2,368 candidate orders becomes 164
+ * becomes 4. That is one continuous act of narrowing the evidence space, and
+ * it was four separate sections with nothing carrying the thread between them.
+ * A reader met four good moments and no movie.
+ *
+ * The chain rides in the marker column of each of those sections with the
+ * current step lit, so a reader always knows how far in they are and what the
+ * number in front of them narrowed FROM. Every value is the run's; nothing
+ * here is written down. */
+let CHAIN = [];
+const chain = (step) => `<div class=nrw>${CHAIN.map((c,i)=>`
+  <div class="nrw-r${i===step?' on':''}${i<step?' past':''}">
+    <b>${c.n.toLocaleString()}</b><span>${esc(c.l)}</span>
+  </div>`).join('')}</div>`;
+
+/* ── §58 the decision record, rendered ────────────────────────────────────
+   Takes /api/loop verbatim. One financial event, four parties, one outcome.
+   Every string is either a label this file owns or a value the engine
+   produced — which is why the same function renders the record that posts and
+   the record that does not. */
+function Record(d, opts){
+  const o = opts||{};
+  const rupee = p => `₹${(p/100).toLocaleString('en-IN',
+    {minimumFractionDigits:2,maximumFractionDigits:2})}`;
+  const acted = !!d.acted;
+  const ev = d.event||{}, out = d.outcome||{};
+
+  const may = s => `<span class=dr-may>
+    <span class=y><i>may</i><span>${esc(s.may||'')}</span></span>
+    <span class=n><i>may not</i><span>${esc(s.may_not||'')}</span></span></span>`;
+
+  const body = {
+    advisor(s){
+      const a = s.advisor||{}; const tr = a.track_record||{};
+      if(!a.proposed) return `<p>${esc(a.detail||'')}</p>` + may(s);
+      return `<p>${esc(a.reasoning||'')}</p>
+        <span class=dr-ids>${(a.orders||[]).map(esc).join(' · ')}</span>
+        <p>It was never shown an amount — identifiers, names and dates only. A
+          proposer that can see the target finds something that adds up, and a
+          plausible sum is the thing this system exists to refuse.</p>
+        ${tr.resolved ? `<p>Across the held-out panel it offered an answer on
+          <b style="color:var(--ink)">${tr.resolved}</b> of ${tr.ambiguous}
+          ambiguous cases and was right on
+          <b style="color:var(--ink)">${tr.correct}</b> of them.</p>` : ''}
+        ${may(s)}`;
+    },
+    verifier(s){
+      const cuts = (s.reductions||[]).filter(r=>r.removed>0);
+      const n = s.narrowing||{};
+      return `<p>${esc(s.detail||'')}</p>
+        ${s.narrowing_line ? `<span class=dr-nar>${
+          esc(String(n.universe||0).replace(/\B(?=(\d{3})+(?!\d))/g, ','))}
+          <u>records</u> → ${n.candidates} <u>candidates</u> → ${
+          n.explanations} <u>explanation${n.explanations===1?'':'s'}</u></span>`:''}
+        ${cuts.length ? `<span class=dr-cut>${cuts.map(r=>`
+          <span class=rm>−${Number(r.removed).toLocaleString()}</span>
+          <span>${esc(r.name)}</span>
+          <span class="k ${r.deterministic?'d':'c'}">${
+            r.deterministic?'fact':'convention'}</span>`).join('')}</span>`:''}
+        ${s.residual_paise!=null ? `<p>Residual
+          <b style="color:var(--ink)">${s.residual_paise}
+          ${s.residual_paise===1?'paisa':'paise'}</b> against a rounding bound
+          of ±${s.tolerance_paise}.</p>`:''}
+        ${(s.agreed_orders&&s.contested_orders) ? `<p><b style="color:var(--ink)">${
+          rupee(s.agreed_paise)}</b> across ${s.agreed_orders} orders is settled
+          whichever explanation is right. <b style="color:var(--coral)">${
+          rupee(s.contested_paise)}</b> across ${s.contested_orders} orders is
+          the argument.</p>`:''}
+        <p>${esc(s.mechanisms||'')} — <b style="color:var(--ink)">without
+          reading what the advisor proposed</b>.</p>
+        ${s.advisor_outcome ? `<p>Tested the advisor's proposal:
+          <b style="color:var(--ink)">${esc(s.advisor_outcome)}</b>.</p>`:''}
+        ${may(s)}`;
+    },
+    policy(s){
+      return `<p>${esc(s.detail||'')}</p>
+        ${s.p_error!=null ? `<p>Priced at the measured error rate for this class
+          of result, at its 95% upper bound — <b style="color:var(--ink)">${
+          Number(s.p_error).toFixed(4)}</b> — not at the point estimate.</p>`:''}
+        ${may(s)}`;
+    },
+    ledger(s){
+      if(!(s.lines||[]).length) return `<p>${esc(s.detail||'')}</p>` + may(s);
+      return `<span class=dr-je>${s.lines.map(l=>`
+        <span>${esc(l.account)}</span>
+        <span class=amt>${l.debit_paise?'Dr ':'Cr '}${
+          rupee(l.debit_paise||l.credit_paise)}</span>`).join('')}</span>
+        <p>Balanced to the paisa, every line derived from the rule set that
+          produced the proof.</p>${may(s)}`;
+    },
+  };
+
+  const cls = s => s.key==='advisor' ? 'adv'
+    : (s.key==='ledger'||s.key==='policy') ? (acted?'acts':'holds') : '';
+
+  return `<figure class=dr>
+    <div class=dr-e>
+      <div><span class=dr-ek>${esc(o.label||'financial event')}</span>
+        <div class=dr-ev>${rupee(ev.amount_paise||d.amount_paise)}</div>
+        <p class=dr-eq><b>${esc(ev.question||'')}</b> ${esc(ev.unknown||'')}</p></div>
+      <div class=dr-em>${esc(d.settlement_id)}<br>UTR ${esc(d.utr||'—')}<br>${
+        esc(ev.value_date||'')}</div>
+    </div>
+    ${(d.stages||[]).map(s=>`
+      <div class="dr-r ${cls(s)}">
+        <span class=dr-a><b>${esc(s.actor)}</b><em>${esc(s.verb)}</em></span>
+        <span class=dr-n><i class=dr-dot></i></span>
+        <span class=dr-b>
+          <b class=dr-h>${esc(s.headline)}${s.badge
+            ? `<span class=dr-badge>${esc(s.badge)}</span>`:''}</b>
+          ${(body[s.key]||(()=>`<p>${esc(s.detail||'')}</p>`))(s)}
+        </span>
+      </div>`).join('')}
+    <div class="dr-out ${acted?'go':'stop'}">
+      <div><div class=dr-oh>${esc(out.headline||'')}</div>
+        <p class=dr-oc>${esc(out.consequence||'')}</p></div>
+      <span class=dr-ov>${acted?'action':'no financial action'}</span>
+    </div>
+  </figure>`;
+}
+
+
+/* ── the control loop, rendered ───────────────────────────────────────────
+   §57. Takes /api/loop verbatim. Every string below is either a label this
+   file owns or a value the engine produced; nothing about a case is written
+   down here, which is why the same function renders the settlement that
+   posts and the one that does not. */
+function Loop(d, opts){
+  const o = opts||{};
+  const rupee = p => `₹${(p/100).toLocaleString('en-IN',
+    {minimumFractionDigits:2,maximumFractionDigits:2})}`;
+  const stage = k => (d.stages||[]).find(s=>s.key===k)||{};
+  const acted = !!d.acted;
+
+  const body = {
+    advisor(s){
+      const a = s.advisor||{};
+      if(!a.proposed) return `<p>${esc(a.detail||'')}</p>`;
+      const tr = a.track_record||{};
+      return `<p>${esc(a.reasoning||'')}</p>
+        <div class=cloop-ids>named <b>${(a.orders||[]).map(esc).join('</b> · <b>')}</b></div>
+        <p style="margin-top:8px">It did not see an amount. The advisor is given
+          identifiers, names and dates and never a value — a proposer that can
+          see the target finds something that adds up, and a plausible sum is
+          the thing this engine exists to refuse.</p>
+        ${tr.resolved ? `<p>On the held-out panel this advisor offered an answer
+          on <b style="color:var(--ink)">${tr.resolved}</b> of ${tr.ambiguous}
+          ambiguous cases and was right on
+          <b style="color:var(--ink)">${tr.correct}</b> of them.</p>` : ''}`;
+    },
+    solver(s){
+      const cuts = (s.reductions||[]).filter(r=>r.removed>0);
+      return `<p>${esc(s.detail||'')}</p>
+        ${cuts.length ? `<div class=cloop-cut>${cuts.map(r=>`
+          <span class=rm>−${Number(r.removed).toLocaleString()}</span>
+          <span>${esc(r.name)}</span>
+          <span class="kind ${r.deterministic?'det':'conv'}">${
+            r.deterministic?'fact':'convention'}</span>`).join('')}</div>` : ''}
+        ${s.outcome ? `<p style="margin-top:9px">Tested the advisor's proposal:
+          <b style="color:var(--ink)">${esc(s.outcome)}</b>.</p>` : ''}`;
+    },
+    engine(s){
+      const bits = [`<p>${esc(s.detail||'')}</p>`];
+      if(s.headline === 'PROVEN' && s.residual_paise !== null
+         && s.residual_paise !== undefined)
+        bits.push(`<p>Residual <b style="color:var(--ink)">${s.residual_paise}
+          ${s.residual_paise === 1 ? 'paisa' : 'paise'}</b> against a rounding
+          bound of ±${s.tolerance_paise}.</p>`);
+      if(s.agreed_orders && s.contested_orders)
+        bits.push(`<p><b style="color:var(--ink)">${rupee(s.agreed_paise)}</b>
+          across ${s.agreed_orders} orders is settled whichever explanation is
+          right. <b style="color:var(--coral)">${rupee(s.contested_paise)}</b>
+          across ${s.contested_orders} orders is the argument.</p>`);
+      bits.push(`<p>${esc(s.kernel||'')} — <b style="color:var(--ink)">without
+        reading what the advisor proposed</b>.</p>`);
+      return bits.join('');
+    },
+    policy(s){
+      return `<p>${esc(s.detail||'')}</p>
+        ${s.p_error!=null ? `<p>Priced at the measured error rate for this class
+          of result, at its 95% upper bound — <b style="color:var(--ink)">${
+          Number(s.p_error).toFixed(4)}</b> — not at the point estimate.</p>`:''}`;
+    },
+    ledger(s){
+      if(!(s.lines||[]).length) return `<p>${esc(s.detail||'')}</p>`;
+      return `<div class=cloop-je>${s.lines.map(l=>`
+        <span>${esc(l.account)}<em style="color:var(--dim3);font-style:normal">
+          — ${esc(l.memo)}</em></span>
+        <span class=amt>${l.debit_paise?'Dr ':'Cr '}${
+          rupee(l.debit_paise||l.credit_paise)}</span>`).join('')}</div>
+        <p style="margin-top:9px">Balanced to the paisa, and every line derived
+          from the rule set that produced the proof.</p>`;
+    },
+  };
+
+  const cls = s => s.key==='advisor' ? 'ai'
+    : (s.key==='ledger' && acted) || (s.key==='policy' && acted) ? 'acts'
+    : (s.key==='ledger' || s.key==='policy') ? 'holds' : '';
+
+  return `<figure class=cloop>
+    <div class=cloop-h>
+      <i>${esc(o.label||'the loop')}</i>
+      <b>${esc(d.settlement_id)} · ${rupee(d.amount_paise)}</b>
+      <u class="${acted?'ok':'no'}">${acted
+        ? 'posted without a person'
+        : 'held — no financial action'}</u>
+    </div>
+    ${(d.stages||[]).map(s=>`
+      <div class="cloop-r ${cls(s)}">
+        <span class=cloop-actor><b>${esc(s.actor)}</b><em>${esc(s.verb)}</em></span>
+        <span class=cloop-node><i class=cloop-dot></i></span>
+        <span class=cloop-body>
+          <b class=cloop-hd>${esc(s.headline)}</b>
+          ${(body[s.key]||(()=>`<p>${esc(s.detail||'')}</p>`))(s)}
+          <span class=cloop-auth>${esc(s.authority)}</span>
+        </span>
+      </div>`).join('')}
+  </figure>`;
+}
+
+
+async function build(){
+  const main=document.getElementById('main');
+  try{
+    const run=await api('/api/run?n=250'); const id=run.run_id;
+    /* whether this seed was held out from calibration, read from the panel
+       artifact rather than asserted here. A number measured on the data it
+       was tuned on is a memory, not a measurement, and nothing on screen
+       said which this was. */
+    const basis=(run.seed_basis||{}).short||'';
+    const [rec,spine,acts,det,inv,dec,claims,act,loopOk,loopHeld]=await Promise.all([
+      api(`/api/subject?run=${id}&type=portfolio&id=portfolio`),
+      api(`/api/spine?run=${id}&type=portfolio&review=${REVIEW}&exposure=10000000`),
+      api(`/api/actions?run=${id}`),
+      api(`/api/settlement?run=${id}&id=${CASE}`),
+      api(`/api/investigation?run=${id}&type=settlement&id=${CASE}`),
+      api(`/api/decision?run=${id}&type=settlement&id=${CASE}&review=${REVIEW}&exposure=10000000`),
+      api(`/api/claims?run=${id}`),
+      api(`/api/activity?run=${id}&type=settlement&id=${CASE}`),
+      api(`/api/loop?run=${id}&id=${PROVEN_CASE}&review=${REVIEW}`),
+      api(`/api/loop?run=${id}&id=${CASE}&review=${REVIEW}`),
+    ]);
+    const src=rec.source||{}, st=k=>spine.stages.find(s=>s.key===k)||{};
+    const c=run.counts||{}, space=det.space||{}, b=dec.boundary||{};
+    const survivors=(det.proofs||[]).length;
+    const blocker=(acts.actions||[])[0]||{};
+    const held=spine.stages.reduce((n,s)=>n+(s.held||0),0);
+    const iso=claims.isolation||{}, adv=claims.adversarial||{};
+    const base=claims.baselines||{present:false}, anch=claims.anchoring||{};
+    const krn=claims.kernel||{present:false};
+    const top=Math.max(...spine.stages.map(s=>s.continues_paise),1);
+    const exportable=(c.AMBIGUOUS||0)+(c.CONTRADICTED||0)+(c.INSUFFICIENT||0);
+    const rupee=p=>`₹${(p/100).toLocaleString('en-IN',
+      {minimumFractionDigits:2,maximumFractionDigits:2})}`;
+    const stop=spine.stages.find(s=>s.state==='stopped')||{};
+
+    /* the narrowing, in the order the engine performs it */
+    CHAIN = [
+    {n: run.settlements,     l: 'settlements'},
+    {n: c.AMBIGUOUS,         l: 'ambiguous'},
+    {n: 1,                   l: 'of them'},
+    {n: space.universe,      l: 'orders'},
+    {n: space.candidates,    l: 'candidates'},
+    {n: survivors,           l: 'explanations'},
+  ];
+
+    document.getElementById('prov').innerHTML =
+      `${esc(src.label||'')} · ${esc((src.engine||{}).label||'')} · seed ${
+        esc(String(run.seed))} · ${esc(basis)} · <b>${esc(id)}</b>`;
+
+    /* the worst false-proof rate sets the scale, so the bars compare */
+    const worst=base.present
+      ? Math.max(...base.methods.map(m=>m.false_proof||0),0.01) : 1;
+
+    main.innerHTML=`
+
+<section id=open>
+${rise('', `<div class=mast>
+    <span class=mast-n>ATTEST</span>
+    <span class=mast-t>financial control</span>
+    <span class=mast-r>${esc(src.label||'')} · ${esc((src.engine||{}).label||'')}
+      · seed ${esc(String(run.seed))} · ${esc(basis)} · ${esc(id)}</span>
+  </div>`)}
+  ${rise('', `<h1 class=hero-t>AI can decide.<br>Your ledger can't guess.</h1>
+    <p class=claim-p>ATTEST is a financial control layer that verifies
+      AI-proposed actions <b>before they can change financial state</b>.</p>`, 1)}
+
+  ${rise('', `<div class=auth>
+    <div class="auth-c adv"><span class=auth-w>Advise</span>
+      <span class=auth-n>Where to look</span>
+      <span class=auth-d>An advisor points at the records it believes belong
+        together. It is never shown an amount.</span></div>
+    <div class=auth-c><span class=auth-w>Verify</span>
+      <span class=auth-n>What the money is</span>
+      <span class=auth-d>The explanation is rebuilt from the records
+        themselves, without reading the proposal.</span></div>
+    <div class=auth-c><span class=auth-w>Permit</span>
+      <span class=auth-n>Whether to act alone</span>
+      <span class=auth-d>Proof is not permission. Being wrong is priced against
+        what a human check costs.</span></div>
+    <div class=auth-c><span class=auth-w>Record</span>
+      <span class=auth-n>The entry, or the reason</span>
+      <span class=auth-d>A balanced entry, or a refusal naming the evidence
+        that would settle it.</span></div>
+  </div>`, 2)}
+
+  ${anch.ambiguous ? rise('', `<div class=advm>
+    <span class=advm-k>the advisor, measured</span>
+    <span class=advm-v><b>${anch.resolved}</b> of <b>${
+      Number(anch.ambiguous).toLocaleString()}</b> ambiguous cases it had
+      anything to say about · right on <b>${anch.correct}</b> of those</span>
+    <span class=advm-x>silent on ${(anch.silent_share*100).toFixed(0)}% of the
+      work it exists for, so it does not decide — held-out panel,
+      <span class=mono>${esc(anch.source||'')}</span></span>
+  </div>`, 2) : ''}
+
+  ${rise('', `<a class="act-line door hero-cta" id=open-app href="/app"
+    >open control room <i>↗</i></a>`, 2)}
+</section>
+
+<section id=proof>
+  ${rise('row', mk(1,'the problem',esc(CASE),3)
+    + `<h2 class=chapter>One credit. Four ways it could have been paid.</h2>`
+    + `<div><p class=say>A gateway pays in one lump sum and does not say which
+        orders it covered. For this credit, <b>four different sets of orders
+        add up to it exactly</b> — and they discharge different customers.</p>
+       <p class=say style="margin-top:12px">A system that scores and picks will
+        pick. ATTEST does not: with nothing in the records to separate four
+        financially valid answers, choosing one is a guess — and a guess marks
+        the wrong customer as paid while the books still balance.</p></div>`)}
+
+  ${rise('', `<div class=case-h>
+    <b class=case-m>${esc(rupee(loopHeld.amount_paise))}</b>
+    <span class=case-s>${esc(CASE)} · settled ${esc(loopHeld.settled_on)} ·
+      UTR ${esc(loopHeld.utr||'—')}</span>
+    <span class=case-v>ambiguous · no financial action</span>
+  </div>`, 1)}
+
+  ${rise('stage','',1)}
+${rise('', `
+    <div class=coll>
+      <span class=coll-n><b>${Number(space.universe).toLocaleString()}</b>
+        <span class=lbl>orders in the book</span></span>
+      <i class=coll-a>&rarr;</i>
+      <span class=coll-n><b>${Number(space.candidates).toLocaleString()}</b>
+        <span class=lbl>could belong to this credit</span></span>
+      <i class=coll-a>&rarr;</i>
+      <span class="coll-n end"><b>${survivors}</b>
+        <span class=lbl>explanations survive</span></span>
+    </div>
+    <details class=deep><summary>Every cut, and whether it was a fact or a
+      convention</summary>
+      ${(space.reductions||[]).map(x=>`<div class="red-c ${
+        x.deterministic?'det':'conv'}">
+        <b>&minus;${Number(x.removed).toLocaleString()}</b>
+        <span class=lbl style="color:var(--dim)">${esc(x.name)}
+          <i>${x.deterministic?'deterministic':'convention'}</i></span>
+        <p>${esc(x.justification)}</p></div>`).join('')}
+      <p class=say style="max-width:60ch;margin-top:16px">The last cut is
+        arithmetic rather than a rule: what survives is every subset whose net
+        equals the credit within tolerance. Some of the others are
+        <b>conventions rather than facts</b> &mdash; and uniqueness inside a
+        space that already excluded the truth is not uniqueness.</p>
+    </details>`, 2)}
+
+  ${rise('hand', `
+    <span class=lbl>and until someone does</span>
+    <div class=hand-f>
+      <span class=u><b>${exportable}</b><span class=lbl>unresolved</span></span>
+      <span class=u><b>${esc(stop.held_value||'')}</b><span class=lbl>exposure</span></span>
+      <span class=u><b>evidence required</b><span class=lbl>to resolve any of them</span></span>
+    </div>
+    <p class=hand-p>Each row carries the contested orders, the blocker, the
+      specific evidence that would settle it, and the rule, policy and solver
+      versions the verdict was produced under. <b>${c.AMBIGUOUS} of the
+      ${exportable} share one cause</b> — the ${esc(rupee(
+        blocker.leverage_paise||blocker.value_paise||0))} above — so one answer
+      settles most of the file.</p>
+    <a class="act-line hand-a" id=export
+       href="/api/export/queue?run=${encodeURIComponent(run.run_id)}&format=csv"
+       download>export investigation queue <i>↓</i></a>
+    <span class=hand-n>read-only · no financial action · nothing is posted,
+      mutated or transmitted</span>`, 3)}
+</section>
+
+<section id=product>
+  ${rise('row', mk(2,'the product','four authorities')
+    + `<h2 class=chapter>Four parties. Only one of them can move money.</h2>`
+    + `<div><p class=say>Every decision passes through all four, in this order.
+        The first may be wrong without consequence, because nothing downstream
+        reads it.</p></div>`)}
+
+  ${rise('', `<figure class=roles>
+    <div class="role adv"><i class=role-d></i>
+      <b>Advisor<em>proposes</em></b>
+      <p>Proposes investigative signals — which records to look at. Given
+        identifiers, names and dates, never an amount.</p>
+      <span class=role-x>cannot move money</span></div>
+    <div class=role><i class=role-d></i>
+      <b>Verifier<em>proves</em></b>
+      <p>Independently reconstructs the explanation from the source records and
+        proves it, without reading what the advisor said.</p>
+      <details class=role-more><summary>how it proves</summary>
+        <p>A solver enumerates every subset of the candidate pool whose net
+          equals the credit. A separate checker that shares no code with it
+          re-derives each survivor from the source records. One survivor proves
+          it, several hold it, none contradicts it.</p></details>
+      <span class=role-x>cannot be influenced by the proposal</span></div>
+    <div class=role><i class=role-d></i>
+      <b>Policy<em>permits</em></b>
+      <p>Decides whether a proven result is economically safe to automate: the
+        measured chance of being wrong, priced against what a review costs.</p>
+      <span class=role-x>cannot permit what was not proved</span></div>
+    <div class="role act"><i class=role-d></i>
+      <b>Ledger<em>records</em></b>
+      <p>Records only permitted execution — a balanced entry, or a stated
+        refusal. Never a guess and never silence.</p>
+      <span class=role-x>cannot bypass verification</span></div>
+  </figure>`, 1)}
+</section>
+
+<section id=outcomes>
+  ${rise('row', mk(3,'the two outcomes','same machinery')
+    + `<h2 class=chapter>Same engine. Same advisor. Opposite results.</h2>`
+    + `<div><p class=say>What separates them is not confidence. It is whether
+        the evidence closed.</p></div>`)}
+
+  ${rise('', `<div class=twin>
+    ${[loopOk, loopHeld].map(d=>{
+      const st=k=>(d.stages||[]).find(x=>x.key===k)||{};
+      const v=st('verifier'), pol=st('policy');
+      const n=v.narrowing||{};
+      return `<figure class="tw ${d.acted?'go':'stop'}">
+        <div class=tw-h><b>${esc(d.verdict)}</b>
+          <span>${esc(d.settlement_id)}</span></div>
+        <div class=tw-m>${esc(rupee(d.amount_paise))}</div>
+        <div class=tw-n>${Number(n.universe||0).toLocaleString()}
+          <u>→</u> ${n.candidates} <u>→</u> ${n.explanations}</div>
+        <dl class=tw-l>
+          ${v.residual_paise!=null
+            ? `<div><dt>residual</dt><dd>${esc(rupee(v.residual_paise))}</dd></div>`
+            : `<div><dt>in dispute</dt><dd>${esc(rupee(v.contested_paise||0))}</dd></div>`}
+          <div><dt>policy</dt><dd>${d.acted
+            ? `${esc(rupee(pol.expected_loss_paise||0))} &lt; ${esc(rupee(pol.review_paise||0))}`
+            : 'not eligible at any price'}</dd></div>
+          <div><dt>next</dt><dd>${d.acted
+            ? 'nobody opened it'
+            : 'missing evidence'}</dd></div>
+        </dl>
+        <div class=tw-o>${d.acted
+          ? `<b>auto-post</b><span>${esc(rupee(d.amount_paise))} recorded</span>`
+          : `<b>hold</b><span>no financial action</span>`}</div>
+      </figure>`;}).join('')}
+  </div>`, 1)}
+</section>
+
+<section id=population>
+  ${rise('row', mk(4,'measured','held out, not tuned on')
+    + `<h2 class=chapter>Measured, not marketed.</h2>`
+    + `<div><p class=say>Read from the evaluation artifacts at load, on seeds
+        the policy was never calibrated on.</p></div>`)}
+
+  ${rise('', (()=>{
+    const cl = id => (claims.claims||[]).find(x=>x.id===id) || {};
+    const me = (base.methods||[]).find(m=>m.key==='attest') || {};
+    const pct = v => `${(v*100).toFixed(2).replace(/\.?0+$/,'')}%`;
+    const prec = me.decided ? pct((me.decided-me.wrong)/me.decided) : '—';
+    const cov  = ((cl('C-003').value||'').match(/attest\s+([\d.]+%)/)||[])[1] || '—';
+    return `<div class=strip-e>
+      <span class=u><b>${esc(String(base.present?base.panel.settlements:'—'))}</b>
+        <span class=lbl>held-out settlements</span></span>
+      <span class=u><b>${esc(cov)}</b>
+        <span class=lbl>exact recovery</span></span>
+      <span class=u><b>${esc(prec)}</b>
+        <span class=lbl>proof precision</span></span>
+      <span class=u><b class=w-p>${esc(cl('C-001').value||'—')}</b>
+        <span class=lbl>wrongly posted</span></span>
+      <span class=u><b class=w-p>${me.decided!=null
+        ? `${me.decided-me.wrong}/${me.decided}` : '—'}</b>
+        <span class=lbl>proofs correct</span></span>
+    </div>`;})(), 1)}
+  ${rise('', `
+  <p class=say style="max-width:64ch;margin-top:20px">This run:
+    <b>${esc(rupee(run.processed_paise))}</b> processed —
+    <b>${c.PROVEN}</b> proven · <b>${c.AMBIGUOUS}</b> ambiguous ·
+    <b>${c.CONTRADICTED}</b> contradicted · <b>${c.INSUFFICIENT}</b> insufficient,
+    over ${run.settlements} settlements and
+    ${Number(run.orders).toLocaleString()} orders in
+    ${Number(run.seconds).toFixed(1)}s.</p>`, 1)}
+
+  ${base.present ? rise('', `    <div class=bench-pop>
+      <span><i>live run</i><b>${esc(String(run.settlements))} settlements</b>
+        <em>seed ${esc(String(run.seed))} · ${esc(basis)}</em></span>
+      <span><i>benchmark panel</i><b>${esc(String(base.panel.settlements))} settlements</b>
+        <em>${esc(String(base.panel.seeds))} seeds × ${esc(String(base.panel.per_seed))},
+          neither of them calibrated on — the run above is one of them</em></span>
+    </div>`, 1) : ''}
+
+  ${rise('stage tall','',1)}
+
+  ${rise('', `<details class=deep><summary>Against three reference matchers, on
+    the same data</summary>
+${base.present ? rise('bench', `
+    <div class=bench-h><span>method</span><span>coverage — decided</span>
+      <span>of panel</span><span>false proof — of those decided</span>
+      <span>rate</span><span>correct</span></div>
+    ${base.methods.map(m=>`<div class="bench-r${m.key==='attest'?' me':''}">
+      <i>${esc(m.label)}</i>
+      <span class=bench-t><u class="q cov" style="--w:${
+        (m.decided/m.settlements||0).toFixed(3)}"></u></span>
+      <b>${m.decided} / ${m.settlements}</b>
+      <span class=bench-t><u class=q style="--w:${
+        (m.false_proof||0).toFixed(3)}"></u></span>
+      <b>${(m.false_proof*100).toFixed(1)}%</b>
+      <em class=bench-ok>${m.decided - m.wrong}</em>
+    </div>`).join('')}
+    <div class=bench-note>
+      <p class=bench-claim>More coverage is not more truth.</p>
+      <p class=say style="max-width:60ch">Both bars are drawn on the same scale.
+        <b>Greedy decides ${(base.methods.find(m=>m.key==='greedy')||{}).decided}
+        of ${base.panel.settlements} and is wrong
+        ${(base.methods.find(m=>m.key==='greedy')||{}).wrong} times</b>, so it
+        ends with fewer correct decisions than ATTEST while moving far more
+        money it could not prove. Exact-only is never wrong and decides
+        ${(base.methods.find(m=>m.key==='exact_only')||{}).decided}. ATTEST does
+        not claim the lowest error rate or the widest coverage — it claims the
+        most decisions that were <b>warranted</b>. Read from
+        <span class=mono>benchmark/baselines.json</span>.</p>
+    </div>`, 3) : ''}
+  </details>`, 2)}
+</section>
+
+<section id=ai>
+  ${rise('row', mk(5,'why trust it','the boundary')
+    + `<h2 class=chapter>The AI is advisory. The proof is not.</h2>`
+    + `<div><p class=say>The advisor may propose and may be wrong. Verification
+        is deterministic and recomputed from source. Policy is enforced
+        independently of both. The ledger records nothing the verifier did not
+        prove.</p></div>`)}
+
+${rise('', `<figure class=sig>
+    <div class=sig-h><i>measured model authority</i>
+      <span>${esc(CASE)} · ${survivors} explanations · seed ${
+        esc(String(run.seed))} · ${esc(basis)}</span></div>
+
+    <div class="sig-r model"><i class=sig-gl></i>
+      <span class=sig-a>Model<em>proposes</em></span>
+      <span class=sig-v><b class=sig-o>${esc(
+        ((inv.steps||[]).find(x=>x.actor==='model')||{}).input || '—')}</b>
+        <span class=sig-w>An anchor — a guess at which of the ${survivors}
+          explanations is the real one, from a capture-batch heuristic standing
+          in the advisory slot. <b>Not a verdict, and structurally not eligible
+          to become one:</b> it names orders, never an amount, and the engine
+          below recomputes without reading it.</span></span></div>
+
+    <div class="sig-r solver"><i class=sig-gl></i>
+      <span class=sig-a>Solver<em>tests</em></span>
+      <span class=sig-v><b class=sig-o>${esc(String(inv.tested??0))} tested ·
+        ${esc(String(inv.discriminative??0))} discriminative</b>
+        <span class=sig-w>${(inv.discriminative||0) === 0
+          ? `The anchor was checked against the arithmetic and <b>isolated no
+             explanation</b>. It separates nothing.`
+          : `The anchor isolated a single explanation on
+             ${inv.discriminative} of ${inv.tested} tests.`}</span></span></div>
+
+    <div class="sig-r engine"><i class=sig-gl></i>
+      <span class=sig-a>Engine<em>decides</em></span>
+      <span class=sig-v><b class=sig-o>${esc(inv.verdict)}</b>
+        <span class=sig-w>The verdict it already held, <b>computed without
+          reading the model's</b>. Nothing downstream consumes the
+          proposal.</span></span></div>
+
+    ${inv.would_have_concluded ? `<div class=sig-cf>
+      <div class=cf-c><span class=lbl>model concluded</span>
+        <b>${esc(inv.would_have_concluded)}</b><em>diagnostic · discarded</em></div>
+      <div class=sig-op>${inv.would_have_concluded === inv.verdict ? '=' : '≠'}</div>
+      <div class=cf-c><span class=lbl>engine verdict</span>
+        <b>${esc(inv.verdict)}</b><em>deterministic · retained</em></div>
+    </div>` : ''}
+
+    ${anch.resolved ? `<div class=sig-m>
+      <div class=sig-mh><b>${anch.resolved} / ${anch.ambiguous}</b>
+        <span>ambiguous cases the model could answer</span>
+        <u>silent on ${(anch.silent_share*100).toFixed(0)}%</u></div>
+      <div class=sig-ticks>${Array.from({length: anch.resolved}, (_, i) =>
+        `<i class="sig-tk${i < anch.correct ? ' hit' : ''}"></i>`).join('')}</div>
+      <p class=sig-mn>Held-out evaluation panel, read from
+        <span class=mono>${esc(anch.source||'')}</span>. Each tick is one of the
+        <b>${anch.resolved}</b> cases it spoke on; filled means it was right —
+        <b>${anch.correct} of ${anch.resolved}</b>. On
+        <b>${(anch.single_date_share*100).toFixed(0)}%</b> of candidate pools its
+        lens — the densest same-day batch — is true of every order in the pool,
+        so the anchor is an arbitrary pick wearing a rationale. A component that
+        is silent on ${(anch.silent_share*100).toFixed(0)}% of the work and
+        vacuous on half of the rest <b>does not get a vote on money</b> — which
+        is why this one proposes and the engine decides.</p>
+    </div>` : ''}
+
+    <div class=sig-x><b>No financial action</b>
+      <span>${inv.changed_nothing ? 'verdict unchanged' : 'verdict changed'} ·
+        nothing posted · requires external evidence</span></div>
+  </figure>`, 1)}
+
+  ${inv.would_have_concluded && inv.would_have_concluded === inv.verdict ? rise('',
+    `<p class=say style="margin-top:22px;max-width:64ch">On this settlement the
+      two agree, and the agreement is a coincidence of the case rather than a
+      mechanism. <b>The engine's verdict is produced without reading the
+      model's</b>, so agreement and disagreement are equally
+      inconsequential.</p>`, 2) : ''}
+
+</section>
+
+<section id=proofs>
+  ${rise('', `<span class=lbl>and every one of those is measured, not
+    asserted</span>`)}
+${rise('proofs', `
+    <div class=pf>
+      <span class=lbl>independent proof</span>
+      <b>${krn.present ? krn.lines : '—'}<i>line kernel</i></b>
+      <p>${krn.present && krn.independent
+        ? `The checker does not import the solver; the solver imports the
+           checker. A bug in the search cannot also be the bug that waves its
+           own answer through.`
+        : `The checker's independence could not be read.`}</p>
+    </div>
+    <div class=pf>
+      <span class=lbl>financial safety</span>
+      <b>${claims.gates.filter(g=>g.state==='PASS').length}<i>of ${
+        claims.gates.length} gates</i></b>
+      <p>Integer paise end to end — no float ever touches money.
+        ${adv.present ? `${adv.attacks} attempts to move money the engine
+        should not move, ${adv.breached} succeeded.` : ''}</p>
+    </div>
+    <div class=pf>
+      <span class=lbl>ai boundary</span>
+      <b>${anch.resolved ? `${(anch.precision*100).toFixed(1)}%` : '—'}<i>${
+        anch.resolved ? `${anch.correct} of ${anch.resolved}` : 'not measured'}</i></b>
+      <p>Silent on most of the work it exists for, which is why the model
+      proposes and never decides.
+        Its conclusion is diagnostic only and nothing downstream reads it.</p>
+    </div>
+    <div class=pf>
+      <span class=lbl>source boundary</span>
+      <b>${iso.clean}<i>of ${iso.modules} modules</i></b>
+      <p>Not one of the modules that produce a verdict names the provider. The
+        adapter is read-only, the data is synthetic by design, and live account
+        validation is <em>not verified</em>.</p>
+    </div>`, 1)}
+</section>
+
+<section id=end>
+  ${rise('', `<p class=ghost>Only evidence moves money.</p>`, 1)}
+  ${rise('foot', `
+    <p><b class=mono>${esc(String(run.settlements))}</b> settlements ·
+      <b class=mono>${Number(run.orders).toLocaleString()}</b> orders ·
+      <b class=mono>${esc(String(run.seed))}</b> seed · ${esc(basis)} ·
+      ${esc(src.detail||'')}</p>
+    <nav class=foot-n>
+      <a href="https://github.com/kunalKumar-13/attest">GitHub <i>↗</i></a>
+      <a class=door href="/app">Control room <i>↗</i></a>
+      <a href="https://github.com/kunalKumar-13/attest/blob/main/docs/EVALUATION.md"
+        >Evaluation <i>↗</i></a>
+      <a href="https://github.com/kunalKumar-13/attest/blob/main/docs/ARCHITECTURE.md"
+        >Architecture <i>↗</i></a>
+    </nav>`, 1)}
+</section>`;
+    wire({counts:c, space, survivors,
+          system:[src.label||'', (src.engine||{}).label||'',
+                  `${run.settlements} settlements`].filter(Boolean)});
+  }catch(e){
+    main.innerHTML=`<section><p class=err>The engine did not answer, so this
+      page has nothing to show. It does not keep a copy of the numbers.<br><br>
+      ${esc(e.message)}</p></section>`;
+  }
+}
+</script>
+<script>
+'use strict';
+function wire(data){
+  /* Selected by the section that owns them, not by document order. They were
+     indexed [0] and [1], so moving the candidate field above the population
+     field in the information architecture would silently give each the other's
+     legend. An index is a fact about the document; an id is a fact about the
+     thing being drawn. */
+  const stages=[document.querySelector('#population .stage'),
+                document.querySelector('#proof .stage')];
+  const fields=[];
+
+  /* The opening instrument's population. Deliberately outside the `.stage`
+     list — it is the same primitive but a different job, and giving it that
+     class silently handed it the config meant for the section below. It draws
+     no legend: the three state buttons under it are the legend, and they say
+     what each verdict MEANS rather than repeating its name. */
+  const hero=document.getElementById('heroField');
+  if(hero){
+    const hf=Field(hero, {cell:18, lane:54, aspect:6,
+      groups:[{n:data.counts.PROVEN,       tone:'proven', key:'proven'},
+              {n:data.counts.AMBIGUOUS,    tone:'coral',  key:'ambiguous'},
+              {n:data.counts.CONTRADICTED, tone:'ink', r:5, key:'contradicted'},
+              {n:data.counts.INSUFFICIENT, tone:'dim',    key:'insufficient'}]
+        .filter(g=>g.n>0)});
+    fields.push([hero, hf]);
+    /* Each state cell opens on hover or focus to say what the verdict MEANS
+       rather than repeat its name. CSS does the disclosure; there is no
+       handler here to leave dangling, and the copy is present without motion
+       under reduced-motion and below 720px. */
+  }
+  /* Counts and labels come from the same group object that draws the points,
+     so the legend cannot drift from the field. Nothing here is written down. */
+  if(stages[0]) fields.push([stages[0], Field(stages[0], {cell:15, lane:56,
+    groups:[{n:data.counts.PROVEN,       tone:'proven', label:'proven'},
+            {n:data.counts.AMBIGUOUS,    tone:'coral',  label:'ambiguous'},
+            {n:data.counts.CONTRADICTED, tone:'ink', r:4.5, label:'contradicted'},
+            {n:data.counts.INSUFFICIENT, tone:'dim',   label:'insufficient'}]
+      .filter(g=>g.n>0)})]);
+  if(stages[1]) fields.push([stages[1], Field(stages[1], {cell:6, lane:60,
+    groups:[{n:data.space.universe-data.space.candidates, tone:'dim', r:1.3,
+             label:'cut by the reductions'},
+            {n:data.space.candidates, tone:'ink', r:2, label:'candidates'},
+            {n:data.survivors, tone:'lit', r:7, label:'explanations'}]
+      .filter(g=>g.n>0)})]);
+
+  if(!STILL){
+    const rev=new IntersectionObserver(es=>{
+      for(const e of es) if(e.isIntersecting){
+        e.target.classList.add('in');
+        const f=fields.find(([h])=>h===e.target||e.target.contains(h)||h.contains(e.target));
+        if(f) f[1].show();
+        rev.unobserve(e.target);
+      }
+    },{rootMargin:'0px 0px -6% 0px',threshold:.1});
+    document.querySelectorAll('.rise').forEach(n=>rev.observe(n));
+  } else {
+    document.querySelectorAll('.rise').forEach(n=>n.classList.add('in'));
+    fields.forEach(([,f])=>f.show());
+  }
+  addEventListener('resize',()=>fields.forEach(([,f])=>f.resize()),{passive:true});
+
+  const nav=document.getElementById('index');
+  nav.innerHTML=`<div class=grp>finance</div>`
+    + NAV.map(([id,k,label])=>`<a href="#${id}" data-i="${id}"><span class=k>${
+        k}</span>${esc(label)}</a>`).join('')
+    + `<div class=grp>lifecycle</div>
+       <div class=loop id=loop>${LOOP.map(([k,l])=>
+         `<span data-stage="${k}"><i class=st></i>${esc(l)}</span>`).join('')}</div>`
+    + `<div class=grp>system</div><div class=sys id=sysline></div>`;
+  const sysline = document.getElementById('sysline');
+  if (sysline) sysline.innerHTML = (data.system || []).map(esc).join('<br>');
+  const links=new Map([...nav.querySelectorAll('a')].map(a=>[a.dataset.i,a]));
+
+  const ratio=new Map();
+  const here=new IntersectionObserver(es=>{
+    for(const e of es) ratio.set(e.target.id, e.isIntersecting?e.intersectionRatio:0);
+    let id=null,best=0;
+    for(const [k,v] of ratio) if(v>best){best=v;id=k;}
+    if(!id) return;
+    links.forEach((a,k)=>a.classList.toggle('on',k===id));
+    const st = STAGE[id];
+    document.querySelectorAll('#loop span').forEach(n=>
+      n.classList.toggle('on', n.dataset.stage === st));
+  },{rootMargin:'-40% 0px -40% 0px',threshold:[0,.1,.3,.6,1]});
+  [...NAV.map(x=>x[0]), ...Object.keys(STAGE)].forEach(id=>{
+    const el=document.getElementById(id); if(el && !ratio.has(id)) here.observe(el);});
+
+  const at=location.hash.replace('#','');
+  if(at&&document.getElementById(at))
+    document.getElementById(at).scrollIntoView({behavior:'auto'});
+}
+build();
+</script>

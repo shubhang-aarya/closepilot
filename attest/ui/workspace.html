@@ -1,0 +1,2881 @@
+<meta charset=utf-8>
+<meta name=viewport content="width=device-width,initial-scale=1">
+<title>ATTEST — workspace</title>
+<link rel=preconnect href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel=stylesheet>
+<style>
+:root{
+  /* ══════════════════════════════════════════ THE INSTRUMENT ROOM
+     Same world as the front door, measured off the reference's DARK
+     rendering: canvas rgb(14,14,14), surface rgb(17,17,17), coral
+     rgb(255,101,90) for what is unresolved, and a lime reserved for actions.
+
+     What changes between the two surfaces is DENSITY, not identity. The
+     investigation is a reading; this is the instrument. An instrument may be
+     dense. It may not be a different product.
+
+     Colour still says three things and no more: coral is unresolved or
+     refused, green is proved, lime is an action you can take. Everything else
+     is white at some opacity. */
+  --bg:#0e0e0e;
+  --sur:#141414;
+  --sur2:#191919;
+  --sur3:#202020;
+  --line:rgba(255,255,255,.10);
+  --line2:rgba(255,255,255,.20);
+  --ink:#ffffff;
+  --dim:rgba(255,255,255,.68);
+  --dim2:rgba(255,255,255,.52);
+  --dim3:rgba(255,255,255,.38);
+  --acc:#dcf23c;  --acc-d:rgba(220,242,60,.12);
+  --rail-bg:#111111;
+  --hov:rgba(255,255,255,.05);
+  --st-PROVEN:#5fbf9b;       --st-PROVEN-bg:rgba(95,191,155,.12);
+  --st-AMBIGUOUS:#e8a13c;    --st-AMBIGUOUS-bg:rgba(232,161,60,.12);
+  --st-CONTRADICTED:#ff655a; --st-CONTRADICTED-bg:rgba(255,101,90,.12);
+  --st-INSUFFICIENT:rgba(255,255,255,.52); --st-INSUFFICIENT-bg:rgba(255,255,255,.06);
+  --st-SYSTEMIC:#5fbf9b;     --st-SYSTEMIC-bg:rgba(95,191,155,.12);
+  --st-INVESTIGATE:#7aa2ff;  --st-INVESTIGATE-bg:rgba(122,162,255,.12);
+  --shadow:none;
+  --s:"Space Grotesk",ui-sans-serif,-apple-system,system-ui,sans-serif;
+  --m:"Space Mono",ui-monospace,SFMono-Regular,Menlo,monospace;
+  /* ------------------------------------------------------------- TYPE
+     Six named roles. The audit found NINE sizes in use with two accidental
+     pairs — 13/13.5 and 8.5/9 — which are not decisions, they are the
+     residue of choosing at the call site. Everything below resolves to one
+     of six, and the old names are kept as aliases so no rule has to be
+     rewritten to obey the scale.
+
+     DATA is a role, not a size: financial values are the subject of this
+     product and must never render as body copy. */
+  --type-display:34px;   /* the case amount, once per screen */
+  --type-title:20px;     /* identity, the lens's headline */
+  --type-data:15px;      /* figures inside a composition */
+  --type-body:13px;      /* statements, row content */
+  --type-label:11px;     /* small-caps section labels */
+  --type-micro:10px;     /* provenance, timestamps, counts */
+
+  --t-micro:var(--type-micro); --t-label:var(--type-label);
+  --t-small:var(--type-label); --t-body:var(--type-body);
+  --t-lead:var(--type-data);   --t-h3:var(--type-title);
+  --t-h2:var(--type-title);    --t-num:var(--type-display);
+  --t-hero:var(--type-display);
+
+  /* ----------------------------------------------------------- SPACING
+     Eight steps on a 4px base, replacing 4/6/9/13/19/27/38 — a geometric
+     drift where no two steps shared a relationship. A component that needs
+     a ninth value is a component that is structurally wrong. */
+  --sp-1:4px; --sp-2:8px; --sp-3:12px; --sp-4:16px;
+  --sp-5:20px; --sp-6:24px; --sp-7:32px; --sp-8:40px;
+  --s-1:var(--sp-1); --s-2:var(--sp-2); --s-3:var(--sp-2); --s-4:var(--sp-3);
+  --s-5:var(--sp-5); --s-6:var(--sp-6); --s-7:var(--sp-8);
+
+  /* ------------------------------------------------------------ RADII
+     Two. Six were in use. A row is not a card; a separator is not a chip. */
+  --r-sm:4px;            /* controls, small interactive elements */
+  --r-lg:8px;            /* contextual surfaces */
+  --r-0:var(--r-sm); --r-1:var(--r-sm); --r-2:var(--r-lg);
+  --r-3:var(--r-lg); --r-4:var(--r-lg); --r-full:999px;
+
+  /* ----------------------------------------------------------- MOTION
+     Three tiers. Two existed, and the spatial one — an object opening out
+     of the row that owns it — ran on the same token as a hover tint. */
+  --micro:.12s cubic-bezier(.2,0,0,1);      /* interaction feedback */
+  --standard:.2s cubic-bezier(.2,0,0,1);    /* lens and state change */
+  --spatial:.3s cubic-bezier(.16,1,.3,1);   /* context open and close */
+  --fast:var(--micro); --med:var(--standard);
+}
+/* Light remains reachable for anyone who needs it, but it is no longer a
+   switch in the primary interaction path: the first control on the page should
+   never be a question about the product's appearance. */
+/* Dark is still reachable with ?theme=dark for anyone who wants it, but it is
+   not the product: the family this is drawn from is paper. */
+/* Light remains reachable with ?theme=light. It is not the product. */
+:root[data-theme=light]{
+  --bg:#f2f1ec; --sur:#fbfaf7; --sur2:#eeece5; --sur3:#e4e2d9;
+  --line:rgba(18,19,15,.13); --line2:rgba(18,19,15,.26);
+  --ink:#12130f; --dim:#55564e; --dim2:#666760; --dim3:#676860;
+  --acc:#b4462a; --acc-d:rgba(180,70,42,.09);
+  --rail-bg:#edebe4; --hov:rgba(18,19,15,.04);
+  --st-PROVEN:#2f6b4f;       --st-PROVEN-bg:rgba(47,107,79,.09);
+  --st-AMBIGUOUS:#8a5f1c;    --st-AMBIGUOUS-bg:rgba(138,95,28,.10);
+  --st-CONTRADICTED:#b4462a; --st-CONTRADICTED-bg:rgba(180,70,42,.09);
+  --st-INSUFFICIENT:#666760; --st-INSUFFICIENT-bg:rgba(18,19,15,.05);
+  --st-SYSTEMIC:#2f6b4f;     --st-SYSTEMIC-bg:rgba(47,107,79,.09);
+  --st-INVESTIGATE:#2f5aa8;  --st-INVESTIGATE-bg:rgba(47,90,168,.09);
+  --shadow:none;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font:var(--type-body)/1.55 var(--s);
+-webkit-font-smoothing:antialiased;overflow:hidden}
+/* Type and colour were reset here; background and border were not, so every
+   control that did not paint its own surface inherited Chromium's buttonface
+   grey and a 2px outset border. The instrument dock's own stylesheet describes
+   'a seated indent against the rail edge rather than a filled chip' — that
+   design had never once rendered. A control in this product is a surface it
+   chose, or no surface at all. */
+button{font:inherit;color:inherit;background:transparent;border:0;
+  border-radius:0;padding:0;text-align:inherit}
+
+/* --------------------------------------------------------------- app shell */
+/* ============================================================== THE FRAME
+   THE CASE IS THE OBJECT. THE RAIL IS THE CASE. THE INSTRUMENT IS THE ROOM.
+
+   The autopsy measured 343px of identical chrome stacked above every
+   instrument, squeezing it into 533px of a 900px viewport. The case turns 90
+   degrees: written once into a rail, never re-rendered, and the room starts
+   at y=0 with the full height.
+
+   The rail is a tax and has to earn every pixel, so its width was measured
+   rather than chosen. At 240/256/272 the rail overflows by 36/20/4px. At 288
+   it does not overflow, but the portfolio total is silently CLIPPED — the
+   amount's natural width is 255px and only 247px is available, and clipping
+   the primary financial object to save eight pixels is not a trade worth
+   making.
+
+   296px is the smallest width that renders ₹53,02,701.96 in full at 34px
+   with the 20px gutters. The rail is therefore sized by the largest amount
+   the product must display, which is the right thing for it to be sized by. */
+:root{--rail:296px}
+#app{display:grid;
+  grid-template-columns:var(--rail) minmax(0,1fr);
+  grid-template-rows:minmax(0,1fr) auto auto;
+  grid-template-areas:"case room" "inst room" "bar room";
+  height:100vh;min-height:0}
+#app>*{min-width:0}
+#subject{grid-area:case;overflow-y:auto;overflow-x:hidden}
+#lenses{grid-area:inst}
+#bar{grid-area:bar}
+#workspace{grid-area:room}
+#foot{display:none}          /* the rail says what the foot used to */
+
+/* Secondary controls. Moved out of the primary interaction path — the first
+   interactive element on the page was the theme toggle, which is a statement
+   about what the product thinks it is for. */
+/* wraps rather than overflows: the bar carries the source and the execution
+   path, and a 360px phone cannot hold both on one line beside the run
+   controls. Neither fact is worth dropping to save a row. */
+#bar{display:flex;align-items:center;flex-wrap:wrap;gap:var(--sp-2);padding:var(--sp-2) var(--sp-3);
+height:auto;border-top:1px solid var(--line);background:var(--rail-bg)}
+#bar .wm{opacity:.55}
+#bar #hint{display:none}
+#bar .wm{font-family:var(--m);font-weight:700;letter-spacing:.2em;
+font-size:var(--t-small)}
+#bar .sp{flex:1}
+.btn{background:var(--sur);border:1px solid var(--line);border-radius:var(--r-2);
+padding:5px 11px;font-size:var(--t-label);cursor:pointer;color:var(--dim2)}
+.btn:hover{color:var(--ink);border-color:var(--line2)}
+.btn.go{background:var(--acc);border-color:var(--acc);color:#fff}
+#hint{font-size:var(--t-micro);color:var(--dim3);font-family:var(--m)}
+
+/* subject header — patched, never re-rendered */
+/* Wraps deliberately: the meta line belongs under the identity, not squeezed
+   beside it. Without wrap a 100%-width meta row crushed the label to an
+   ellipsis, which is the one thing a subject header may never do. */
+/* ---------------------------------------------------------- THE CASE RAIL
+   Not a sidebar and not navigation. It answers: what am I looking at, how
+   much, what state is it in, where did the money stop, what is agreed, what
+   is disputed, what should I do. The instrument answers a different
+   question — which one is being asked. */
+.c-subject{background:var(--rail-bg);border-right:1px solid var(--line)}
+.c-case{display:flex;flex-direction:column;gap:var(--sp-4);
+  padding:var(--sp-5) var(--sp-5) var(--sp-3)}
+
+/* 1. the amount — the financial subject, and unmistakably the largest thing */
+.c-case-amt .v{display:block;font-family:var(--m);
+  font-variant-numeric:tabular-nums;font-size:var(--type-display);
+  letter-spacing:-.035em;line-height:1;font-weight:500}
+.c-case-amt .k{display:block;font-size:var(--type-micro);color:var(--dim3);
+  letter-spacing:.13em;text-transform:uppercase;margin-top:var(--sp-1)}
+
+/* 2. verdict, 3. identity */
+.c-case-id{display:flex;flex-wrap:wrap;align-items:baseline;gap:var(--sp-2);
+  margin-top:calc(var(--sp-4) * -1 + var(--sp-2))}
+.c-case-id .lbl{font-size:var(--type-title);font-weight:600;letter-spacing:-.02em;
+  line-height:1.15;order:2;flex-basis:100%}
+.c-case-id .st{order:1}
+.c-case-id .sub{order:3;font-size:var(--type-micro);color:var(--dim3);
+  letter-spacing:.12em;text-transform:uppercase}
+.c-case-meta{display:flex;flex-wrap:wrap;gap:var(--sp-1) var(--sp-3);
+  font-size:var(--type-micro);color:var(--dim3);font-family:var(--m)}
+.c-case-meta i{font-style:normal;letter-spacing:.1em;text-transform:uppercase;
+  margin-right:4px;opacity:.7}
+
+/* 4/5/6 — the state, what is agreed, what to do */
+.c-slot{border-top:1px solid var(--line);padding-top:var(--sp-3)}
+.c-slot[hidden],.c-slot:empty{display:none}
+/* Agreed and disputed are one fact in two halves — what every explanation
+   settles, and what they argue over. Stacking them pushed the disputed amount
+   and the next action off the bottom of the rail on a 900px screen. */
+.c-now{display:grid;grid-template-columns:1fr 1fr;gap:var(--sp-3)}
+.c-fact{display:grid;grid-template-columns:1fr;gap:1px;padding-bottom:var(--sp-3)}
+.c-now .c-fact{padding-bottom:0}
+.c-fact:last-child{padding-bottom:0}
+.c-fk{font-size:var(--type-micro);letter-spacing:.14em;text-transform:uppercase;
+  color:var(--dim3)}
+.c-fv{font-family:var(--m);font-variant-numeric:tabular-nums;
+  font-size:var(--type-data);font-weight:500}
+.c-fact.hot .c-fv{color:var(--st-CONTRADICTED)}
+.c-fact em{font-style:normal;font-size:var(--type-micro);color:var(--dim3)}
+.c-nx-w{font-size:var(--type-body);line-height:1.4;padding-top:2px}
+.c-nx-v{padding-top:var(--sp-2)}
+.c-nx-v b{font-family:var(--m);font-variant-numeric:tabular-nums;
+  font-size:var(--type-data);color:var(--st-PROVEN)}
+.c-nx-v em{display:block;font-style:normal;font-size:var(--type-micro);color:var(--dim3)}
+
+/* the spine, in the rail, as part of the case's identity
+   ------------------------------------------------------------------
+   §6. Money is the subject of this product and had been rendering as
+   annotation: the stage names, the continuing value and the held value all
+   sat at 9-10px, so ₹48,03,127.81 stopped at verification was painted the
+   same size as the word beside it and two sizes below a ₹6,316 blocker.
+
+   The three amounts in a spine row are three different facts and now read as
+   three different roles:
+
+     MONEY THAT CONTINUES   the stage value          13px  mono
+     MONEY THAT STOPPED     the held value           15px  mono, stop colour
+     the stage it stopped at  label                  10px  small caps
+
+   Nothing was added. The row is the same three spans it always was. */
+.c-state .c-flow{gap:0}
+.c-state .c-flow-r{grid-template-columns:78px minmax(24px,1fr) auto;
+  gap:var(--sp-1) var(--sp-2);padding:var(--sp-1) 0;align-items:center}
+.c-state .c-flow-n{grid-column:1;grid-row:1;font-size:var(--type-micro)}
+.c-state .c-flow-track{grid-column:2;grid-row:1;height:8px;max-width:none}
+/* the money that CONTINUES sits on the stage's own line, not under it — three
+   stacked lines per stage left the rail with no room for the next action */
+.c-state .c-flow-v{grid-column:3;grid-row:1;text-align:right;
+  font-size:var(--type-body);padding-bottom:0;white-space:nowrap}
+.c-state .c-flow-x{grid-column:1/4;grid-row:2;font-size:var(--type-micro);
+  padding-bottom:var(--sp-1)}
+/* a stage that held nothing has nothing to annotate — three of five rows were
+   reserving a line for an empty span */
+.c-state .c-flow-x:empty,.c-state .c-flow-v:empty{display:none}
+/* The held amount is the money that STOPPED — the answer to the one question
+   the landing exists to answer. §10 asks the first viewport to say
+
+       MONEY STOPPED AT
+       VERIFICATION
+       ₹48,03,127.81 HELD
+
+   which the spine already says: a stage name, in the stop colour, carrying the
+   amount. It was saying it at 9px. Rather than repeat the sentence in a second
+   block — the duplication this phase found in Policy — the row that already
+   states it is given the weight of a statement. */
+/* Every ₹ role declares tabular figures so digits hold their column. This one
+   did not, and it carries the answer to where the money stopped. */
+.c-state .c-flow-h{font-size:var(--type-title);letter-spacing:-.02em;
+  font-weight:500;font-variant-numeric:tabular-nums}
+.c-state .c-flow-r.stopped .c-flow-n{color:var(--ink);font-weight:500}
+.c-state .c-flow-d{display:none}
+/* ------------------------------------------------- §22.10 THE PROOF CHAIN
+   The spine is the one object that states the whole model, and it was inert.
+   Each stage is now the way into the instrument that owns it, and each room
+   marks the segment it is talking about on the spine the shell already draws
+   rather than drawing a second one.
+
+   The mark is a rule down the left edge — the same device the search-space
+   reductions use for deterministic-versus-convention — not a fill, because a
+   filled row in a column of five reads as a selected menu item. */
+.c-state .c-flow-r{position:relative;width:100%;text-align:left;
+  border-left:2px solid transparent;padding-left:var(--sp-2);
+  margin-left:calc(var(--sp-2) * -1);
+  transition:background var(--micro),border-color var(--micro)}
+/* A lit stage carries a solid rule; a stage you can open carries the same rule
+   at a quarter weight. The affordance and the state share one language, so the
+   spine needs no icon and no chevron to say it is navigable. */
+.c-state button.c-flow-r{cursor:pointer;border-left-color:var(--line)}
+.c-state button.c-flow-r:hover{background:var(--sur2);
+  border-left-color:var(--dim2)}
+.c-state button.c-flow-r:hover .c-flow-n{color:var(--ink)}
+.c-state button.c-flow-r:focus-visible{outline:2px solid var(--acc);
+  outline-offset:-2px}
+.c-state .c-flow-r.lit{border-left-color:var(--ink)}
+.c-state .c-flow-r.lit .c-flow-n{color:var(--ink);font-weight:500}
+
+
+
+/* lens strip — an instrument, not browser tabs */
+/* --------------------------------------------- THE RAIL ON A SMALL SCREEN
+   A 296px rail against a 360px viewport leaves the instrument 40px, which is
+   not a narrow layout, it is a broken one. Below 768px the rail becomes a
+   compact case BAND — identity, amount, verdict, and the stage model reduced
+   to marks — and the instrument gets the rest. Not the old giant header: the
+   band is one or two lines, and the full financial state is a scroll away
+   inside it rather than a wall above the room. */
+@media (max-width:767px){
+  :root{--rail:100%}
+  #app{grid-template-columns:minmax(0,1fr);
+    grid-template-rows:auto minmax(0,1fr) auto auto;
+    grid-template-areas:"case" "room" "inst" "bar"}
+  /* The band is capped so the instrument keeps the majority of a phone
+     screen. Agreed, disputed and the next action scroll INSIDE it rather
+     than being dropped — a phone is a smaller window on the case, not a
+     different case. */
+  #subject{border-right:0;border-bottom:1px solid var(--line);
+    max-height:25vh;overflow-y:auto}
+  .c-case{padding:var(--sp-3) var(--sp-4);gap:var(--sp-2);
+    display:grid;grid-template-columns:minmax(0,1fr) auto;
+    grid-template-areas:"id amt" "meta meta" "state state" "now now" "next next"}
+  .c-case-amt{grid-area:amt;text-align:right}
+  .c-case-amt .v{font-size:var(--type-title)}
+  .c-case-id{grid-area:id;margin-top:0}
+  .c-case-id .lbl{flex-basis:auto;font-size:var(--type-body)}
+  .c-case-meta{grid-area:meta}
+  .c-state{grid-area:state} .c-now{grid-area:now} .c-next{grid-area:next}
+  /* The stage model must survive to a phone — it is the one thing that must
+     not be dropped. Five columns across 360px overlapped their own labels, so
+     it stays a list and gets tighter instead: name, bar, figure on one line,
+     and only the stage that stopped keeps its sentence. */
+  .c-state .c-flow{display:flex;flex-direction:column;gap:0}
+  .c-state .c-flow-r{grid-template-columns:62px minmax(0,1fr) auto;
+    gap:var(--sp-2);padding:2px 0;align-items:center}
+  .c-state .c-flow-n{grid-column:1;grid-row:1}
+  .c-state .c-flow-track{grid-column:2;grid-row:1;height:7px}
+  .c-state .c-flow-v{grid-column:3;grid-row:1;font-size:var(--type-micro);text-align:right}
+  .c-state .c-flow-x{display:none}
+  .c-state .c-flow-r.stopped .c-flow-x{display:block;grid-column:1/4;grid-row:2;
+    font-size:var(--type-micro);padding-bottom:2px}
+  .c-now,.c-next{display:flex;gap:var(--sp-5);flex-wrap:wrap}
+  .c-fact{padding-bottom:0}
+  .c-lenses{grid-area:inst}
+  #bar{grid-area:bar}
+}
+
+/* ======================================== TRUST · SYSTEM INTEGRITY CONSOLE
+   Four zones: what is not claimed, what is demonstrated, what broke, what
+   produced this. The NOT VERIFIED zone is deliberately the strongest — a
+   surface that leads with its passes is a trophy wall, and the whole reason
+   this lens exists is to say what the system will not assert. */
+.t-bounds{display:flex;flex-direction:column}
+.t-bound{display:grid;grid-template-columns:100px 292px minmax(0,1fr);
+  gap:var(--sp-4);align-items:baseline;padding:var(--sp-2) 0;
+  border-top:1px solid var(--line)}
+.t-bound:first-child{border-top:0}
+.t-bound-s{font-size:var(--type-micro);letter-spacing:.14em;color:var(--st-CONTRADICTED);
+  border:1px solid var(--st-CONTRADICTED);border-radius:var(--r-sm);
+  padding:2px 5px;text-align:center}
+.t-bound-w{font-size:var(--type-body);font-weight:600}
+.t-bound-y{font-size:var(--type-micro);color:var(--dim2);line-height:1.5}
+
+/* assertions, not KPI cards: a claim, its state, and what stands behind it */
+.t-asserts{display:flex;flex-direction:column;padding-bottom:var(--sp-5)}
+.t-assert{display:grid;grid-template-columns:150px 168px minmax(0,1fr);
+  gap:var(--sp-4);align-items:baseline;padding:var(--sp-2) 0;
+  border-top:1px solid var(--line)}
+.t-assert:first-child{border-top:0}
+.t-assert-k{font-size:var(--type-micro);letter-spacing:.13em;text-transform:uppercase;
+  color:var(--dim3)}
+.t-assert-v{font-family:var(--m);font-size:var(--type-body);font-weight:500;
+  color:var(--st-PROVEN);letter-spacing:.04em}
+.t-assert-w{font-size:var(--type-micro);color:var(--dim2)}
+
+/* failure lifecycle — found, reproduced, fixed, tested */
+.t-traces{display:flex;flex-direction:column;gap:var(--sp-5)}
+.t-trace{border-left:2px solid var(--line2);padding-left:var(--sp-4)}
+.t-trace-h{display:flex;align-items:baseline;gap:var(--sp-3);padding-bottom:var(--sp-2)}
+.t-trace-id{font-family:var(--m);font-size:var(--type-micro);letter-spacing:.1em;
+  color:var(--dim3)}
+.t-trace-h b{font-size:var(--type-body);font-weight:600}
+.t-life{list-style:none;display:flex;flex-wrap:wrap;gap:0;margin:0;padding:0 0 var(--sp-2)}
+.t-life li{font-size:var(--type-micro);letter-spacing:.13em;text-transform:uppercase;
+  color:var(--dim3);padding:2px var(--sp-3) 2px 0;position:relative}
+.t-life li:not(:last-child)::after{content:"→";padding-left:var(--sp-2);opacity:.5}
+.t-life li.on{color:var(--st-PROVEN)}
+.t-life li:not(.on){color:var(--st-AMBIGUOUS)}
+.t-trace-w{font-size:var(--type-micro);color:var(--dim);line-height:1.55;
+  max-width:78ch}
+.t-trace-r{font-family:var(--m);font-size:var(--type-micro);color:var(--dim3);padding-top:var(--sp-2)}
+
+/* provenance — a vertical chain, versions on the right */
+.t-prov{list-style:none;display:flex;flex-direction:column;margin:0;padding:0}
+.t-prov-s{display:grid;grid-template-columns:132px minmax(0,1fr) auto;
+  gap:var(--sp-4);align-items:baseline;padding:var(--sp-2) 0;
+  border-top:1px solid var(--line);position:relative}
+.t-prov-s:first-child{border-top:0}
+.t-prov-s::before{content:"";position:absolute;left:5px;top:0;bottom:0;width:1px;
+  background:var(--line2)}
+.t-prov-s:first-child::before{top:50%} .t-prov-s:last-child::before{bottom:50%}
+.t-prov-s::after{content:"";position:absolute;left:2px;top:calc(50% - 3px);
+  width:7px;height:7px;border-radius:50%;background:var(--dim3)}
+.t-prov-k{padding-left:var(--sp-5);font-size:var(--type-micro);letter-spacing:.13em;
+  text-transform:uppercase;color:var(--dim3)}
+.t-prov-w{font-size:var(--type-micro);color:var(--dim)}
+.t-prov-v{font-family:var(--m);font-size:var(--type-micro);color:var(--ink);
+  text-align:right}
+.t-prov-n{font-size:var(--type-micro);color:var(--dim2);padding-top:var(--sp-3);
+  max-width:70ch;line-height:1.5}
+
+.c-lever{display:flex;flex-direction:column}
+.c-lever-r{display:grid;grid-template-columns:84px 104px minmax(0,1fr) 132px 96px;
+  gap:var(--sp-4);align-items:baseline;padding:var(--sp-2) 0;
+  border-top:1px solid var(--line)}
+.c-lever-k{font-size:var(--type-micro);letter-spacing:.13em;text-transform:uppercase;color:var(--dim3)}
+.c-lever-c{font-family:var(--m);font-variant-numeric:tabular-nums;
+  font-size:var(--type-data)}
+.c-lever-n{font-size:var(--type-micro);color:var(--dim)}
+.c-lever-n b{font-family:var(--m);font-size:var(--type-body);color:var(--ink)}
+.c-lever-v{font-family:var(--m);font-variant-numeric:tabular-nums;
+  font-size:var(--type-micro);text-align:right;color:var(--dim2)}
+.c-lever-w{font-size:var(--type-micro);letter-spacing:.1em;color:var(--dim3);text-align:right}
+.c-lever-w .bad{color:var(--st-CONTRADICTED)}
+.c-lever-r.alt .c-lever-c,.c-lever-r.alt .c-lever-n b{color:var(--dim2)}
+.c-lever-p{font-size:var(--type-micro);color:var(--dim2);line-height:1.5;
+  padding-top:var(--sp-3);max-width:76ch}
+.c-lever-p b{font-family:var(--m);font-size:var(--type-micro);color:var(--dim)}
+.c-sim-tag{font-size:var(--type-micro);letter-spacing:.11em;color:var(--st-AMBIGUOUS);
+  border:1px dashed var(--st-AMBIGUOUS);border-radius:var(--r-sm);padding:1px 5px}
+
+/* CONTROL · THE BLOCKERS — evidence objects rather than a grid; see
+   §30.2 at the foot of this stylesheet. The old grid was retired WITH it
+   rather than left behind to win cascade fights against its replacement:
+   `width:112px` on the label spans outlived the rebuild and blew a 112px hole
+   into "blocked at | verification". Superseded CSS is not inert. */
+
+/* the working population a blocker scopes to */
+.c-pop-h{display:flex;align-items:baseline;gap:var(--sp-3);flex-wrap:wrap;
+  padding-bottom:var(--sp-3)}
+.c-pop-v{font-family:var(--m);font-variant-numeric:tabular-nums;
+  font-size:var(--type-title)}
+.c-pop-w{font-size:var(--type-micro);color:var(--dim2);max-width:72ch;
+  line-height:1.5;padding-bottom:var(--sp-4)}
+.c-pop{display:flex;flex-direction:column}
+.c-pop-r{display:grid;grid-template-columns:18px 116px 132px minmax(0,1fr) 16px;
+  gap:var(--sp-3);align-items:baseline;width:100%;text-align:left;
+  padding:var(--sp-2);border-top:1px solid var(--line);border-radius:var(--r-sm)}
+.c-pop-r:hover{background:var(--sur2)}
+.c-pop-id{font-family:var(--m);font-size:var(--type-micro)}
+.c-pop-a{font-family:var(--m);font-variant-numeric:tabular-nums;
+  font-size:var(--type-body);text-align:right}
+.c-pop-n{font-size:var(--type-micro);color:var(--dim3)}
+.c-pop-go{color:var(--dim3);text-align:right}
+
+/* the blocker a case came from, carried as a contextual parent */
+.c-from{display:flex;align-items:baseline;gap:var(--sp-2);flex-wrap:wrap;
+  font-size:var(--type-micro);letter-spacing:.1em;text-transform:uppercase;color:var(--dim3);
+  padding-bottom:var(--sp-3)}
+.c-from b{font-family:var(--m);font-size:var(--type-micro);letter-spacing:0;
+  text-transform:none;color:var(--dim)}
+.c-from .v{font-family:var(--m);color:var(--ink);letter-spacing:-.02em}
+.c-from-x{color:var(--dim3)}
+
+@media (max-width:1023px){
+  .c-pop-r{grid-template-columns:16px minmax(0,1fr) auto}
+  .c-pop-n{display:none}
+}
+
+/* ============================================== JOURNAL · ACCOUNTING ROOM
+   A vertical chain of financial movement, then what the books actually did.
+   Accounting columns and hairlines — no cards. The zeroes are the point. */
+.j-mv{list-style:none;display:flex;flex-direction:column;margin:0;padding:0}
+.j-mv-s{display:grid;grid-template-columns:168px minmax(0,1fr) auto;
+  gap:var(--sp-4);align-items:baseline;padding:var(--sp-3) 0;
+  border-top:1px solid var(--line);position:relative}
+.j-mv-s:first-child{border-top:0}
+/* the chain: each stage hangs off the one above it */
+.j-mv-s::before{content:"";position:absolute;left:8px;top:0;bottom:0;
+  width:1px;background:var(--line2)}
+.j-mv-s:first-child::before{top:50%}
+.j-mv-s:last-child::before{bottom:50%}
+.j-mv-s::after{content:"";position:absolute;left:5px;top:calc(50% - 3px);
+  width:7px;height:7px;border-radius:50%;background:var(--sur);
+  border:1px solid var(--line2)}
+.j-mv-s.through::after{background:var(--st-PROVEN);border-color:var(--st-PROVEN)}
+.j-mv-s.stopped::after{background:var(--st-AMBIGUOUS);border-color:var(--st-AMBIGUOUS)}
+.j-mv-s.blocked::after{background:var(--sur);border-color:var(--line2)}
+.j-mv-k{padding-left:var(--sp-5);font-size:var(--type-micro);letter-spacing:.13em;
+  text-transform:uppercase;color:var(--dim3)}
+.j-mv-s.stopped .j-mv-k{color:var(--st-AMBIGUOUS)}
+.j-mv-w{font-size:var(--type-body);color:var(--dim)}
+.j-mv-v{font-family:var(--m);font-variant-numeric:tabular-nums;
+  font-size:var(--type-data);text-align:right}
+.j-mv-s.blocked .j-mv-w{color:var(--dim3)}
+.j-mv-x{font-family:var(--s);font-size:var(--type-micro);letter-spacing:.13em;
+  color:var(--dim3);border:1px dashed var(--line2);border-radius:var(--r-sm);
+  padding:2px 6px}
+.j-mv-w2,.j-mv-w{}
+.j-mv-a,.j-mv-d{font-family:var(--s);font-size:var(--type-micro);
+  letter-spacing:.13em}
+.j-mv-a{color:var(--st-PROVEN)} .j-mv-d{color:var(--st-AMBIGUOUS)}
+.j-mv-s .j-mv-w[data-x]{}
+.j-mv-s.through .j-mv-v{color:var(--ink)}
+
+/* the ledger effect — three accounting rows, right-aligned like a book */
+/* rebuilt as evidence objects · §30.6, at the foot of this stylesheet */
+
+/* entry status — fixed questions, short answers, no prose */
+.j-st{display:flex;flex-direction:column;margin:0}
+.j-st-r{display:grid;grid-template-columns:180px minmax(0,1fr);gap:var(--sp-4);
+  padding:var(--sp-2) 0;border-top:1px solid var(--line);align-items:baseline}
+.j-st-r dt{font-size:var(--type-micro);letter-spacing:.13em;text-transform:uppercase;
+  color:var(--dim3);margin:0}
+.j-st-r dd{margin:0;font-size:var(--type-body);color:var(--dim)}
+.j-st-r.t-stop dd{color:var(--st-CONTRADICTED);font-weight:600}
+.j-st-r.t-go dd{color:var(--st-PROVEN);font-weight:600}
+
+/* ------------------------------------------------------ THE ROOM'S ANSWER
+   The instrument's conclusion, first and largest. The autopsy found the
+   lens's own answer outside the top three by visual weight on six of seven
+   lenses; on Policy the word REVIEW lost to the application's name. */
+.c-concl{padding-bottom:var(--sp-6);max-width:74ch}
+.c-concl-f{font-size:var(--type-title);font-weight:600;letter-spacing:-.02em;
+  line-height:1.2}
+.c-concl-n{display:flex;align-items:baseline;gap:var(--sp-3);padding-top:var(--sp-2)}
+/* the subordinate figure sits at the agreed/disputed tier the type audit
+   assigned it — present, aligned under the headline, never competing with it */
+.c-concl-2{display:flex;align-items:baseline;gap:var(--sp-3);padding-top:var(--sp-1)}
+.c-concl-2 b{font-family:var(--m);font-variant-numeric:tabular-nums;
+  font-size:var(--type-data);font-weight:500;color:var(--dim)}
+.c-concl-2 em{font-style:normal;font-size:var(--type-micro);letter-spacing:.12em;
+  text-transform:uppercase;color:var(--dim3)}
+.c-concl-n b{font-family:var(--m);font-variant-numeric:tabular-nums;
+  font-size:var(--type-display);font-weight:500;letter-spacing:-.035em;line-height:1}
+.c-concl-n em{font-style:normal;font-size:var(--type-micro);color:var(--dim3);
+  letter-spacing:.12em;text-transform:uppercase}
+.c-concl-w{font-size:var(--type-body);color:var(--dim);line-height:1.5;
+  padding-top:var(--sp-3);max-width:68ch}
+.t-stop .c-concl-f{color:var(--st-CONTRADICTED)}
+.t-hold .c-concl-f{color:var(--st-AMBIGUOUS)}
+.t-go .c-concl-f{color:var(--st-PROVEN)}
+.t-stop .c-concl-n b{color:var(--st-CONTRADICTED)}
+
+/* --------------------------------------------------- §22.7 THE NEXT QUESTION
+   One line at the foot of the room, not a banner and not a call to action. It
+   states what the next instrument would answer; the operator may ignore it and
+   the loop still works from the dock. On Trust it is absent — there is no
+   destination after "what can I believe", and inventing one would make the
+   product feel like it is steering. */
+.c-onward{display:flex;align-items:baseline;gap:var(--sp-3);width:100%;
+  margin-top:var(--sp-7);padding:var(--sp-4) 0 var(--sp-2);
+  border-top:1px solid var(--line);text-align:left;cursor:pointer;
+  transition:border-color var(--micro)}
+.c-onward:hover{border-top-color:var(--ink)}
+.c-onward-k{font-size:var(--type-micro);letter-spacing:.13em;
+  text-transform:uppercase;color:var(--dim3);flex:0 0 auto}
+.c-onward-q{font-size:var(--type-data);color:var(--ink);flex:1 1 auto}
+.c-onward-l{font-size:var(--type-micro);letter-spacing:.13em;
+  text-transform:uppercase;color:var(--dim2)}
+.c-onward-x{font-family:var(--m);color:var(--dim3);
+  transition:transform var(--micro),color var(--micro)}
+.c-onward:hover .c-onward-x{transform:translateX(3px);color:var(--ink)}
+.c-onward:focus-visible{outline:2px solid var(--acc);outline-offset:2px}
+
+/* --------------------------------------------------- THE SOURCE MODE
+   On every screen, at the lowest weight that is still readable. It says where
+   the records came from, and it is read from the adapter rather than written
+   here — an environment without credentials cannot render anything but
+   GENERATED. Silence is not a label, and the difference between generated data
+   and a live account is the difference between a demonstration and a claim. */
+#source-mode{font-size:var(--type-micro);letter-spacing:.13em;
+  text-transform:uppercase;color:var(--dim3);white-space:nowrap;
+  padding-left:var(--sp-3);border-left:1px solid var(--line);
+  margin-left:var(--sp-1)}
+#source-mode.live{color:var(--st-PROVEN)}
+#source-mode:empty{display:none}
+/* Which envelope produced the figures. Two installs of the same commit give
+   different answers — both honest — and a reader comparing a screen against a
+   recording needs to know which one they have. */
+#exec-path{font-size:var(--type-micro);letter-spacing:.13em;
+  text-transform:uppercase;color:var(--dim3);white-space:nowrap;
+  padding-left:var(--sp-3);border-left:1px solid var(--line);
+  margin-left:var(--sp-1)}
+#exec-path:empty{display:none}
+
+/* -------------------------------------------------- THE INSTRUMENT DOCK
+   Measured diagnosis of why the old one read as navigation: seven items of
+   IDENTICAL width in a uniform grid, labelled with nouns and nothing else,
+   distinguished only by weight, with a filled block for the selection. Every
+   one of those is a menu convention.
+
+   So none of them survive. Items are a single column of unequal height; the
+   held instrument states its QUESTION and the others do not; selection is a
+   seated indent against the rail edge rather than a filled chip. A menu names
+   places. An instrument says what it asks. */
+.c-lenses{grid-area:inst;display:flex;flex-direction:column;gap:0;
+  padding:var(--sp-2) 0 var(--sp-2);border-top:1px solid var(--line);
+  background:var(--rail-bg)}
+.c-lenses button{display:block;width:100%;padding:3px var(--sp-5);
+  border-left:2px solid transparent;text-align:left;
+  transition:color var(--micro),border-color var(--micro),background var(--micro)}
+.c-lenses button{position:relative}
+/* the ordinal: an anchor, set back from the name so it reads as an index
+   rather than as part of the instrument's title */
+.c-lens-i{position:absolute;left:var(--sp-2);top:var(--sp-2);
+  font-family:var(--m);font-size:var(--type-micro);color:var(--line);
+  letter-spacing:.06em}
+.c-lenses button{padding-left:var(--sp-8)}
+.c-lens-n{display:block;font-size:var(--type-micro);letter-spacing:.13em;
+  text-transform:uppercase;color:var(--dim3)}
+/* what this instrument currently answers — the smallest thing in the dock,
+   because it is a report and not a label */
+.c-lens-s{display:block;font-family:var(--m);font-size:var(--type-micro);
+  letter-spacing:.06em;text-transform:uppercase;color:var(--dim3);
+  opacity:.75;padding-top:2px}
+.c-lenses button.on .c-lens-s{color:var(--dim);opacity:1}
+/* Every instrument states what it asks. Hiding the question on all but the
+   held one left six bare nouns — the menu convention this dock was built to
+   avoid. The held one is distinguished by seating and weight, not by being
+   the only one that says anything. */
+.c-lens-q{display:block;font-size:var(--type-micro);color:var(--dim3);
+  line-height:1.35;padding-top:1px}
+/* the held instrument: seated against the rail's edge, and it is the only one
+   that says what it asks */
+.c-lenses button.on{border-left-color:var(--ink);background:var(--sur);
+  padding-top:var(--sp-2);padding-bottom:var(--sp-2)}
+.c-lenses button.on .c-lens-q{color:var(--dim)}
+.c-lenses button.on .c-lens-n{color:var(--ink);font-weight:600}
+.c-lenses button:hover{background:var(--sur)}
+.c-lenses button:hover .c-lens-n{color:var(--dim)}
+
+/* --------------------------------------------------- THE DOCK ON A PHONE
+   Four columns was chosen when an instrument was a single label. Once every
+   instrument states its question each item is two lines, so seven across four
+   columns is two rows of ~130px — measured at 360x780 as a 263px dock against
+   a 216px room holding 2,323px of content.
+
+   Nothing is hidden and nothing moves behind a menu. The item stops stacking:
+   the label and its question sit on one line, in a fixed label column so the
+   questions align down the dock, and seven single lines are ~140px. The held
+   instrument is still seated by its leading rule and its surface rather than by
+   extra padding, which keeps every row the same height and the dock's height
+   predictable whichever instrument is held. */
+@media (max-width:767px){
+  .c-lenses{display:flex;flex-direction:column;padding:0}
+  /* The ordinal keeps its place at a phone width but the state line does not:
+     seven three-line rows would take 210px of an 780px screen, and the room is
+     where the state is already stated. Index, name and question stay on one
+     line; padding-left is the ordinal's column, not sp-8. */
+  .c-lenses button{display:flex;align-items:baseline;gap:var(--sp-2);
+    padding:3px var(--sp-4) 3px 26px}
+  .c-lens-i{left:var(--sp-3);top:4px}
+  .c-lens-s{display:none}
+  .c-lens-n{flex:0 0 88px;line-height:1.35}
+  .c-lens-q{flex:1 1 auto;padding-top:0;line-height:1.35;
+    white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .c-lenses button.on{padding-top:3px;padding-bottom:3px}
+}
+
+
+/* ------------------------------------------------------------- palette
+   Case navigation, not application search. Sits above everything, dismisses
+   on backdrop or Escape, and returns focus where it came from. */
+.c-pal{position:fixed;inset:0;z-index:60;background:rgba(16,20,24,.28);
+display:flex;align-items:flex-start;justify-content:center;
+padding-top:12vh;backdrop-filter:blur(2px)}
+.c-pal[hidden]{display:none}
+.c-pal-box{width:min(620px,92vw);background:var(--sur);border:1px solid var(--line2);
+border-radius:var(--r-lg);box-shadow:0 18px 48px rgba(16,20,24,.22);overflow:hidden;
+animation:pal-in var(--standard)}
+@keyframes pal-in{from{opacity:0;transform:translateY(-6px) scale(.99)}}
+.c-pal-q{width:100%;border:0;outline:0;background:0;color:var(--ink);
+font:var(--type-title)/1.4 var(--s);padding:var(--sp-4) var(--sp-5);
+border-bottom:1px solid var(--line)}
+.c-pal-q::placeholder{color:var(--dim3);font-size:var(--type-data)}
+.c-pal-list{list-style:none;margin:0;padding:var(--sp-1) 0;
+max-height:46vh;overflow-y:auto}
+.c-pal-i{display:grid;grid-template-columns:82px minmax(0,auto) minmax(0,1fr);
+gap:var(--sp-3);align-items:baseline;padding:var(--sp-2) var(--sp-5);cursor:pointer}
+.c-pal-i.on{background:var(--sur3);box-shadow:inset 2px 0 0 var(--acc)}
+.c-pal-g{font-size:var(--type-micro);letter-spacing:.12em;text-transform:uppercase;
+color:var(--dim3)}
+.c-pal-l{font-family:var(--m);font-size:var(--type-body);color:var(--ink)}
+.c-pal-h{font-size:var(--type-label);color:var(--dim3);overflow:hidden;
+text-overflow:ellipsis;white-space:nowrap}
+.c-pal-none{padding:var(--sp-4) var(--sp-5);color:var(--dim2);
+font-size:var(--type-label);max-width:60ch}
+.c-pal-foot{display:flex;gap:var(--sp-5);padding:var(--sp-2) var(--sp-5);
+border-top:1px solid var(--line);font-size:var(--type-micro);color:var(--dim3)}
+.c-pal-foot kbd{font-family:var(--m);border:1px solid var(--line2);
+border-radius:var(--r-sm);padding:0 4px;margin-right:3px}
+@media (max-width:767px){.c-pal{padding-top:6vh}}
+
+/* ------------------------------------------------------------ workspace
+ * #workspace no longer scrolls — .w-main does. A drawer positioned inside a
+ * scrolling container scrolls away with the content it is meant to be
+ * inspecting, which is the difference between a drawer and a section. */
+#workspace{position:relative;overflow:hidden;min-height:0;display:grid;
+grid-template-columns:1fr;grid-template-rows:minmax(0,1fr)}
+#workspace>*{min-width:0}
+
+/* ------------------------------------------------------- the state spine
+   Structural, not a lens's decoration. Rendered by the shell for every lens
+   and both subjects, so "where is the money and where does it stop" is
+   answerable at every moment rather than on two views out of fourteen. It
+   spans the full width above master and context, so opening a context does
+   not disturb it. */
+#w-spine{grid-column:1/-1;padding:var(--sp-3) var(--sp-5) var(--sp-2);
+border-bottom:1px solid var(--line)}
+#w-spine:empty{display:none}
+.c-flow.rail{gap:0}
+.c-flow.rail .c-flow-r{padding:var(--sp-1) 0}
+.c-flow.rail .c-flow-track{height:12px;max-width:none}
+.c-flow.rail .c-flow-d{display:none}   /* the rail states, the lens explains */
+#workspace.mode-master-detail.has-pane{grid-template-columns:minmax(340px,0.92fr)
+minmax(0,1.08fr)}
+#workspace.mode-master-detail.has-pane #w-spine{grid-column:1/-1}
+/* No empty context pane. `has-pane` says this lens CAN hold a context;
+   `has-ctx` says one is open. The pane was already hidden when nothing was
+   selected, but its grid COLUMN stayed — so the master rendered at 54% of the
+   workspace and the other 46% was reserved for a sentence. The absence of a
+   context is itself the correct state, and it is what gives the opening
+   transition something to mean. */
+#workspace.mode-master-detail.has-pane:not(.has-ctx){grid-template-columns:minmax(0,1fr)}
+.w-main{overflow-y:auto;padding:var(--s-5) var(--s-5) var(--s-7);min-width:0;
+  /* Opening a context changes the master's height, and Chrome's scroll
+     anchoring then nudges scrollTop to keep visible content still — which
+     silently defeats the explicit restore in renderContext and loses the
+     reader's place by a few dozen pixels. §7 says the master is where they
+     already were, so the position is ours to decide, not the browser's. */
+  overflow-anchor:none}
+.mode-focus .w-main{max-width:1180px;width:100%}
+/* The detail pane is the RAISED surface, because it is the thing you opened.
+   It was on --sunk, which is undefined here and fell back to one hex value
+   away from the page background — a divider line pretending to be a plane. */
+.w-ctx{overflow-y:auto;min-width:0;border-left:1px solid var(--line);
+background:var(--sur);padding:var(--s-5) var(--s-5) var(--s-7)}
+
+/* In focus mode the pane is a drawer over the workspace rather than a column
+   beside it: the subject stays visible underneath, which is what makes it read
+   as opening something rather than going somewhere. */
+.w-ctx.drawer{position:absolute;top:0;right:0;bottom:0;z-index:5;
+width:min(480px,46vw);background:var(--sur);box-shadow:-10px 0 30px rgba(16,20,24,.10);
+border-left:1px solid var(--line2)}
+/* The drawer grows out of the row that opened it: --oy is the vertical centre
+   of that row, set by the shell at click time. A pane that always expands from
+   the same edge is a route transition with a different name. */
+.w-ctx{transform-origin:right var(--oy,50%)}
+@keyframes ctx-in{from{opacity:0;transform:translateX(10px) scaleY(.965)}}
+@keyframes ctx-out{to{opacity:0;transform:translateX(8px) scaleY(.975)}}
+.x-in-ctx{animation:ctx-in var(--med)}
+.x-out-ctx{animation:ctx-out .11s cubic-bezier(.2,0,0,1) forwards}
+@media (prefers-reduced-motion: reduce){
+  .x-in-ctx,.x-out-ctx{animation:none}}
+
+/* §6: the chain, stated. The UI must never suggest the context REPLACED the
+   subject, and the only reliable way to say that is to show what it hangs off. */
+.c-crumb{display:flex;align-items:center;gap:6px;font-size:var(--t-micro);
+color:var(--dim3);margin-bottom:9px;flex-wrap:wrap}
+.c-crumb i{font-style:normal;opacity:.6}
+.c-crumb-s{font-family:var(--m)}
+.c-crumb-l{letter-spacing:.1em;text-transform:uppercase}
+.c-crumb-c{color:var(--ink);letter-spacing:.1em;text-transform:uppercase;
+font-weight:600}
+.c-ctx-h{display:flex;align-items:baseline;gap:var(--s-3);margin-bottom:var(--s-5);
+padding-bottom:var(--s-4);border-bottom:1px solid var(--line)}
+.c-ctx-h b{font-size:var(--t-lead);font-weight:600}
+.c-ctx-h .k{font-size:var(--t-micro);letter-spacing:.14em;text-transform:uppercase;
+color:var(--dim3);font-weight:600}
+.c-ctx-x{margin-left:auto;display:flex;gap:var(--s-2)}
+.c-ctx-b{background:transparent;border:1px solid var(--line);
+border-radius:var(--r-2);padding:4px 10px;font-size:var(--t-label);
+color:var(--dim2);cursor:pointer}
+.c-ctx-b:hover{color:var(--ink);border-color:var(--line2)}
+.c-ctx-b.go{border-color:var(--acc);color:var(--acc)}
+
+/* a selected row stays selected while its detail is open */
+.c-row.sel{background:var(--sur);border-left-color:var(--acc)}
+.c-act.sel{border-color:var(--acc)}
+#foot{height:24px;display:flex;align-items:center;gap:var(--s-4);
+padding:0 var(--s-5);border-top:1px solid var(--line);background:var(--sur);
+font-family:var(--m);font-size:var(--t-micro);color:var(--dim3)}
+
+/* ------------------------------------------------------------ transitions
+ * Two moves, two treatments, each preserving the axis that did not change.
+ * TURN  lens changed — the header holds still, the workspace turns over.
+ * SLIDE subject changed — the strip holds still, the workspace slides.
+ * A refresh animates not at all, or the product flickers at itself. */
+@keyframes turn-out{to{opacity:0;transform:translateY(-4px) scale(.996)}}
+@keyframes turn-in{from{opacity:0;transform:translateY(6px) scale(.996)}}
+@keyframes slide-out{to{opacity:0;transform:translateX(-10px)}}
+@keyframes slide-in{from{opacity:0;transform:translateX(14px)}}
+.x-out-turn{animation:turn-out var(--fast) forwards}
+.x-in-turn{animation:turn-in var(--med)}
+.x-out-slide{animation:slide-out var(--fast) forwards}
+.x-in-slide{animation:slide-in var(--med)}
+@media (prefers-reduced-motion: reduce){
+  .x-out-turn,.x-in-turn,.x-out-slide,.x-in-slide,
+
+}
+
+/* ------------------------------------------------------------- components */
+.c-section{margin-bottom:var(--s-6)}
+.p-front-r.hd{opacity:.55;font-family:var(--mono);font-size:var(--t-micro);
+  letter-spacing:.1em;text-transform:uppercase;border-bottom:1px solid var(--line);
+  padding-bottom:5px;margin-bottom:4px}
+.p-front-r.hd b{font-weight:400}
+
+/* ── §58 the decision record — the primary object ────────────────────────
+   Same object as the front door's, in the workspace's tokens. The advisory
+   row is the only one drawn in outline: filled means this party can change
+   financial state. */
+.dr{border:1px solid var(--line2,var(--line));background:var(--sur);
+  margin-bottom:var(--s-6)}
+.dr-e{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:8px 22px;
+  align-items:baseline;padding:17px 19px;border-bottom:1px solid var(--line2,var(--line))}
+.dr-e > *{min-width:0}
+.dr-ek{font-family:var(--mono);font-size:var(--t-micro);letter-spacing:.18em;
+  text-transform:uppercase;color:var(--dim3);display:block;margin-bottom:7px}
+.dr-ev{font-size:clamp(24px,2.6vw,34px);letter-spacing:-.03em;color:var(--ink);
+  line-height:1;font-variant-numeric:tabular-nums}
+.dr-eq{font-size:var(--t-label);color:var(--dim2);margin:8px 0 0;line-height:1.5}
+.dr-em{font-family:var(--mono);font-size:var(--t-micro);color:var(--dim3);
+  text-align:right;line-height:1.9;white-space:nowrap}
+.dr-r{display:grid;grid-template-columns:112px 20px minmax(0,1fr);gap:0 14px;
+  padding:14px 19px;border-bottom:1px solid var(--line);align-items:start}
+.dr-r:last-child{border-bottom:0}
+.dr-r > *{min-width:0}
+.dr-a{display:flex;flex-direction:column;gap:3px}
+.dr-a b{font-family:var(--mono);font-weight:400;font-size:var(--t-micro);
+  letter-spacing:.14em;color:var(--ink)}
+.dr-a em{font-style:normal;font-family:var(--mono);font-size:var(--t-micro);
+  letter-spacing:.12em;text-transform:uppercase;color:var(--dim3);opacity:.8}
+.dr-r.adv .dr-a b{color:var(--st-INVESTIGATE)}
+.dr-n{display:flex;justify-content:center;padding-top:4px}
+.dr-dot{width:8px;height:8px;border-radius:50%;background:var(--dim3);flex:0 0 auto}
+.dr-r.adv .dr-dot{background:transparent;
+  box-shadow:inset 0 0 0 1.5px var(--st-INVESTIGATE)}
+.dr-r.acts .dr-dot{background:var(--acc)}
+.dr-r.holds .dr-dot{background:var(--st-AMBIGUOUS)}
+.dr-b b.dr-h{display:block;font-family:var(--mono);font-weight:400;
+  font-size:var(--t-body);color:var(--ink);margin-bottom:5px}
+.dr-r.acts .dr-b b.dr-h{color:var(--acc)}
+.dr-r.holds .dr-b b.dr-h{color:var(--st-AMBIGUOUS)}
+.dr-badge{font-family:var(--mono);font-size:var(--t-micro);letter-spacing:.13em;
+  padding:1px 6px;border:1px solid currentColor;margin-left:9px;
+  vertical-align:1px;white-space:nowrap}
+.dr-r.adv .dr-badge{color:var(--st-INVESTIGATE)}
+.dr-b p{font-size:var(--t-label);line-height:1.5;color:var(--dim2);margin:0}
+.dr-b p + p{margin-top:5px}
+.dr-b p b{color:var(--ink);font-weight:500}
+.dr-may{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:1px;
+  background:var(--line);border:1px solid var(--line);margin-top:10px}
+.dr-may > *{min-width:0;background:var(--sur2);padding:7px 10px}
+.dr-may i{font-style:normal;display:block;font-family:var(--mono);
+  font-size:var(--t-micro);letter-spacing:.13em;text-transform:uppercase;
+  margin-bottom:3px}
+.dr-may .y i{color:var(--st-PROVEN)} .dr-may .n i{color:var(--st-CONTRADICTED)}
+.dr-may span{font-size:var(--t-micro);line-height:1.5;color:var(--dim2)}
+.dr-ids{display:block;margin-top:6px;font-family:var(--mono);
+  font-size:var(--t-micro);color:var(--st-INVESTIGATE);word-break:break-all;
+  line-height:1.7}
+.dr-nar{display:flex;align-items:baseline;gap:9px;flex-wrap:wrap;
+  font-family:var(--mono);font-size:var(--t-body);color:var(--ink);margin-top:8px;
+  font-variant-numeric:tabular-nums}
+.dr-nar u{text-decoration:none;color:var(--dim3)}
+.dr-cut{display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:2px 11px;
+  margin-top:7px;font-family:var(--mono);font-size:var(--t-micro);
+  color:var(--dim2);align-items:baseline}
+.dr-cut > *{min-width:0}
+.dr-cut .rm{color:var(--ink);font-variant-numeric:tabular-nums}
+.dr-cut .k{letter-spacing:.1em;text-transform:uppercase}
+.dr-cut .k.c{color:var(--st-AMBIGUOUS)} .dr-cut .k.d{color:var(--st-PROVEN)}
+.dr-je{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:2px 16px;
+  margin-top:8px;font-family:var(--mono);font-size:var(--t-micro);color:var(--dim2)}
+.dr-je > *{min-width:0}
+.dr-je .amt{text-align:right;color:var(--ink);font-variant-numeric:tabular-nums}
+.dr-out{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:9px 22px;
+  align-items:baseline;padding:15px 19px;border-top:1px solid var(--line2,var(--line));
+  background:var(--sur2)}
+.dr-out > *{min-width:0}
+.dr-oh{font-size:var(--t-h3);letter-spacing:-.02em;line-height:1.15}
+.dr-out.go .dr-oh{color:var(--acc)} .dr-out.stop .dr-oh{color:var(--st-AMBIGUOUS)}
+.dr-oc{font-size:var(--t-label);color:var(--dim2);margin:5px 0 0;line-height:1.5}
+.dr-ov{font-family:var(--mono);font-size:var(--t-micro);letter-spacing:.13em;
+  text-transform:uppercase;padding:2px 8px;border:1px solid currentColor;
+  white-space:nowrap}
+.dr-out.go .dr-ov{color:var(--acc)} .dr-out.stop .dr-ov{color:var(--st-AMBIGUOUS)}
+@media(max-width:760px){
+  .dr-r{grid-template-columns:1fr;gap:8px}
+  .dr-n{display:none}
+  .dr-may,.dr-e,.dr-out{grid-template-columns:1fr}
+  .dr-em{text-align:left}
+}
+.p-front-r.hd{opacity:.55;font-family:var(--mono);font-size:var(--t-micro);
+  letter-spacing:.1em;text-transform:uppercase;border-bottom:1px solid var(--line);
+  padding-bottom:5px;margin-bottom:4px}
+.p-front-r.hd b{font-weight:400}
+
+.c-section-h{display:flex;align-items:baseline;gap:var(--s-3);
+margin-bottom:var(--s-4)}
+.c-section-h h3{font-size:var(--t-micro);letter-spacing:.14em;
+text-transform:uppercase;color:var(--dim3);font-weight:600}
+.c-section-h .a{margin-left:auto}
+.c-muted{color:var(--dim3);font-size:var(--t-label)}
+.c-lead{font-size:var(--t-lead);line-height:1.5;color:var(--dim)}
+
+.c-metrics{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));
+gap:var(--s-4) var(--s-5)}
+.c-metric{display:flex;flex-direction:column;gap:3px}
+.c-metric .k{font-size:var(--t-micro);letter-spacing:.14em;text-transform:uppercase;
+color:var(--dim3);font-weight:600}
+.c-metric .v{font-family:var(--m);font-variant-numeric:tabular-nums;
+font-size:var(--t-h2);letter-spacing:-.02em;line-height:1.1}
+.c-metric .n{font-size:var(--t-label);color:var(--dim3);line-height:1.45}
+
+.c-status{font-size:var(--t-micro);letter-spacing:.1em;font-weight:600;
+padding:2px 7px;border-radius:var(--r-full);white-space:nowrap;
+color:var(--st-INSUFFICIENT);background:var(--st-INSUFFICIENT-bg)}
+.c-status.sm{font-size:var(--type-micro);padding:1px 6px}
+.s-PROVEN{color:var(--st-PROVEN);background:var(--st-PROVEN-bg)}
+.s-AMBIGUOUS{color:var(--st-AMBIGUOUS);background:var(--st-AMBIGUOUS-bg)}
+.s-CONTRADICTED{color:var(--st-CONTRADICTED);background:var(--st-CONTRADICTED-bg)}
+.s-SYSTEMIC{color:var(--st-SYSTEMIC);background:var(--st-SYSTEMIC-bg)}
+.s-INVESTIGATE{color:var(--st-INVESTIGATE);background:var(--st-INVESTIGATE-bg)}
+
+/* A row is a line in a ledger, not a card. The old treatment gave nineteen
+   bordered boxes on one screen, and when everything is a card nothing has
+   hierarchy. Rows get a hairline; only genuinely interactive objects get a
+   surface. */
+.c-row{display:flex;align-items:center;gap:var(--s-4);width:100%;
+padding:9px var(--s-3);border:0;border-bottom:1px solid var(--line);
+border-left:2px solid transparent;background:transparent;
+text-align:left;font:inherit;color:var(--ink)}
+.c-row.link{cursor:pointer;transition:background var(--fast),
+border-left-color var(--fast)}
+.c-row.link:hover{background:var(--sur);border-left-color:var(--acc)}
+.c-dot{width:6px;height:6px;border-radius:var(--r-full);flex:none;
+background:currentColor}
+.c-row-id{font-family:var(--m);font-size:var(--t-label);color:var(--dim3);
+min-width:70px}
+.c-row-amt{font-family:var(--m);font-variant-numeric:tabular-nums;
+font-size:var(--t-body);min-width:118px;text-align:right}
+.c-row-d{flex:1;font-size:var(--t-label);color:var(--dim2)}
+.c-row-a{font-size:var(--t-micro);color:var(--dim3);white-space:nowrap}
+
+.c-group{margin-bottom:var(--s-4)}
+.c-group-h{display:flex;align-items:baseline;gap:var(--s-3);padding:0 0 6px}
+.c-group-h b{font-size:var(--t-body)}
+.c-group-h span{font-family:var(--m);font-size:var(--t-label);color:var(--dim3)}
+.c-group-h em{margin-left:auto;font-style:normal;font-family:var(--m);
+font-variant-numeric:tabular-nums;font-size:var(--t-body)}
+.c-more{font-size:var(--t-label);color:var(--dim3);padding:4px 0 0}
+.c-group-d{font-size:var(--t-label);color:var(--dim3);line-height:1.55;
+padding:0 0 8px;max-width:92ch}
+
+/* the decision block — an instrument reading, not a paragraph */
+.c-decide{display:flex;flex-direction:column;gap:var(--s-4)}
+.c-decide-v{display:flex;align-items:center;gap:10px;font-size:var(--t-h3);
+font-weight:600;letter-spacing:-.02em}
+.c-decide-v i{width:9px;height:9px;border-radius:var(--r-full);flex:none;
+background:var(--st-CONTRADICTED)}
+.c-decide-v.yes i{background:var(--st-PROVEN)}
+.c-decide-f{display:grid;grid-template-columns:150px 1fr;gap:7px var(--s-4);
+align-items:baseline}
+.c-decide-f>div{display:contents}
+.c-decide-f dt{font-size:var(--t-micro);letter-spacing:.12em;
+text-transform:uppercase;color:var(--dim3);font-weight:600}
+.c-decide-f dd{font-size:var(--t-label);color:var(--dim2);line-height:1.6;
+max-width:88ch}
+@media (max-width:620px){.c-decide-f{grid-template-columns:1fr;gap:2px}
+  .c-decide-f>div{display:block;margin-bottom:9px}}
+
+.c-table{width:100%;border-collapse:collapse;font-size:var(--t-label)}
+.c-table th{text-align:left;font-size:var(--t-micro);letter-spacing:.1em;
+text-transform:uppercase;color:var(--dim3);font-weight:600;
+padding:0 var(--s-3) 6px 0;border-bottom:1px solid var(--line)}
+.c-table td{padding:7px var(--s-3) 7px 0;border-bottom:1px solid var(--line)}
+.c-table .num{text-align:right;font-family:var(--m);
+font-variant-numeric:tabular-nums;white-space:nowrap}
+.c-table .foot td{border-bottom:0;border-top:2px solid var(--line2);
+font-weight:600;padding-top:8px}
+
+.c-disc{margin-top:var(--s-3);border-top:1px solid var(--line);padding-top:8px}
+.c-disc summary{font-size:var(--t-label);color:var(--dim3);cursor:pointer;
+list-style:none;display:flex;align-items:center;gap:6px}
+.c-disc summary::-webkit-details-marker{display:none}
+.c-disc summary::before{content:"›";display:inline-block;color:var(--dim3);
+transition:transform var(--fast)}
+.c-disc[open] summary::before{transform:rotate(90deg)}
+.c-disc summary:hover{color:var(--acc)}
+.c-disc-b{padding:9px 0 2px 14px;color:var(--dim2);font-size:var(--t-label);
+line-height:1.65;max-width:84ch}
+.c-disc-b p+p{margin-top:7px}
+.c-disc-b code{font-family:var(--m);font-size:var(--t-small)}
+.c-reasons{margin-left:var(--sp-4)}
+.c-reasons li{margin-bottom:4px}
+
+.c-empty{padding:var(--s-6) 0;color:var(--dim3);font-size:var(--t-label);
+display:flex;flex-direction:column;gap:5px}
+.c-empty.err{color:var(--st-CONTRADICTED)}
+.c-spin{width:11px;height:11px;border:1.5px solid var(--line2);
+border-top-color:var(--acc);border-radius:var(--r-full);
+display:inline-block;animation:sp .7s linear infinite;margin-right:8px}
+@keyframes sp{to{transform:rotate(360deg)}}
+.c-notice{background:var(--st-AMBIGUOUS-bg);color:var(--st-AMBIGUOUS);
+border-radius:var(--r-2);padding:8px var(--s-4);font-size:var(--t-label);
+margin-bottom:var(--s-4)}
+
+/* ----------------------------------------------------------------- flow
+ * The money narrowing IS the story. A bar collapsing from full width to a
+ * sliver at Verification should be readable before any number is, which five
+ * equal cards with ticks could never do — that was a stepper wearing a
+ * financial diagram's clothes. */
+.c-flow{display:flex;flex-direction:column;gap:1px}
+.c-flow-r{display:grid;grid-template-columns:96px minmax(160px,1fr) 132px auto;
+gap:var(--s-4);align-items:center;padding:7px 0}
+.c-flow-n{font-size:var(--t-micro);letter-spacing:.14em;text-transform:uppercase;
+color:var(--dim3);font-weight:600}
+.c-flow-track{height:18px;max-width:520px;background:var(--sur3);
+border-radius:var(--r-0);overflow:hidden;position:relative}
+.c-flow-bar{display:block;height:100%;background:var(--st-PROVEN);
+border-radius:var(--r-0);transition:width var(--med)}
+.c-flow-r.stopped .c-flow-bar{background:var(--st-AMBIGUOUS)}
+.c-flow-r.not_reached .c-flow-track{background:repeating-linear-gradient(
+  -45deg,var(--sur3),var(--sur3) 3px,transparent 3px,transparent 6px)}
+.c-flow-v{font-family:var(--m);font-variant-numeric:tabular-nums;
+font-size:var(--t-body);text-align:right}
+.c-flow-x{font-size:var(--t-label);color:var(--dim3)}
+.c-flow-r.stopped .c-flow-x{color:var(--st-CONTRADICTED)}
+.c-flow-x b{font-family:var(--m);font-weight:400}
+.c-flow-r.not_reached{opacity:.45}
+.c-flow-d{grid-column:2/5;font-size:var(--t-label);color:var(--dim2);
+padding:0 0 9px 108px;line-height:1.5;max-width:96ch}
+
+/* ---------------------------------------------------------------- evidence
+ * The candidate universe, proportionally: the drop from the book to the pool
+ * must be visible as a drop, and the reductions that are conventions rather
+ * than facts must say so. That distinction is what the 32/92 failure was about.
+ */
+/* rebuilt as evidence objects · §30.3, at the foot of this stylesheet */
+.e-red{margin-top:var(--s-4);display:flex;flex-direction:column;gap:2px}
+
+/* agreement as a block, disagreement as the sliver beside it */
+.e-set{display:flex;flex-direction:column;gap:2px}
+.e-set-hd{display:grid;grid-template-columns:22px minmax(160px,420px) 1fr;
+gap:var(--s-4);font-size:var(--t-micro);letter-spacing:.12em;
+text-transform:uppercase;color:var(--dim3);font-weight:600;padding-bottom:5px}
+.e-set-hd .e-set-a{grid-column:2}
+.e-set-r{display:grid;grid-template-columns:22px minmax(160px,420px) 108px 1fr;
+gap:var(--s-4);align-items:center;width:100%;border:0;
+border-left:2px solid transparent;background:transparent;padding:5px var(--s-3);
+font:inherit;color:inherit;cursor:pointer;text-align:left;
+transition:background var(--fast),border-left-color var(--fast)}
+.e-set-r:hover{background:var(--sur)}
+.e-set-r.sel{background:var(--sur);border-left-color:var(--acc)}
+.e-set-l{font-family:var(--m);color:var(--dim3)}
+.e-set-bar{display:flex;height:16px;background:var(--sur3);
+border-radius:var(--r-0);overflow:hidden}
+.e-set-bar i{display:block;height:100%}
+.e-set-bar .s{background:var(--dim3);opacity:.38}
+.e-set-bar .u{background:var(--st-AMBIGUOUS)}
+.e-set-n{font-family:var(--m);font-size:var(--t-label);color:var(--dim2);
+text-align:right}
+.e-set-n b{color:var(--st-AMBIGUOUS)}
+.e-set-v{font-family:var(--m);font-variant-numeric:tabular-nums;
+font-size:var(--t-label)}
+.e-set-ft{display:flex;flex-direction:column;gap:3px;
+padding:10px 0 0 calc(22px + var(--s-4));font-size:var(--t-label);
+color:var(--dim3)}
+.e-set-ft b{color:var(--ink);font-family:var(--m)}
+.e-set-ft b.warn{color:var(--st-AMBIGUOUS)}
+
+.e-rel{border-bottom:1px solid var(--line);padding:9px var(--s-3)}
+.e-rel-h{display:flex;align-items:baseline;gap:var(--s-3)}
+.e-rel-h b{font-size:var(--t-body)}
+.e-rel-n{font-family:var(--m);font-size:var(--t-label);color:var(--dim3)}
+.e-rel-v{margin-left:auto;font-size:var(--t-micro);color:var(--st-PROVEN);
+letter-spacing:.08em;text-transform:uppercase}
+.e-rel-w{font-size:var(--t-label);color:var(--dim3);margin-top:3px;max-width:92ch}
+.e-ok{color:var(--st-PROVEN);font-size:var(--t-micro)}
+
+/* the model's proposals get a different visual language on purpose: a dashed
+   rail and a diamond, so a hypothesis can never be mistaken for a fact */
+.e-ai-tag{font-size:var(--t-micro);letter-spacing:.1em;text-transform:uppercase;
+color:var(--st-INVESTIGATE);border:1px dashed var(--st-INVESTIGATE);
+border-radius:var(--r-full);padding:2px 9px}
+.e-ai{border-left:2px dashed var(--st-INVESTIGATE);padding-left:var(--s-4);
+display:flex;flex-direction:column;gap:7px}
+.e-ai-r{display:grid;grid-template-columns:74px 1fr;gap:var(--s-4);
+align-items:baseline;font-size:var(--t-label)}
+.e-ai-w{font-size:var(--t-micro);letter-spacing:.08em;text-transform:uppercase;
+color:var(--dim3)}
+.e-ai-r.proposed .e-ai-w{color:var(--st-INVESTIGATE)}
+.e-ai-d{color:var(--dim2);line-height:1.55}
+.e-ai-v{font-size:var(--t-label);color:var(--dim2);padding-top:7px;
+border-top:1px solid var(--line);margin-top:4px}
+.e-ai-v b{color:var(--st-CONTRADICTED)}
+.e-ai-none{font-size:var(--t-label);color:var(--dim3)}
+
+
+
+
+
+
+
+
+.e-prov{display:grid;grid-template-columns:100px 1fr;gap:6px var(--s-4)}
+.e-prov>div{display:contents}
+.e-prov dt{font-size:var(--t-micro);letter-spacing:.1em;text-transform:uppercase;
+color:var(--dim3);font-weight:600}
+.e-prov dd{font-size:var(--t-label);color:var(--dim2)}
+
+@media (max-width:900px){
+  .e-uni-r,.e-uni-c{grid-template-columns:1fr;gap:2px}
+  .e-uni-n,.e-uni-m{text-align:left}
+  .e-set-r,.e-set-hd{grid-template-columns:20px 1fr auto}
+  .e-set-v{display:none}
+}
+
+/* ------------------------------------------------------------- investigate
+ * Temporal and forensic, where Evidence is structural and calm. A rail with
+ * three actors on it, and the order is the argument: the model proposes, the
+ * solver tests, the engine decides. */
+.i-q{margin-bottom:var(--s-6)}
+.i-q-k{display:block;font-size:var(--t-micro);letter-spacing:.14em;
+text-transform:uppercase;color:var(--dim3);font-weight:600;margin-bottom:5px}
+.i-q h2{font-size:var(--t-h3);font-weight:600;letter-spacing:-.02em;
+line-height:1.3;max-width:44ch}
+
+.i-tl{list-style:none;position:relative;padding-left:var(--s-5)}
+.i-tl::before{content:"";position:absolute;left:4px;top:8px;bottom:8px;width:1px;
+background:var(--line2)}
+/* A TEST LOG, not a timeline.
+   Investigate and Activity were the product's closest pair (0.721): both
+   rendered as a flat vertical list of actor-marked steps, and connectors
+   alone did not separate them because the shared shape is the row itself.
+   So the shapes differ now. Activity is a chain — events linked by their
+   causes, read downward. This is a ledger of attempts: each row is a claim
+   on the left and what happened to it on the right, in columns, because
+   the question Investigate answers is "what was tried and did it work". */
+.i-tl-s{position:relative;display:grid;
+grid-template-columns:minmax(0,1fr) minmax(0,168px);
+column-gap:var(--sp-5);align-items:start;
+padding:var(--sp-2) var(--sp-2) var(--sp-4) var(--sp-4);cursor:pointer;
+border-top:1px solid var(--line);border-radius:0;
+transition:background var(--fast)}
+.i-tl-s:first-child{border-top:0}
+.i-tl-s .i-tl-r{grid-column:2;grid-row:1;margin-left:0;text-align:right;
+align-self:start;padding-top:2px}
+.i-tl-s:hover{background:var(--sur)}
+.i-tl-s.sel{background:var(--sur)}
+.i-tl-m{position:absolute;left:-19px;top:4px;width:9px;height:9px;
+border-radius:var(--r-full);background:var(--bg);border:2px solid var(--line2)}
+.e-act-model .i-tl-m{border-color:var(--st-INVESTIGATE);
+transform:rotate(45deg);border-radius:2px}
+.e-act-solver .i-tl-m{border-color:var(--st-AMBIGUOUS)}
+.e-act-engine .i-tl-m{border-color:var(--ink);background:var(--ink)}
+.i-tl-h{display:flex;align-items:baseline;gap:var(--s-3);flex-wrap:wrap;
+margin-bottom:4px}
+.i-tl-a{font-size:var(--t-micro);letter-spacing:.12em;text-transform:uppercase;
+font-weight:600}
+.e-act-model .i-tl-a{color:var(--st-INVESTIGATE)}
+.e-act-solver .i-tl-a{color:var(--st-AMBIGUOUS)}
+.e-act-engine .i-tl-a{color:var(--ink)}
+.i-tl-v{font-size:var(--t-label);color:var(--dim3)}
+.i-tl-i{font-family:var(--m);font-size:var(--t-micro);color:var(--dim2);
+background:var(--sur3);border-radius:var(--r-1);padding:1px 6px}
+.i-tl-r{margin-left:auto;font-family:var(--m);font-size:var(--t-micro);
+letter-spacing:.06em;color:var(--st-CONTRADICTED)}
+.i-tl-r.r-VALID{color:var(--st-PROVEN)}
+.i-tl-r.r-ABSTAINED{color:var(--dim2)}
+.i-tl-d{font-size:var(--t-label);color:var(--dim2);line-height:1.55;max-width:88ch}
+.i-tl-w{font-size:var(--t-label);color:var(--dim3);line-height:1.5;margin-top:3px;
+max-width:88ch}
+
+/* the signal the pool itself gives about the lens the model chose */
+.i-sig-r{display:flex;align-items:baseline;gap:var(--s-4);margin-bottom:7px}
+.i-sig-n{font-family:var(--m);font-variant-numeric:tabular-nums;
+font-size:var(--t-num);line-height:1;letter-spacing:-.03em}
+.i-sig-l{font-size:var(--t-label);color:var(--dim3)}
+.i-sig-d{font-size:var(--t-label);color:var(--dim2);line-height:1.6;max-width:88ch}
+
+/* §25 — restraint, not error */
+/* .i-abs-v held a second 'Engine abstained' beneath the one that leads the
+   room. A rule with no element is a guess about the future, so it goes too. */
+/* ------------------------------------------------------- THE AI BOUNDARY
+   Three actors, three marks, one row of facts. The hero is the boundary; the
+   benchmark note is supporting evidence at the smallest readable size, and it
+   is the only sentence here that is about a panel rather than this case. The
+   marks reuse the shapes the timeline already owns, so grayscale carries it. */
+.i-bound{border-left:2px solid var(--ink);padding:var(--sp-4) var(--sp-5);
+  margin:var(--sp-6) 0;max-width:82ch}
+.i-bound-k{font-size:var(--type-micro);letter-spacing:.14em;
+  text-transform:uppercase;color:var(--dim3);padding-bottom:var(--sp-3)}
+.i-bound-s{display:grid;grid-template-columns:14px 84px minmax(0,1fr);
+  gap:var(--sp-3);align-items:baseline;padding:3px 0}
+.i-bound-s b{font-family:var(--m);font-size:var(--type-micro);
+  letter-spacing:.13em;color:var(--ink);font-weight:400}
+.i-bound-s span{font-size:var(--type-body);color:var(--dim)}
+.i-bound-dot{display:block;width:9px;height:9px;justify-self:center;
+  align-self:center;border:1.5px solid var(--dim2)}
+.i-bound-dot.model{transform:rotate(45deg)}
+.i-bound-dot.solver{border-radius:999px}
+.i-bound-dot.engine{border-radius:999px;background:var(--ink);
+  border-color:var(--ink)}
+.i-bound-r{display:flex;flex-wrap:wrap;gap:var(--sp-6);
+  padding:var(--sp-4) 0 var(--sp-3);margin-top:var(--sp-3);
+  border-top:1px solid var(--line)}
+.i-bound-r span{display:flex;flex-direction:column;gap:2px}
+.i-bound-r i{font-style:normal;font-size:var(--type-micro);letter-spacing:.13em;
+  text-transform:uppercase;color:var(--dim3)}
+.i-bound-r b{font-size:var(--type-data);font-weight:500}
+.i-bound-x{font-size:var(--type-label);color:var(--dim);line-height:1.6}
+.i-bound-m-note{font-size:var(--type-micro);color:var(--dim3);line-height:1.6;
+  padding-top:var(--sp-3);margin-top:var(--sp-3);
+  border-top:1px solid var(--line)}
+.i-bound-m-note b{font-family:var(--m);color:var(--dim2);font-weight:400}
+
+.i-res{display:flex;flex-direction:column;gap:1px}
+.i-res-r{display:grid;grid-template-columns:106px 1fr 1fr;gap:var(--s-4);
+align-items:baseline;padding:9px var(--s-3);border-bottom:1px solid var(--line)}
+.i-res-s{font-size:var(--t-micro);letter-spacing:.08em;text-transform:uppercase;
+color:var(--st-AMBIGUOUS)}
+.i-res-s.s-available-now{color:var(--st-PROVEN)}
+.i-res-w{font-size:var(--t-label)}
+.i-res-d{font-size:var(--t-label);color:var(--dim3)}
+
+.i-case{display:block;width:100%;text-align:left;background:transparent;
+border:0;border-bottom:1px solid var(--line);border-left:2px solid transparent;
+padding:11px var(--s-3);cursor:pointer;font:inherit;color:inherit;
+transition:background var(--fast),border-left-color var(--fast)}
+.i-case:hover{background:var(--sur)}
+.i-case.sel{background:var(--sur);border-left-color:var(--acc)}
+.i-case.one{border-left-color:var(--st-PROVEN)}
+.i-case.one.sel{border-left-color:var(--acc)}
+.i-case-q{display:block;font-size:var(--t-body);line-height:1.4;
+margin-bottom:6px;max-width:52ch}
+.i-case-m{display:flex;align-items:baseline;gap:var(--s-4);
+font-size:var(--t-label);color:var(--dim3)}
+.i-case-m em{font-style:normal;font-family:var(--m);
+font-variant-numeric:tabular-nums;font-size:var(--t-body);color:var(--ink)}
+.i-case-k{margin-left:auto;font-size:var(--t-micro);letter-spacing:.08em;
+text-transform:uppercase}
+.i-case.one .i-case-k{color:var(--st-PROVEN)}
+
+@media (max-width:900px){
+  .i-res-r{grid-template-columns:1fr;gap:2px}
+  .i-tl-r{margin-left:0}
+}
+
+/* ------------------------------------------------------------------ policy
+ * A decision boundary, not a rule list. Evidence is relational, Investigate is
+ * temporal, this is a line with two numbers either side of it. */
+.p-head{margin-bottom:var(--s-6)}
+.p-head-k{display:block;font-size:var(--t-micro);letter-spacing:.14em;
+text-transform:uppercase;color:var(--dim3);font-weight:600;margin-bottom:5px}
+.p-head-d{display:flex;align-items:center;gap:11px;font-size:var(--t-h2);
+font-weight:600;letter-spacing:-.02em;line-height:1.15}
+.p-head-d i{width:10px;height:10px;border-radius:var(--r-full);flex:none;
+background:var(--dim3)}
+.p-head.AUTO_POST .p-head-d i{background:var(--st-PROVEN)}
+.p-head.REVIEW .p-head-d i{background:var(--st-AMBIGUOUS)}
+.p-head.BLOCK .p-head-d i{background:var(--st-CONTRADICTED)}
+.p-head-s{font-size:var(--t-label);color:var(--dim3);margin-top:7px}
+.p-sim{display:inline-block;font-size:var(--t-micro);letter-spacing:.1em;
+text-transform:uppercase;color:var(--st-INVESTIGATE);
+border:1px dashed var(--st-INVESTIGATE);border-radius:var(--r-full);
+padding:3px 11px;margin-bottom:11px}
+.p-sim-tag{font-size:var(--t-micro);letter-spacing:.1em;text-transform:uppercase;
+color:var(--st-INVESTIGATE);border:1px dashed var(--st-INVESTIGATE);
+border-radius:var(--r-full);padding:2px 9px}
+
+/* the boundary itself */
+/* rebuilt as evidence objects · §30.5, at the foot of this stylesheet */
+
+/* the safety chain — proof, then policy, in that order */
+.p-gates{display:flex;flex-direction:column;gap:var(--s-3)}
+.p-stage-h{font-size:var(--t-micro);letter-spacing:.14em;text-transform:uppercase;
+color:var(--dim3);font-weight:600;margin-bottom:5px}
+.p-stage-arrow{align-self:flex-start;margin-left:9px;width:1px;height:12px;
+background:var(--line2)}
+.p-gate{display:grid;grid-template-columns:18px 1fr 116px;
+grid-template-areas:"i n s" ". w w";gap:2px var(--s-3);align-items:baseline;
+padding:7px var(--s-3);border-bottom:1px solid var(--line)}
+.p-gate i{grid-area:i;font-style:normal;font-size:var(--t-label)}
+.p-gate.ok i{color:var(--st-PROVEN)}
+.p-gate.no i{color:var(--dim3)}
+.p-gate-n{grid-area:n;font-size:var(--t-label)}
+.p-gate-s{grid-area:s;font-size:var(--t-micro);letter-spacing:.08em;
+text-transform:uppercase;text-align:right;color:var(--dim3)}
+.p-gate.ok .p-gate-s{color:var(--st-PROVEN)}
+.p-gate-w{grid-area:w;font-size:var(--t-label);color:var(--dim3);line-height:1.5;
+max-width:86ch}
+
+.p-in{display:grid;grid-template-columns:150px 1fr;gap:7px var(--s-4)}
+.p-in>div{display:contents}
+.p-in dt{font-size:var(--t-micro);letter-spacing:.1em;text-transform:uppercase;
+color:var(--dim3);font-weight:600}
+.p-in dd b{font-family:var(--m);font-size:var(--t-body);font-weight:400}
+.p-in dd span{display:block;font-size:var(--t-label);color:var(--dim3);
+line-height:1.5;margin-top:2px;max-width:84ch}
+
+.p-grp{display:grid;grid-template-columns:110px minmax(80px,1fr) 130px 130px;
+gap:var(--s-4);align-items:center;width:100%;border:0;
+border-bottom:1px solid var(--line);border-left:2px solid transparent;
+background:transparent;padding:10px var(--s-3);font:inherit;color:inherit;
+cursor:pointer;text-align:left;
+transition:background var(--fast),border-left-color var(--fast)}
+.p-grp:hover{background:var(--sur)}
+.p-grp.sel{background:var(--sur);border-left-color:var(--acc)}
+.p-grp-d{font-size:var(--t-micro);letter-spacing:.1em;font-weight:600}
+.p-grp.d-AUTO_POST .p-grp-d{color:var(--st-PROVEN)}
+.p-grp.d-REVIEW .p-grp-d{color:var(--st-AMBIGUOUS)}
+.p-grp.d-BLOCK .p-grp-d{color:var(--st-CONTRADICTED)}
+.p-grp-b{height:14px;background:var(--sur3);border-radius:var(--r-0);
+overflow:hidden}
+.p-grp-b i{display:block;height:100%;background:var(--dim3);opacity:.5}
+.p-grp.d-AUTO_POST .p-grp-b i{background:var(--st-PROVEN);opacity:1}
+.p-grp-n{font-size:var(--t-label);color:var(--dim3);text-align:right}
+.p-grp-v{font-family:var(--m);font-variant-numeric:tabular-nums;
+font-size:var(--t-body);text-align:right}
+
+.p-sim-c{display:flex;align-items:center;gap:var(--s-4);margin-bottom:var(--s-4);
+flex-wrap:wrap}
+.p-sim-c label{font-size:var(--t-label);color:var(--dim3)}
+.p-sim-c input{flex:1;min-width:160px;max-width:320px;accent-color:var(--acc)}
+.p-sim-c output{font-family:var(--m);font-variant-numeric:tabular-nums;
+font-size:var(--t-body);min-width:96px}
+.p-front{display:flex;flex-direction:column;gap:1px}
+.p-front-r{display:grid;grid-template-columns:98px minmax(70px,1fr) 46px 116px 88px;
+gap:var(--s-4);align-items:center;padding:5px var(--s-3);
+font-size:var(--t-label);border-left:2px solid transparent}
+.p-front-r.on{background:var(--sur);border-left-color:var(--acc)}
+.p-front-c{font-family:var(--m);color:var(--dim3);text-align:right}
+.p-front-r.on .p-front-c{color:var(--ink)}
+.p-front-b{height:10px;background:var(--sur3);border-radius:var(--r-0);
+overflow:hidden}
+.p-front-b i{display:block;height:100%;background:var(--st-PROVEN)}
+.p-front-n{font-family:var(--m);text-align:right;color:var(--dim2)}
+.p-front-v{font-family:var(--m);font-variant-numeric:tabular-nums;text-align:right}
+.p-front-w{font-size:var(--t-micro);color:var(--dim3);text-align:right}
+.p-front-w b{color:var(--st-CONTRADICTED)}
+
+@media (max-width:900px){
+  .p-gate{grid-template-columns:18px 1fr;grid-template-areas:"i n" ". s" ". w"}
+  .p-gate-s{text-align:left}
+  .p-in{grid-template-columns:1fr;gap:2px}
+  .p-in>div{display:block;margin-bottom:9px}
+  .p-grp{grid-template-columns:96px 1fr;gap:3px var(--s-3)}
+  .p-grp-b{display:none}
+  .p-front-r{grid-template-columns:88px 1fr 96px}
+  .p-front-b,.p-front-w{display:none}
+}
+
+/* ---------------------------------------------------------------- activity
+ * Causality is the connector, not a column. The cause sits ON the line between
+ * two events, so the reader traverses it rather than looking it up. */
+.a-state{margin-bottom:var(--s-6)}
+.a-state-k{display:block;font-size:var(--t-micro);letter-spacing:.14em;
+text-transform:uppercase;color:var(--dim3);font-weight:600;margin-bottom:6px}
+.a-state-r{display:flex;align-items:center;gap:var(--s-3);flex-wrap:wrap;
+font-size:var(--t-lead)}
+.a-state-r i{font-style:normal;color:var(--dim3)}
+.a-state-p{font-family:var(--m);font-size:var(--t-body)}
+.a-state-a{font-size:var(--t-label);letter-spacing:.08em;text-transform:uppercase}
+.a-state-a.yes{color:var(--st-PROVEN)}
+.a-state-a.no{color:var(--dim3)}
+
+.a-tl{position:relative;padding-left:var(--s-5)}
+/* Causality as structure, not as a line of prose between two rows.
+   Activity's primitive is CAUSE │ EVENT │ EFFECT, and Investigate's is a
+   reasoning trail — they were measurably the closest pair in the product
+   (0.721) because both rendered as a flat vertical list of actor-marked
+   steps. The connector makes Activity's chain a chain: the "because" hangs
+   off a rule that physically links the event above to the one below. */
+.a-cause{display:grid;grid-template-columns:auto minmax(0,1fr);
+align-items:center;gap:var(--sp-3);
+padding:var(--sp-1) 0 var(--sp-1) var(--sp-5);position:relative;
+font-style:italic}
+.a-cause::before{content:"";position:absolute;left:var(--sp-4);top:0;bottom:0;
+width:1px;background:var(--line2)}
+.a-cause::after{content:"";position:absolute;left:calc(var(--sp-4) - 2px);
+bottom:0;width:5px;height:5px;border-right:1px solid var(--line2);
+border-bottom:1px solid var(--line2);transform:rotate(45deg) translate(-1px,-1px)}
+.a-cause i{width:1px;height:20px;background:var(--line2);flex:none;
+margin-left:-19px}
+.a-cause span{font-size:var(--t-micro);color:var(--dim3);font-style:italic}
+.a-ev{display:flex;gap:var(--s-4);padding:8px var(--s-3) 8px var(--s-4);
+border-radius:var(--r-2);cursor:pointer;position:relative;
+transition:background var(--fast)}
+.a-ev:hover,.a-ev.sel{background:var(--sur)}
+.a-mark{position:absolute;left:-19px;top:11px;width:16px;text-align:center;
+font-style:normal;font-size:var(--t-label);line-height:1;background:var(--bg)}
+.a-model .a-mark{color:var(--st-INVESTIGATE)}
+.a-solver .a-mark{color:var(--st-AMBIGUOUS)}
+.a-engine .a-mark{color:var(--ink)}
+.a-policy .a-mark{color:var(--st-INVESTIGATE)}
+.a-system .a-mark{color:var(--dim3)}
+.a-none .a-mark{color:var(--dim3)}
+.a-body{flex:1;min-width:0}
+.a-h{display:flex;align-items:baseline;gap:var(--s-3);margin-bottom:3px}
+.a-actor{font-size:var(--t-micro);letter-spacing:.12em;text-transform:uppercase;
+font-weight:600}
+.a-model .a-actor{color:var(--st-INVESTIGATE)}
+.a-solver .a-actor{color:var(--st-AMBIGUOUS)}
+.a-engine .a-actor,.a-policy .a-actor{color:var(--ink)}
+.a-system .a-actor,.a-none .a-actor{color:var(--dim3)}
+.a-stage{font-size:var(--t-micro);letter-spacing:.06em;color:var(--dim3)}
+.a-at{margin-left:auto;font-family:var(--m);font-size:var(--t-micro);
+color:var(--dim3)}
+.a-what{font-size:var(--t-body);line-height:1.4;display:flex;
+align-items:baseline;gap:var(--s-3);flex-wrap:wrap}
+.a-res{font-family:var(--m);font-size:var(--t-micro);letter-spacing:.06em;
+color:var(--dim2)}
+.a-res.r-NON_DISCRIMINATIVE,.a-res.r-LEDGER_UNCHANGED{color:var(--st-CONTRADICTED)}
+.a-res.r-LEDGER_UPDATED{color:var(--st-PROVEN)}
+.a-badge{font-size:var(--t-micro);letter-spacing:.08em;text-transform:uppercase;
+border-radius:var(--r-full);padding:1px 8px;border:1px solid}
+.a-badge.yes{color:var(--st-INVESTIGATE);border-color:var(--st-INVESTIGATE)}
+.a-badge.no{color:var(--dim3);border-color:var(--line2)}
+.a-badge.done{color:var(--st-PROVEN);border-color:var(--st-PROVEN)}
+.a-badge.undone{color:var(--dim3);border-color:var(--line2);border-style:dashed}
+.a-val{font-family:var(--m);font-variant-numeric:tabular-nums;
+font-size:var(--t-body);margin-top:3px}
+.a-eff{font-size:var(--t-label);color:var(--dim3);line-height:1.5;
+margin-top:var(--sp-1);max-width:88ch;padding-left:var(--sp-3);
+border-left:2px solid var(--line)}
+
+.a-out{display:flex;flex-direction:column;gap:1px}
+.a-out-r{display:grid;grid-template-columns:1fr 140px 130px;gap:var(--s-4);
+align-items:baseline;padding:8px var(--s-3);border-bottom:1px solid var(--line)}
+.a-out-k{font-size:var(--t-label)}
+.a-out-v{font-family:var(--m);font-variant-numeric:tabular-nums;
+font-size:var(--t-body);text-align:right}
+.a-out-n{font-size:var(--t-label);color:var(--dim3);text-align:right}
+
+.a-del{display:flex;flex-direction:column;gap:1px}
+.a-del-r{display:grid;grid-template-columns:74px 150px 1fr 130px;gap:var(--s-4);
+align-items:baseline;padding:7px var(--s-3);border-bottom:1px solid var(--line);
+font-size:var(--t-label)}
+.a-del-t,.a-del-k{font-family:var(--m);font-size:var(--t-micro);color:var(--dim3)}
+.a-del-d{color:var(--dim2)}
+.a-del-s{font-size:var(--t-micro);letter-spacing:.06em;text-transform:uppercase;
+text-align:right;color:var(--dim3)}
+.a-del-s.s-accepted{color:var(--st-PROVEN)}
+.a-del-s.s-duplicate{color:var(--dim3)}
+.a-del-s.s-bad_signature,.a-del-s.s-replay_mismatch{color:var(--st-CONTRADICTED)}
+
+.a-replay{display:flex;align-items:center;gap:var(--s-4);flex-wrap:wrap}
+.a-replay .c-muted{flex:1;min-width:220px;line-height:1.55}
+.a-rep{margin-top:var(--s-4);padding:var(--s-4);border-left:2px solid var(--line2);
+background:var(--sur)}
+.a-rep.ok{border-left-color:var(--st-PROVEN)}
+.a-rep.no{border-left-color:var(--st-CONTRADICTED)}
+.a-rep-v{font-size:var(--t-lead);font-weight:600;margin-bottom:9px}
+.a-rep-n{font-size:var(--t-label);color:var(--dim2);line-height:1.6;
+margin-top:9px;max-width:88ch}
+
+@media (max-width:900px){
+  .a-out-r{grid-template-columns:1fr auto;gap:2px var(--s-3)}
+  .a-out-n{grid-column:2}
+  .a-del-r{grid-template-columns:1fr auto;gap:2px var(--s-3)}
+  .a-del-d{grid-column:1/3}
+  .a-at{margin-left:0}
+}
+
+/* ------------------------------------------------------------------- trust
+ * Claims and evidence. Not a timeline and not a wall of ticks — the visual unit
+ * is a claim with the artifact that supports it attached, and the states are
+ * deliberately not all green. */
+.t-head{margin-bottom:var(--s-5)}
+.t-head-k{display:block;font-size:var(--t-micro);letter-spacing:.14em;
+text-transform:uppercase;color:var(--dim3);font-weight:600;margin-bottom:5px}
+.t-head h2{font-size:var(--t-h3);font-weight:600;letter-spacing:-.02em}
+
+.t-bad{display:flex;flex-direction:column;gap:1px}
+.t-bad-r{display:grid;grid-template-columns:74px 250px 1fr;gap:var(--s-4);
+align-items:baseline;padding:11px var(--s-3);border-bottom:1px solid var(--line)}
+.t-bad-n{font-family:var(--m);font-variant-numeric:tabular-nums;
+font-size:var(--t-num);line-height:1;letter-spacing:-.03em;text-align:right}
+.t-bad-l{font-size:var(--t-body)}
+.t-bad-d{font-size:var(--t-label);color:var(--dim3);line-height:1.5}
+
+.t-unk{display:flex;flex-direction:column;gap:1px}
+.t-unk-r:not(.t-bound){display:grid;grid-template-columns:300px 1fr;gap:var(--s-4);
+align-items:baseline;padding:9px var(--s-3);border-bottom:1px solid var(--line)}
+.t-unk-w{font-size:var(--t-label);font-weight:500}
+.t-unk-y{font-size:var(--t-label);color:var(--dim3);line-height:1.55;max-width:88ch}
+
+.t-grp{margin-bottom:var(--s-5)}
+.t-grp-h{font-size:var(--t-micro);letter-spacing:.14em;text-transform:uppercase;
+color:var(--dim3);font-weight:600;margin-bottom:6px}
+.t-claim{display:block;width:100%;text-align:left;background:transparent;
+border:0;border-bottom:1px solid var(--line);border-left:2px solid var(--line2);
+padding:10px var(--s-4);cursor:pointer;font:inherit;color:inherit;
+transition:background var(--fast)}
+.t-claim:hover,.t-claim.sel{background:var(--sur)}
+.t-claim.s-ok{border-left-color:var(--st-PROVEN)}
+.t-claim.s-lim{border-left-color:var(--st-AMBIGUOUS)}
+.t-claim.s-none{border-left-color:var(--line2)}
+.t-claim.s-no{border-left-color:var(--st-CONTRADICTED)}
+.t-claim-h{display:flex;align-items:baseline;gap:var(--s-3);margin-bottom:4px}
+.t-claim-id{font-family:var(--m);font-size:var(--t-micro);color:var(--dim3)}
+.t-claim-t{font-size:var(--t-body);line-height:1.35;flex:1}
+.t-claim-s{font-size:var(--t-micro);letter-spacing:.08em;white-space:nowrap}
+.t-claim.s-ok .t-claim-s{color:var(--st-PROVEN)}
+.t-claim.s-lim .t-claim-s{color:var(--st-AMBIGUOUS)}
+.t-claim.s-none .t-claim-s{color:var(--dim3)}
+.t-claim-v{display:block;font-family:var(--m);font-size:var(--t-label);
+margin-bottom:2px}
+.t-claim-src{display:block;font-family:var(--m);font-size:var(--t-micro);
+color:var(--dim3)}
+
+
+
+
+
+
+
+
+
+
+.t-fixed{display:flex;flex-direction:column;gap:var(--s-4)}
+.t-fix{border-left:2px solid var(--st-PROVEN);padding:var(--s-3) 0 var(--s-3) var(--s-4)}
+.t-fix-h{display:flex;align-items:baseline;gap:var(--s-3);margin-bottom:8px;
+flex-wrap:wrap}
+.t-fix-id{font-family:var(--m);font-size:var(--t-micro);color:var(--dim3)}
+.t-fix-h b{font-size:var(--t-body);flex:1;min-width:200px}
+.t-fix-s{font-size:var(--t-micro);letter-spacing:.08em;color:var(--st-PROVEN)}
+.t-trace-d2{display:grid;grid-template-columns:130px 1fr;gap:5px var(--s-4)}
+.t-trace-d2>div{display:contents}
+.t-trace-d2 dt{font-size:var(--t-micro);letter-spacing:.1em;
+text-transform:uppercase;color:var(--dim3);font-weight:600}
+.t-trace-d2 dd{font-size:var(--t-label);color:var(--dim2);line-height:1.55;
+max-width:90ch}
+@media (max-width:900px){.t-trace-d2{grid-template-columns:1fr;gap:1px}
+  .t-trace-d2>div{display:block;margin-bottom:7px}}
+.t-art{margin-left:16px}
+.t-art li{margin-bottom:4px}
+
+.t-gates{display:flex;flex-direction:column;gap:1px}
+.t-gate{display:grid;grid-template-columns:104px 1fr 110px;
+grid-template-areas:"s n v" ". w w";gap:2px var(--s-4);align-items:baseline;
+padding:9px var(--s-3);border-bottom:1px solid var(--line)}
+.t-gate-s{grid-area:s;font-size:var(--t-micro);letter-spacing:.08em;
+font-weight:600}
+.t-gate.s-ok .t-gate-s{color:var(--st-PROVEN)}
+.t-gate.s-lim .t-gate-s{color:var(--st-AMBIGUOUS)}
+.t-gate.s-no .t-gate-s{color:var(--st-CONTRADICTED)}
+.t-gate.s-none .t-gate-s{color:var(--dim3)}
+.t-gate-n{grid-area:n;font-size:var(--t-label)}
+.t-gate-n em{font-style:normal;font-size:var(--t-micro);letter-spacing:.06em;
+text-transform:uppercase;color:var(--st-CONTRADICTED);margin-left:7px}
+.t-gate-n em.adv{color:var(--dim3)}
+.t-gate-v{grid-area:v;font-family:var(--m);font-size:var(--t-label);
+text-align:right;color:var(--dim2)}
+.t-gate-w{grid-area:w;font-size:var(--t-label);color:var(--dim3);line-height:1.5;
+max-width:88ch}
+
+.t-perm{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));
+gap:var(--s-5)}
+.t-perm-h{display:block;font-size:var(--t-micro);letter-spacing:.12em;
+text-transform:uppercase;color:var(--dim3);font-weight:600;margin-bottom:7px}
+.t-perm-i{display:inline-block;font-family:var(--m);font-size:var(--t-micro);
+background:var(--sur3);border-radius:var(--r-1);padding:3px 8px;margin:0 4px 4px 0}
+/* the -bg tints became alpha versions of their own hue when the palette moved
+   to paper, so this chip was painting its text colour behind its text colour —
+   a measured contrast ratio of exactly 1.00, i.e. invisible. The refusal is
+   said in words; it does not need a fill. */
+.t-perm-i.no{color:var(--st-CONTRADICTED);background:none;
+  border:1px solid var(--st-CONTRADICTED)}
+
+.t-fails{display:grid;grid-template-columns:repeat(auto-fill,minmax(272px,1fr));
+gap:0 var(--sp-4);padding-top:var(--sp-3)}
+.t-fail{display:grid;grid-template-columns:40px minmax(0,1fr);gap:var(--sp-2);
+align-items:baseline;padding:3px 0;border-top:1px solid var(--line);width:100%;
+text-align:left}
+.t-fail:hover,.t-fail.sel{background:var(--sur)}
+.t-fail.ref{border-left-color:var(--st-AMBIGUOUS)}
+.t-fail-r{font-family:var(--m);font-size:var(--t-label);color:var(--dim3)}
+.t-fail-t{font-size:var(--t-label);line-height:1.4;overflow:hidden;
+text-overflow:ellipsis;white-space:nowrap}
+/* The date opened an implicit second grid row — 40px on each of 24 entries,
+   which is 960px of vertical for a column that identifies nothing the ref
+   does not. */
+.t-fail-d{display:none}
+.t-fail-b{font-size:var(--t-micro);letter-spacing:.06em;text-transform:uppercase;
+color:var(--st-AMBIGUOUS);white-space:nowrap}
+
+@media (max-width:900px){
+  .t-bad-r{grid-template-columns:60px 1fr;gap:2px var(--s-3)}
+  .t-bad-d{grid-column:2}
+  .t-unk-r{grid-template-columns:1fr;gap:2px}
+  .t-gate{grid-template-columns:1fr auto;grid-template-areas:"s v" "n n" "w w"}
+  
+  
+}
+
+/* ---------------------------------------------------------------- action */
+/* Actions ARE the primary interactive object on Control, so they keep a
+   surface. That is the point of the discipline: the surface now means
+   something because it is not applied to everything. */
+.c-act{display:block;width:100%;text-align:left;background:var(--sur);
+border:1px solid var(--line);border-left:2px solid var(--line2);
+border-radius:var(--r-3);padding:var(--s-4);margin-bottom:5px;cursor:pointer;
+box-shadow:var(--shadow);
+transition:border-color var(--fast),transform var(--fast)}
+.c-act:hover{border-color:var(--acc);transform:translateX(2px)}
+.c-act.systemic{border-left-color:var(--st-PROVEN)}
+.c-act.rerun{border-left-color:var(--st-INVESTIGATE)}
+.c-act.per_item{border-left-color:var(--st-AMBIGUOUS)}
+.c-act-h{display:flex;align-items:baseline;gap:var(--s-3);margin-bottom:7px}
+.c-act-h b{font-size:var(--t-body);font-weight:600}
+.c-act-h i{margin-left:auto;font-style:normal}
+.c-act-m{display:flex;align-items:baseline;gap:var(--s-4);
+font-size:var(--t-label);color:var(--dim3)}
+.c-act-m em{font-style:normal;font-family:var(--m);
+font-variant-numeric:tabular-nums;font-size:var(--t-body);color:var(--ink)}
+
+/* -------------------------------------------------------------- candidates */
+.c-cands{display:flex;flex-direction:column;gap:5px}
+.c-cand{display:flex;align-items:center;gap:var(--s-3);font-size:var(--t-label);
+width:100%;border:0;border-left:2px solid transparent;background:transparent;
+padding:5px var(--s-3);text-align:left;font-family:inherit;color:inherit;
+cursor:pointer;transition:background var(--fast),border-left-color var(--fast)}
+.c-cand:hover{background:var(--sur)}
+.c-cand.sel{background:var(--sur);border-left-color:var(--acc)}
+.c-mono{font-family:var(--m);font-size:var(--t-label)}
+.c-inline{background:transparent;border:0;padding:0;font:inherit;color:var(--acc);
+cursor:pointer;text-align:left}
+.c-inline:hover{text-decoration:underline}
+.c-cand .l{font-family:var(--m);color:var(--dim3);width:14px}
+.c-cand .bar{flex:1;max-width:400px;height:7px;background:var(--sur3);
+border-radius:var(--r-full);overflow:hidden;display:flex}
+.c-cand .bar i{display:block;height:100%}
+.c-cand .bar .s{background:var(--dim3);opacity:.4}
+.c-cand .bar .u{background:var(--st-AMBIGUOUS)}
+.c-cand .n{font-family:var(--m);color:var(--dim2);min-width:100px;text-align:right}
+.c-cand .v{font-family:var(--m);font-variant-numeric:tabular-nums;min-width:104px;
+text-align:right}
+.c-will-d{font-size:var(--t-lead);color:var(--dim)}
+
+/* ----------------------------------------------------------- money trail */
+.c-trail{display:flex;flex-direction:column;gap:7px;padding:var(--s-4) 0}
+.c-trail-seg{display:flex;align-items:center;gap:var(--s-4)}
+.c-trail-seg .l{font-size:var(--t-label);color:var(--dim2);min-width:170px}
+.c-trail-seg .b{flex:1;height:14px;background:var(--sur3);border-radius:var(--r-0);
+overflow:hidden}
+.c-trail-seg .b i{display:block;height:100%;border-radius:var(--r-0);
+transition:width var(--med)}
+.c-trail-seg .b i.s-PROVEN{background:var(--st-PROVEN)}
+.c-trail-seg .b i.s-AMBIGUOUS{background:var(--st-AMBIGUOUS)}
+.c-trail-seg .v{font-family:var(--m);font-variant-numeric:tabular-nums;
+font-size:var(--t-body);min-width:126px;text-align:right}
+.c-trail-rule{height:1px;background:var(--line2);margin:4px 0 4px 182px}
+.c-trail-bal{font-size:var(--t-label);color:var(--st-PROVEN);
+text-align:right;padding-top:2px}
+
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
+:focus-visible{outline:2px solid var(--acc);outline-offset:2px;
+border-radius:var(--r-0)}
+
+@media (max-width: 900px){
+  .c-spine{grid-template-columns:1fr 1fr}
+  .c-stage-arrow{display:none}
+}
+@media (max-width: 1020px){
+  /* Below this a two-column desk is two cramped columns. The detail becomes a
+     drawer over the master, which is the same relationship in less space. */
+  /* Below this the detail becomes an overlay, and an overlay with nothing in
+     it must not exist at all — it covered the list and ate every click. */
+  #workspace.mode-master-detail.has-pane{grid-template-columns:1fr}
+  #workspace.mode-master-detail .w-ctx{position:absolute;top:0;right:0;bottom:0;
+    z-index:5;width:min(460px,88vw);background:var(--sur);
+    box-shadow:-10px 0 30px rgba(16,20,24,.10);border-left:1px solid var(--line2)}
+  #workspace:not(.has-ctx) .w-ctx{display:none}
+}
+@media (max-width: 620px){
+  .w-main{padding:var(--s-4) var(--s-4) var(--s-6)}
+  .w-ctx,.w-ctx.drawer{width:100%!important;border-left:0}
+  /* The flow needs four columns to read as a flow, and four columns do not fit
+     a phone. Stack the label and figures above a full-width bar: the narrowing
+     is still the message, it just runs down the page instead of across it. */
+  .c-flow-r{grid-template-columns:1fr auto;gap:3px var(--s-3);padding:9px 0}
+  .c-flow-n{grid-column:1}
+  .c-flow-v{grid-column:2;grid-row:1;text-align:right}
+  .c-flow-track{grid-column:1/3;grid-row:2;max-width:none}
+  .c-flow-x{grid-column:1/3;grid-row:3}
+  .c-flow-d{grid-column:1/3;padding:0 0 8px}
+
+  /* The RAIL is the shell's permanent spine, and on a phone the stacked
+     treatment above made it 416px of a 780px viewport — more than half the
+     screen spent on the header of every lens. Compact, not hidden: the stage
+     model is the one thing that must survive to a phone, so each stage
+     collapses to a single line of label, bar and figure. The detail sentence
+     goes; the narrowing stays, which is the part that carries the meaning. */
+  .c-flow.rail .c-flow-r{grid-template-columns:auto minmax(0,1fr) auto;
+    grid-template-rows:auto;gap:0 var(--sp-2);padding:var(--sp-1) 0;
+    align-items:center}
+  .c-flow.rail .c-flow-n{grid-column:1;grid-row:1;font-size:var(--type-micro)}
+  .c-flow.rail .c-flow-track{grid-column:2;grid-row:1;height:8px}
+  .c-flow.rail .c-flow-v{grid-column:3;grid-row:1;font-size:var(--type-micro)}
+  .c-flow.rail .c-flow-x{display:none}
+  /* Except where it stopped — that stays, because it is the answer. */
+  .c-flow.rail .c-flow-r.stopped .c-flow-x{display:block;grid-column:1/4;
+    grid-row:2;font-size:var(--type-micro);padding-top:2px}
+  #workspace{padding:var(--s-4) var(--s-4) var(--s-6)}
+  .c-subject{padding:var(--s-4)}
+  .c-lenses{padding:0 var(--s-4);overflow-x:auto;scrollbar-width:none}
+  .c-lenses::-webkit-scrollbar{display:none}
+  .c-row{flex-wrap:wrap;gap:var(--s-3) var(--s-4)}
+  .c-row-d{flex:1 1 100%}
+  .c-row-amt{min-width:0}
+  .c-cand .n{min-width:0}
+  .c-cand .v{min-width:0}
+  .c-metrics{grid-template-columns:1fr}
+  .c-stage-v,.c-subject-amt .v{word-break:break-all}
+  .c-subject{flex-wrap:wrap}
+  .c-subject-amt{margin-left:0}
+  .c-trail-seg .l{min-width:0;flex:1}
+  .c-trail-seg .b{display:none}
+  .c-trail-rule{margin-left:0}
+  .c-table th:nth-child(4),.c-table td:nth-child(4){display:none}
+}
+
+/* ═══════════════════════════════════════════════════════ THE INSTRUMENTS
+   The premise is that a screen
+   which looks like every other screen teaches the reader nothing about what
+   changed, so each lens gets its own grammar while the shell holds still.
+
+   Three rules govern everything below.
+
+   1. GEOMETRY IS ARGUMENT. A bar that is one two-hundredth of the bar above it
+      says "almost none of this money continued" before a figure is read. Where
+      a shape can carry the fact, the shape carries it.
+   2. NO CARDS. A card is a container that says nothing about what it holds.
+      These are objects: a rule, an ordinal, a figure at the size its importance
+      deserves. Radius 0 or 2px, never 8.
+   3. MOTION EXPLAINS A TRANSITION OR IT DOES NOT RUN. Every animation here is
+      a state change becoming visible — a population being removed, a threshold
+      being crossed, an instrument seating itself. None of it is decoration. */
+:root{
+  /* Two roles above the existing six. The statement is the only type on the
+     page allowed to be larger than the money, and only on the landing, where
+     nothing has happened yet. */
+  --type-statement:clamp(30px,4.6vw,58px);
+  --type-hero:clamp(28px,3.4vw,44px);
+  --sp-9:48px; --sp-10:64px; --sp-11:96px;
+  --r-obj:2px;                   /* objects. not cards. */
+  --rule:1px solid var(--line);
+  --rule2:1px solid var(--line2);
+  /* Semantic, not decorative. Each of these names a thing the product can say;
+     none of them is "primary" or "secondary". Grayscale still carries the
+     hierarchy — every one of these has a weight and a size behind it. */
+  --sem-money:var(--ink);
+  --sem-held:var(--st-CONTRADICTED,#b4453a);
+  --sem-blocked:var(--st-AMBIGUOUS,#a06a00);
+  --sem-verified:var(--st-PROVEN,#0c7d5a);
+  --sem-model:#7c5cbf;           /* ◇ proposes */
+  --sem-solver:#1566e5;          /* ○ tests */
+  --sem-engine:#111820;          /* ● decides */
+}
+
+/* ─────────────────────────────────────────────────────── 1 · THE OVERTURE
+   The landing's opening spread. Not a header: the first thing said, at the
+   size of a thing being said once.
+
+   It replaces the Conclusion block that used to open this room, so the page
+   gains presence without gaining words — §19's constraint is that the redesign
+   must not make the product heavier, and an overture stacked ON TOP of the old
+   opening would have done exactly that. */
+.o{margin:0 0 var(--sp-9);max-width:none}
+.o-top{display:flex;align-items:baseline;gap:var(--sp-3);
+  padding-bottom:var(--sp-3);margin-bottom:var(--sp-6);border-bottom:var(--rule)}
+.o-wm{font-family:var(--m);font-weight:700;letter-spacing:.24em;
+  font-size:var(--type-body);color:var(--ink)}
+.o-kind{font-family:var(--m);font-size:var(--type-micro);letter-spacing:.18em;
+  color:var(--dim2);text-transform:uppercase}
+.o-top .sp{flex:1}
+.o-stmt{font-size:var(--type-statement);line-height:1.04;letter-spacing:-.028em;
+  font-weight:600;color:var(--ink);margin:0 0 var(--sp-7);max-width:19ch;
+  text-wrap:balance}
+/* The refusal is the thesis, so it is the half that carries the weight. */
+.o-stmt i{font-style:normal;color:var(--dim2)}
+
+/* The figures, stated as a row of facts rather than as tiles. No borders, no
+   backgrounds — the scale difference is the hierarchy. */
+.o-figs{display:flex;flex-wrap:wrap;align-items:flex-end;
+  gap:var(--sp-6) var(--sp-9);margin-bottom:var(--sp-7)}
+.o-fig{display:flex;flex-direction:column;gap:2px}
+.o-fig b{font-family:var(--m);font-size:var(--type-hero);font-weight:500;
+  letter-spacing:-.03em;font-variant-numeric:tabular-nums;
+  color:var(--sem-money);line-height:1}
+.o-fig.sm b{font-size:var(--type-title);font-weight:600}
+.o-fig span{font-family:var(--m);font-size:var(--type-micro);letter-spacing:.16em;
+  text-transform:uppercase;color:var(--dim2)}
+
+/* ── the collapse ──────────────────────────────────────────────────────────
+   The centrepiece. It used to live as a bar list inside a 296px
+   rail, which is the correct place for it while a case is open and the wrong
+   place for it as the product's opening statement.
+
+   Widths are LINEAR in what continues past each stage, with a floor so a
+   surviving sliver does not read as zero. Verification keeps 9.4% of the
+   width because it kept 9.4% of the money. Nothing here is eased for looks. */
+.o-collapse{margin:0 0 var(--sp-8)}
+.o-h{display:flex;align-items:baseline;gap:var(--sp-3);margin-bottom:var(--sp-5)}
+.o-h b{font-family:var(--m);font-size:var(--type-label);letter-spacing:.18em;
+  text-transform:uppercase;font-weight:700;color:var(--ink)}
+.o-h em{font-style:normal;font-size:var(--type-body);color:var(--dim2)}
+.o-h .n{font-family:var(--m);font-size:var(--type-label);color:var(--dim3);
+  font-weight:700}
+
+.o-stage{display:grid;grid-template-columns:150px minmax(0,1fr) auto;
+  align-items:center;gap:0 var(--sp-4);padding:var(--sp-3) 0;
+  border-bottom:var(--rule);width:100%;cursor:pointer;
+  transition:background var(--micro)}
+.o-stage:hover,.o-stage:focus-visible{background:var(--hov)}
+.o-stage:focus-visible{outline:2px solid var(--acc);outline-offset:-2px}
+.o-stage-n{font-family:var(--m);font-size:var(--type-label);letter-spacing:.14em;
+  text-transform:uppercase;color:var(--dim);display:flex;gap:var(--sp-2)}
+.o-stage-n i{font-style:normal;color:var(--dim3);font-weight:700}
+.o-bar{height:22px;position:relative;background:var(--track,rgba(0,0,0,.045));
+  border-radius:var(--r-obj);overflow:hidden}
+.o-bar i{position:absolute;inset:0 auto 0 0;background:var(--sem-verified);
+  border-radius:var(--r-obj);
+  transform-origin:left center;
+  animation:o-grow var(--spatial) both}
+@keyframes o-grow{from{transform:scaleX(0)}to{transform:scaleX(1)}}
+.o-stage.stopped .o-bar i{background:var(--sem-blocked)}
+.o-stage-v{font-family:var(--m);font-size:var(--type-data);
+  font-variant-numeric:tabular-nums;color:var(--ink);min-width:9.5ch;
+  text-align:right}
+/* The held line is the one that matters, so it is red, on its own row, and
+   directly beneath the bar that lost the money. */
+.o-stage-x{grid-column:2/4;font-size:var(--type-body);color:var(--dim2);
+  padding-top:var(--sp-2);display:flex;gap:var(--sp-2);flex-wrap:wrap;
+  align-items:baseline}
+/* The held figure is the landing's emotional peak and it was set at data
+   size — an annotation under a bar. ₹48,03,127.81 is the largest financial
+   fact on this screen and the single blocker beneath it was being painted
+   nearly three times larger, which is the exact inversion
+   `test_the_money_that_stopped_outranks_any_single_blocker` exists to catch.
+   It is the reason the stage that stopped is the tallest row here. */
+.o-stage-x b{font-family:var(--m);font-size:var(--type-hero);
+  font-variant-numeric:tabular-nums;color:var(--sem-held);font-weight:500;
+  letter-spacing:-.03em;line-height:1.05}
+.o-stage.stopped{padding-bottom:var(--sp-5)}
+.o-stage-x{align-items:baseline}
+.o-stage:not(.stopped) .o-stage-x{display:none}
+
+/* The reading of the diagram, said once, under it. */
+.o-read{margin:var(--sp-5) 0 0;font-size:var(--type-body);color:var(--dim);
+  max-width:62ch;line-height:1.55}
+.o-read b{color:var(--ink);font-weight:600}
+
+/* ─────────────────────────────────────────── 2 · THE BLOCKER AS EVIDENCE
+   Was a six-column grid row. A row invites scanning; this is not a list to be
+   scanned, it is three findings, and the reader is meant to stop at the first
+   one because it holds ninety percent of the money.
+
+   The class names are unchanged — the browser contracts pin them, and pinning
+   the hook rather than the appearance is what let this be rebuilt at all. */
+.c-blk{display:grid;
+  grid-template-columns:auto minmax(0,1.05fr) minmax(0,1fr);
+  grid-template-areas:"i v w" "i s n" "i c n";
+  gap:var(--sp-2) var(--sp-7);align-items:start;
+  padding:var(--sp-7) 0;border-bottom:var(--rule);width:100%;
+  text-align:left;cursor:pointer;position:relative;
+  transition:background var(--micro)}
+.c-blk:first-child{border-top:var(--rule2)}
+.c-blk:hover,.c-blk:focus-visible{background:var(--hov)}
+.c-blk:focus-visible{outline:2px solid var(--acc);outline-offset:-2px}
+/* The ordinal is a plate, not a bullet. It numbers the finding. */
+.c-blk-i{grid-area:i;font-family:var(--m);font-size:var(--type-title);
+  font-weight:700;color:var(--dim3);width:2.4ch;line-height:1;padding-top:6px;
+  font-variant-numeric:tabular-nums;transition:color var(--micro)}
+.c-blk:hover .c-blk-i{color:var(--ink)}
+/* Dominant. This is the number the whole object exists to state. */
+.c-blk-v{grid-area:v;font-family:var(--m);font-size:var(--type-hero);
+  font-weight:500;letter-spacing:-.02em;font-variant-numeric:tabular-nums;
+  color:var(--sem-money);line-height:1}
+.c-blk-s{grid-area:s;display:flex;align-items:baseline;gap:var(--sp-3);
+  flex-wrap:wrap}
+.c-blk-s em{font-style:normal;font-family:var(--m);
+  font-size:var(--type-micro);letter-spacing:.14em;text-transform:uppercase;
+  color:var(--dim2)}
+/* The scope was a tinted pill — the one piece of SaaS geometry left inside the
+   object. It is a classification, so it reads as one: a rule beneath the word,
+   in the tone the classification carries, and nothing else. */
+.c-blk-s .c-status{background:none;border:0;border-radius:0;padding:0 0 3px;
+  font-family:var(--m);font-size:var(--type-micro);letter-spacing:.14em;
+  text-transform:uppercase;font-style:normal;font-weight:700;
+  border-bottom:2px solid currentColor}
+/* selection survives the rebuild — the palette and the context pane both mark
+   which blocker is open, and a rule that vanished with the old grid would have
+   taken that with it. */
+.c-blk.sel{background:var(--sur2);box-shadow:inset 3px 0 0 var(--acc)}
+/* "blocked at verification" reads as one phrase, at label scale. */
+.c-blk-b{grid-area:c;font-family:var(--m);font-size:var(--type-micro);
+  letter-spacing:.14em;text-transform:uppercase;color:var(--dim2)}
+.c-blk-b i{font-style:normal;color:var(--dim3);margin-right:.5ch}
+/* Editorial. A sentence, at reading size, not a table cell. */
+.c-blk-w{grid-area:w;font-size:var(--type-data);line-height:1.5;color:var(--ink);
+  max-width:46ch}
+.c-blk-w i{display:block;font-style:normal;font-family:var(--m);
+  font-size:var(--type-micro);letter-spacing:.14em;text-transform:uppercase;
+  color:var(--dim3);margin-bottom:var(--sp-2)}
+.c-blk-n{grid-area:n;font-size:var(--type-body);line-height:1.5;color:var(--dim);
+  max-width:46ch;align-self:start}
+.c-blk-n i{display:block;font-style:normal;font-family:var(--m);
+  font-size:var(--type-micro);letter-spacing:.14em;text-transform:uppercase;
+  color:var(--dim3);margin-bottom:var(--sp-2)}
+/* A stamped boundary, not a chip. The dashed rule reads as a limit rather
+   than as a status, which is exactly what it is: the edge of what ATTEST can
+   do without a person. */
+.c-blk-c{grid-column:2/4;grid-row:4;justify-self:start;margin-top:var(--sp-4);
+  font-family:var(--m);font-size:var(--type-micro);letter-spacing:.18em;
+  text-transform:uppercase;padding:6px 10px;border:1px dashed currentColor;
+  border-radius:0;color:var(--sem-blocked);opacity:.9}
+.c-blk-c.can{color:var(--sem-verified)}
+
+/* ────────────────────────────────────────────── 3 · THE REDUCTION CHAIN
+   Evidence's signature moment. Three figures and the cuts between them, in the
+   order they happened, at the size of the claim they make.
+
+   The rule under each figure is linear in its own population. 164 of 2,368 is
+   6.9% of the width because it is 6.9% of the orders; the survivors sit on the
+   0.35% floor because four explanations must be visible and are not a
+   proportion of anything. The old block drew NO track at all at the end, with
+   a comment saying a sliver would invite a false reading — the floor plus an
+   explicit label is the honest version of that instinct. */
+.e-uni{display:flex;flex-direction:column;margin:var(--sp-2) 0 0}
+.e-uni-r{display:grid;grid-template-columns:minmax(0,auto) minmax(0,1fr);
+  grid-template-areas:"n l" "t t";gap:var(--sp-2) var(--sp-5);
+  align-items:baseline;padding:var(--sp-3) 0}
+.e-uni-n{grid-area:n;font-family:var(--m);font-variant-numeric:tabular-nums;
+  font-size:var(--type-hero);font-weight:500;letter-spacing:-.03em;
+  line-height:1;color:var(--ink)}
+.e-uni-l{grid-area:l;font-family:var(--m);font-size:var(--type-micro);
+  letter-spacing:.16em;text-transform:uppercase;color:var(--dim2)}
+.e-uni-t{grid-area:t;height:6px;background:var(--sur3);border-radius:0;
+  overflow:hidden;margin-top:var(--sp-1)}
+/* the book is a population, not value — it reads as the ground the cuts
+   act on rather than as a quantity competing with them */
+.e-uni-t i{display:block;height:100%;background:var(--line2);
+  transform-origin:left center;animation:o-grow var(--spatial) both}
+.e-uni-r.mid .e-uni-n{color:var(--sem-verified)}
+.e-uni-r.mid .e-uni-t i{background:var(--sem-verified)}
+/* the far side of the chain: the number the whole case turns on */
+.e-uni-end{border-top:var(--rule2);margin-top:var(--sp-3);
+  padding-top:var(--sp-5)}
+.e-uni-end .e-uni-n{color:var(--sem-blocked);font-size:var(--type-statement);
+  font-weight:600}
+.e-uni-end .e-uni-t i{background:var(--sem-blocked)}
+.e-uni-end .e-uni-l{color:var(--dim)}
+
+/* the cuts. Indented under the figure they act on, so the chain reads as
+   one movement rather than as five sibling rows. */
+.e-uni-e{display:flex;flex-direction:column;border-left:var(--rule2);
+  margin-left:var(--sp-4);padding-left:var(--sp-5)}
+.e-uni-c{display:grid;grid-template-columns:6ch minmax(0,27ch) 13ch;
+  grid-template-areas:"m w k" "j j j";gap:2px var(--sp-4);
+  align-items:baseline;padding:var(--sp-2) var(--sp-3);width:100%;
+  text-align:left;position:relative;border-radius:var(--r-obj);
+  animation:e-cut var(--spatial) both;
+  transition:background var(--micro)}
+@keyframes e-cut{from{opacity:0;transform:translateY(-5px)}
+                 to{opacity:1;transform:none}}
+.e-uni-c::before{content:"";position:absolute;left:calc(var(--sp-5) * -1 - 1px);
+  top:50%;width:var(--sp-4);height:1px;background:var(--line2)}
+.e-uni-m{grid-area:m;font-family:var(--m);font-variant-numeric:tabular-nums;
+  font-size:var(--type-data);color:var(--ink);text-align:right}
+.e-uni-w{grid-area:w;font-size:var(--type-body);color:var(--ink)}
+.e-uni-k{grid-area:k;font-family:var(--m);font-size:var(--type-micro);
+  letter-spacing:.14em;text-transform:uppercase;justify-self:start}
+.e-uni-c.conv .e-uni-k{color:var(--sem-blocked)}
+.e-uni-c.det .e-uni-k,.e-uni-c.arith .e-uni-k{color:var(--sem-verified)}
+/* §30.13 — the playful part. The justification is the reward for asking, and
+   the KIND above it is never hidden, because a reader who does not hover must
+   still see that the boundary rests on a convention. */
+.e-uni-j{grid-area:j;font-size:var(--type-body);color:var(--dim2);
+  line-height:1.5;max-width:64ch;
+  max-height:0;opacity:0;overflow:hidden;
+  transition:max-height var(--standard),opacity var(--standard),
+             padding-top var(--standard)}
+button.e-uni-c:hover,button.e-uni-c:focus-visible{background:var(--hov)}
+button.e-uni-c:focus-visible{outline:2px solid var(--acc);outline-offset:-2px}
+button.e-uni-c:hover .e-uni-j,button.e-uni-c:focus-visible .e-uni-j,
+.e-uni-c.arith .e-uni-j{max-height:8em;opacity:1;padding-top:var(--sp-2)}
+.e-uni-claim{font-size:var(--type-body);color:var(--dim2);line-height:1.55;
+  padding-top:var(--sp-4);max-width:76ch}
+@media (prefers-reduced-motion:reduce){
+  .e-uni-c,.e-uni-t i,.o-bar i{animation:none}
+  .e-uni-j{transition:none}
+}
+
+/* ──────────────────────────────────────────── 4 · INVESTIGATE AS EXPERIMENT
+   Three actors, in sequence, and what the sequence produced.
+
+   The actors were three unconnected rows, which reads as a list of facts about
+   three systems. They are one causal chain — the model proposes, the solver
+   tests what was proposed, the engine decides on the result of that test — and
+   a chain that is not drawn has to be inferred. */
+.i-bound-seq{position:relative;padding:var(--sp-2) 0}
+/* the connector. It runs between the dots, not through them, so the sequence
+   reads as three steps rather than as one continuous rail. */
+.i-bound-seq::before{content:"";position:absolute;left:6.5px;
+  top:calc(var(--sp-2) + 14px);bottom:calc(var(--sp-2) + 14px);
+  width:1px;background:var(--line2)}
+.i-bound-s{position:relative;padding:var(--sp-2) 0}
+.i-bound-dot{background:var(--sur);box-shadow:0 0 0 3px var(--sur)}
+.i-bound-dot.model{border:1.5px solid var(--sem-model)}
+.i-bound-dot.solver{border:1.5px solid var(--sem-solver)}
+.i-bound-dot.engine{background:var(--sem-engine);border-color:var(--sem-engine)}
+.i-bound-s b{letter-spacing:.14em}
+
+/* the terminal. Two statements, at statement size, because they are the two
+   things this instrument exists to be able to say. */
+.i-bound-t{display:flex;flex-direction:column;gap:2px;
+  margin:var(--sp-6) 0 var(--sp-5);padding-top:var(--sp-5);
+  border-top:var(--rule2)}
+.i-bound-t b{font-size:var(--type-hero);line-height:1.02;font-weight:600;
+  letter-spacing:-.025em;text-transform:uppercase;
+  font-family:var(--m)}
+.i-bound-t b:first-child{color:var(--ink)}
+.i-bound-t b:last-child{color:var(--sem-held)}
+.i-bound-k .n{font-family:var(--m);color:var(--dim3);margin-right:var(--sp-2);
+  font-weight:700}
+
+/* the question, as the opening of an experiment rather than a section title */
+.i-q{margin:var(--sp-7) 0 var(--sp-6);padding-bottom:var(--sp-5);
+  border-bottom:var(--rule)}
+.i-q-k{display:block;font-family:var(--m);font-size:var(--type-micro);
+  letter-spacing:.18em;text-transform:uppercase;color:var(--dim3);
+  margin-bottom:var(--sp-3)}
+.i-q h2{font-size:var(--type-hero);line-height:1.08;letter-spacing:-.025em;
+  font-weight:600;color:var(--ink);margin:0;max-width:22ch;text-wrap:balance}
+
+/* ─────────────────────────────────────────── 5 · POLICY AS A THRESHOLD
+   Two comparable numbers and the line between them. Nothing else in this
+   product decides anything, so nothing else in this room should be larger. */
+.p-bound{padding:var(--sp-2) 0 var(--sp-4)}
+.p-bound-hd{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));
+  gap:var(--sp-6);margin-bottom:var(--sp-6)}
+.p-bound-k{display:flex;flex-direction:column;gap:var(--sp-2)}
+.p-bound-k i{font-style:normal;font-family:var(--m);font-size:var(--type-micro);
+  letter-spacing:.18em;text-transform:uppercase;color:var(--dim3)}
+.p-bound-k b{font-family:var(--m);font-size:var(--type-hero);font-weight:500;
+  letter-spacing:-.03em;font-variant-numeric:tabular-nums;line-height:1;
+  color:var(--ink)}
+/* the notes that used to sit under each figure were the conclusion's sentence
+   and "what went in"'s note, restated — the instrument states figures */
+/* The absence IS the statement, so it is set at the size a price would have
+   been and in the tone of a thing that did not happen. A zero here would be a
+   claim that the posting was proved safe. */
+.p-bound.unpriced .p-bound-k.lo b{color:var(--sem-blocked);
+  font-size:var(--type-hero);text-transform:uppercase;letter-spacing:.02em}
+
+.p-bound-t{position:relative;height:44px;background:var(--sur3);
+  border-radius:var(--r-obj);margin:var(--sp-2) 0 var(--sp-8)}
+.p-bound-line{position:absolute;top:-6px;bottom:-6px;width:2px;
+  background:var(--ink);z-index:2}
+/* below the bar, not above it — above, the label landed on top of the review
+   cost's own note and the two words overlapped */
+.p-bound-line::after{content:"review cost";position:absolute;top:calc(100% + 10px);
+  left:50%;transform:translateX(-50%);white-space:nowrap;
+  font-family:var(--m);font-size:var(--type-micro);letter-spacing:.14em;
+  text-transform:uppercase;color:var(--dim2)}
+.p-bound-mark{position:absolute;top:50%;width:16px;height:16px;
+  margin:-8px 0 0 -8px;border-radius:999px;background:var(--sem-blocked);
+  box-shadow:0 0 0 4px var(--sur);z-index:3;
+  animation:p-seat var(--spatial) both}
+@keyframes p-seat{from{transform:translateX(-14px) scale(.4);opacity:0}
+                  to{transform:none;opacity:1}}
+.p-bound.auto .p-bound-mark{background:var(--sem-verified)}
+.p-bound-zl,.p-bound-zr{position:absolute;top:50%;transform:translateY(-50%);
+  font-family:var(--m);font-size:var(--type-micro);letter-spacing:.14em;
+  text-transform:uppercase;color:var(--dim3)}
+.p-bound-zl{left:12px} .p-bound-zr{right:12px}
+/* The margin — how close the call was, which is the one thing the comparison
+   knows and nothing else on the screen says. It was the decision word, which
+   the conclusion above already paints at hero weight; two heroes for one word
+   is what was removed from this exact room once already. */
+.p-bound-out{font-size:var(--type-title);color:var(--dim);line-height:1.3}
+.p-bound-out b{font-family:var(--m);font-variant-numeric:tabular-nums;
+  font-weight:500;letter-spacing:-.02em;color:var(--ink)}
+.p-bound.auto .p-bound-out b{color:var(--sem-verified)}
+.p-bound.review .p-bound-out b{color:var(--sem-blocked)}
+.p-bound.unpriced .p-bound-out{color:var(--dim2);font-style:italic}
+@media (prefers-reduced-motion:reduce){.p-bound-mark{animation:none}}
+
+/* ────────────────────────────────────────── 6 · JOURNAL AS ACCOUNTING
+   A movement through the books, and what the books did about it. */
+/* the movement. The connector was already drawn; what it lacked was room to
+   read as a movement rather than as a five-row table. */
+.j-mv-s{padding:var(--sp-4) 0}
+.j-mv-k{font-family:var(--m);letter-spacing:.16em}
+
+/* the effect. A T-account: two entries and the rule that closes them. */
+.j-eff{display:block;padding:var(--sp-2) 0 0}
+.j-eff-t{display:grid;grid-template-columns:auto minmax(0,200px);
+  justify-content:start;gap:var(--sp-2) var(--sp-7);margin-bottom:var(--sp-6)}
+/* the rows are pairs of cells in the parent grid, not boxes of their own —
+   without this the three entries pack into three cells and the rule that
+   closes the account lands under the wrong one */
+.j-eff-r{display:contents}
+.j-eff-k{font-family:var(--m);font-size:var(--type-micro);letter-spacing:.18em;
+  text-transform:uppercase;color:var(--dim3);align-self:center}
+.j-eff-v{font-family:var(--m);font-variant-numeric:tabular-nums;
+  font-size:var(--type-title);text-align:right;letter-spacing:-.02em}
+.j-eff-r.net .j-eff-k,.j-eff-r.net .j-eff-v{border-top:2px solid var(--ink);
+  border-bottom:0;padding-top:var(--sp-2);margin-top:var(--sp-1)}
+.j-eff.absent .j-eff-v{color:var(--dim2)}
+.j-eff.written .j-eff-v{color:var(--ink)}
+/* §30.6 — the reading, stamped. ₹0.00 / ₹0.00 / ₹0.00 is indistinguishable
+   from an entry that cancelled out; this line is the difference, and it was
+   set at annotation size underneath the figures it explains. */
+.j-eff-stamp{font-family:var(--m);font-size:var(--type-hero);font-weight:600;
+  letter-spacing:-.025em;text-transform:uppercase;line-height:1;
+  max-width:16ch;margin-bottom:var(--sp-3)}
+.j-eff.absent .j-eff-stamp{color:var(--sem-blocked)}
+.j-eff.written .j-eff-stamp{color:var(--sem-verified)}
+.j-eff-n{font-size:var(--type-body);color:var(--dim2);line-height:1.55;
+  max-width:56ch;padding-top:0}
+
+/* ────────────────────────────────────────────── 8 · TRUST AS FORENSICS
+   What was attacked, and what held. Three counts, and the third is the one
+   that matters — it is zero, and a zero that means something must be as large
+   as the numbers it is being compared against. */
+.t-adv{display:flex;flex-wrap:wrap;gap:var(--sp-9);align-items:flex-start;
+  padding:var(--sp-2) 0 0}
+.t-adv-f{display:flex;flex-direction:column;gap:var(--sp-1)}
+.t-adv-f b{font-family:var(--m);font-size:var(--type-statement);font-weight:600;
+  letter-spacing:-.03em;line-height:.95;font-variant-numeric:tabular-nums;
+  color:var(--sem-verified)}
+.t-adv-f:first-child b{color:var(--ink)}
+.t-adv-f.bad b{color:var(--sem-held)}
+.t-adv-f span{font-family:var(--m);font-size:var(--type-micro);
+  letter-spacing:.18em;text-transform:uppercase;color:var(--dim2)}
+.t-adv-n{flex:1 1 34ch;min-width:28ch;margin:0;font-size:var(--type-body);
+  color:var(--dim2);line-height:1.55;align-self:center}
+.t-adv-n code{font-family:var(--m);font-size:var(--type-label);color:var(--ink)}
+
+/* the closing statement. The last thing the room says, and the only piece of
+   type in Trust allowed to be this large — because it is the one claim that
+   survives swapping the provider out entirely. */
+.t-iso{margin-top:var(--sp-9);padding-top:var(--sp-7);border-top:2px solid var(--ink)}
+.t-iso-k{font-family:var(--m);font-size:var(--type-micro);letter-spacing:.18em;
+  text-transform:uppercase;color:var(--dim3);margin-bottom:var(--sp-5)}
+.t-iso-s{margin:0 0 var(--sp-5);font-size:var(--type-statement);line-height:1.02;
+  letter-spacing:-.03em;font-weight:600;color:var(--ink);max-width:16ch}
+.t-iso.breached .t-iso-s{color:var(--sem-held)}
+.t-iso-n{margin:0;font-size:var(--type-body);color:var(--dim2);line-height:1.6;
+  max-width:74ch}
+.t-iso-n code{font-family:var(--m);font-size:var(--type-label);color:var(--ink);
+  background:var(--sur3);padding:1px 4px;border-radius:var(--r-obj)}
+
+/* ──────────────────────────────────────────── 9 · THE DOCK AS A RACK
+   Every instrument already carries its state. What was left was the gesture:
+   the held instrument should read as SEATED into the room it opened, not as
+   a highlighted row in a list.
+
+   Three things do that, and none of them is a colour change. It carries the
+   room's own surface, so the seam between rail and room disappears where the
+   two meet; it loses its right edge, so the instrument and the room are one
+   shape; and it moves 2px toward the room as it seats. */
+.c-lenses button{transition:color var(--micro),border-color var(--micro),
+  background var(--micro),transform var(--standard),padding var(--standard)}
+.c-lenses button.on{background:var(--bg);
+  margin-right:-1px;border-right:0;transform:translateX(2px);
+  box-shadow:inset 3px 0 0 var(--ink)}
+.c-lenses button.on .c-lens-i{color:var(--dim2)}
+/* the state is the instrument's report and reads as one */
+.c-lenses button.on .c-lens-s{color:var(--ink);font-weight:700;opacity:1}
+.c-lens-s{transition:color var(--micro),opacity var(--micro)}
+/* hovering an instrument shows where it would seat, without moving it */
+.c-lenses button:not(.on):hover{box-shadow:inset 2px 0 0 var(--line2)}
+.c-lenses button:focus-visible{outline:2px solid var(--acc);outline-offset:-2px}
+@media (prefers-reduced-motion:reduce){
+  .c-lenses button{transition:none}
+  .c-lenses button.on{transform:none}
+}
+
+/* ────────────────────────────────────────── 15 · THE DISCOVERY LOOP
+   The one thing the workspace could not say was that a narrative exists.
+   A link in the utility bar, at the weight of a utility link. */
+#bar a.story{font-family:var(--m);font-size:var(--type-label);
+  letter-spacing:.14em;text-transform:uppercase;color:var(--dim2);
+  text-decoration:none;border-bottom:1px solid var(--line2);padding-bottom:1px;
+  transition:color var(--micro),border-color var(--micro)}
+#bar a.story:hover{color:var(--ink);border-color:var(--ink)}
+
+/* ═══════════════════════════════════════════════════════ ON A PHONE
+   Not the desktop composition shrunk. Each instrument keeps its argument and
+   loses only what a 390px column cannot hold without breaking a word. */
+@media (max-width:767px){
+  /* the overture. The masthead's two labels wrapped into four lines and read
+     as a paragraph; on a phone the identity and the execution state are
+     stacked facts, not a bar. */
+  .o-top{flex-direction:column;align-items:flex-start;gap:var(--sp-1)}
+  .o-top .sp{display:none}
+  .o-stmt{max-width:none}
+  .o-figs{gap:var(--sp-5) var(--sp-7);margin-bottom:var(--sp-7)}
+  .o-fig b{font-size:var(--type-hero)}
+  /* "01 THE COLLAPSE  every stage is an instrument" ran off the column and
+     broke mid-word. The aside drops below rather than being dropped. */
+  .o-h{flex-wrap:wrap;gap:var(--sp-1) var(--sp-2)}
+  .o-h em{flex:1 1 100%;font-size:var(--type-body)}
+  /* the collapse keeps its bar — the narrowing IS the instrument — and puts
+     the figure on the row with the name so the bar gets the full column */
+  .o-stage{grid-template-columns:minmax(0,1fr) auto;
+    grid-template-areas:"n v" "b b" "x x";gap:var(--sp-2) var(--sp-3);
+    padding:var(--sp-3) 0}
+  .o-stage-n{grid-area:n}
+  .o-bar{grid-area:b;height:16px}
+  .o-stage-v{grid-area:v;min-width:0}
+  .o-stage-x{grid-area:x;padding-top:var(--sp-1)}
+  .o-stage-x b{font-size:var(--type-title)}
+  .o-read{font-size:var(--type-body)}
+
+  /* the blocker objects: one column, the amount still dominant */
+  .c-blk{grid-template-columns:auto minmax(0,1fr);
+    grid-template-areas:"i v" ". s" ". c" ". w" ". n";
+    gap:var(--sp-2) var(--sp-4);padding:var(--sp-6) 0}
+  .c-blk-v{font-size:var(--type-title)}
+  .c-blk-c{grid-column:1/3;grid-row:6;margin-top:var(--sp-3)}
+  .c-blk-w,.c-blk-n{max-width:none}
+
+  /* the reduction chain */
+  .e-uni-n{font-size:var(--type-title)}
+  .e-uni-end .e-uni-n{font-size:var(--type-hero)}
+  .e-uni-e{margin-left:var(--sp-2);padding-left:var(--sp-4)}
+  .e-uni-c{grid-template-columns:6ch minmax(0,1fr);
+    grid-template-areas:"m w" ". k" "j j";gap:2px var(--sp-3);
+    padding:var(--sp-2)}
+  .e-uni-c::before{left:calc(var(--sp-4) * -1 - 1px);width:var(--sp-3)}
+
+  /* the threshold */
+  .p-bound-hd{grid-template-columns:minmax(0,1fr);gap:var(--sp-5)}
+  .p-bound-k b{font-size:var(--type-title)}
+  .p-bound-zl,.p-bound-zr{display:none}
+  .p-bound-out{font-size:var(--type-hero)}
+
+  /* the terminals: they are statements, and a statement that wraps mid-word
+     is not one. Mono at hero size does not fit 390px, so they step down. */
+  .i-bound-t b,.j-eff-stamp,.t-iso-s,.t-adv-f b{font-size:var(--type-title)}
+  .t-iso-s{font-size:var(--type-hero)}
+  .i-q h2{font-size:var(--type-title);max-width:none}
+  .t-adv{gap:var(--sp-6)}
+  .j-eff-t{grid-template-columns:auto minmax(0,1fr)}
+  .j-mv-s{grid-template-columns:minmax(0,1fr) auto;
+    grid-template-areas:"k v" "w w";gap:var(--sp-1) var(--sp-3)}
+  .j-mv-k{grid-area:k;padding-left:var(--sp-5)}
+  .j-mv-w{grid-area:w;padding-left:var(--sp-5)}
+  .j-mv-v{grid-area:v}
+
+  /* the dock: the ordinal was overlapping the instrument's name once the name
+     moved to the first line */
+  .c-lenses button{padding-left:var(--sp-7)}
+  .c-lens-i{left:var(--sp-1)}
+}
+
+/* ────────────────────────────────────────── 7 · ACTIVITY AS A CAUSAL CHAIN
+   This instrument was already a chain rather than a table; what it lacked was
+   the weight to read as an argument. Three changes, no new elements.
+
+   The connectors ARE the argument, so they stop being the smallest type on
+   screen. The event headline is a statement, so it is set as one. And the
+   actor marks match the ones Investigate and the story page use — ◇ proposes,
+   ○ tests, ● decides — because an actor that looks different in each room is
+   three actors. */
+.a-cause{padding-top:var(--sp-2);padding-bottom:var(--sp-2)}
+.a-cause span{font-size:var(--type-body);color:var(--dim2);font-style:italic}
+.a-cause::before,.a-cause::after{border-color:var(--line2)}
+.a-ev{padding:var(--sp-3) var(--sp-3) var(--sp-3) var(--sp-4);
+  border-radius:var(--r-obj)}
+.a-what{font-size:var(--type-data);line-height:1.45}
+.a-actor{font-family:var(--m);letter-spacing:.16em}
+/* one actor vocabulary across the product */
+.a-model .a-actor,.a-model .a-mark{color:var(--sem-model)}
+.a-solver .a-actor,.a-solver .a-mark{color:var(--sem-solver)}
+.a-engine .a-actor,.a-engine .a-mark{color:var(--sem-engine)}
+/* the badge was the last pill in the product */
+.a-badge{border-radius:0;border:0;border-bottom:2px solid currentColor;
+  padding:0 0 2px;font-family:var(--m);letter-spacing:.14em}
+
+/* ══════════════════════════════════════════════════ THE VISUAL RESET
+   Each room has its own grammar. Held up against the running
+   product, three things were still making it read as a terminal rather than
+   an instrument, and none of them was a colour choice.
+
+   ONE — the rail drew the collapse the room was already drawing, so the first
+   screen carried the same five figures twice. Fixed in components.js; the
+   rail is the case now, and nothing else.
+
+   TWO — the bars were saturated mint. On near-black, mint at full chroma is
+   the loudest thing that can be put on a screen, and it was sitting next to
+   the sentence the product exists to say. The bar carries MAGNITUDE, which is
+   a length, not a hue; length says it without shouting. Colour is now spent
+   on exactly one thing per screen: the money that stopped.
+
+   THREE — everything was a label. PROCESSED, ALL SETTLEMENTS, SETTLEMENTS,
+   ORDERS, SOURCE, MATCHING, VERIFICATION, WHY, WOULD UNBLOCK, BLOCKED AT — a
+   screen where every element wears a tiny uppercase tag has no hierarchy,
+   because the tags all look identical and the eye cannot rank them. Labels
+   that name a thing you can already see are gone; labels that create
+   hierarchy stay, and drop to the dimmest tier. */
+
+/* ── the collapse: length is the argument, colour is the exception ───────── */
+.o-bar{background:var(--sur3);height:26px}
+.o-bar i{background:rgba(255,255,255,.22)}
+/* the stage that lost the money is the only one wearing a colour */
+.o-stage.stopped .o-bar i{background:var(--st-AMBIGUOUS);opacity:.85}
+.o-stage-n{color:var(--dim2);letter-spacing:.16em}
+.o-stage-n i{color:var(--dim3)}
+.o-stage-v{color:var(--dim)}
+.o-stage.stopped .o-stage-v{color:var(--ink)}
+.o-stage{border-bottom-color:var(--line)}
+/* the held figure is the loudest thing on the landing, and the only red */
+.o-stage-x b{color:var(--st-CONTRADICTED)}
+.o-stage-x{color:var(--dim2)}
+
+/* ── the eyebrow, once ──────────────────────────────────────────────────── */
+.o-top{border-bottom-color:var(--line)}
+.o-wm{color:var(--ink);letter-spacing:.28em}
+.o-kind{color:var(--dim3)}
+.o-stmt{color:var(--ink);letter-spacing:-.032em}
+.o-stmt i{color:var(--dim3)}
+.o-fig b{color:var(--ink)}
+.o-fig span{color:var(--dim3)}
+.o-h b{color:var(--dim);font-weight:400}
+.o-h em{color:var(--dim3)}
+.o-h .n{color:var(--dim3)}
+.o-read{color:var(--dim2)}
+.o-read b{color:var(--ink)}
+
+/* ── the rail: a case, not a second dashboard ───────────────────────────── */
+#subject{background:var(--rail-bg);border-right:1px solid var(--line)}
+/* the chain is an instrument's status column, not a bar chart. The tracks go;
+   a tick and a name remain, and only the stage that stopped says a figure. */
+.c-flow.rail{gap:0}
+.c-flow.rail .c-flow-r{position:relative;padding:var(--sp-2) 0 var(--sp-2) var(--sp-5);
+  grid-template-columns:minmax(0,1fr) auto;align-items:baseline}
+.c-flow.rail .c-flow-track{display:none}
+.c-flow.rail .c-flow-r::before{content:"";position:absolute;left:2px;
+  top:calc(var(--sp-2) + 5px);width:6px;height:6px;border-radius:999px;
+  border:1px solid var(--dim3);background:var(--rail-bg)}
+.c-flow.rail .c-flow-r.passed::before{background:var(--dim2);border-color:var(--dim2)}
+.c-flow.rail .c-flow-r.stopped::before{background:var(--st-AMBIGUOUS);
+  border-color:var(--st-AMBIGUOUS)}
+/* the connector between ticks: the chain is one movement */
+.c-flow.rail .c-flow-r::after{content:"";position:absolute;left:4.5px;
+  top:calc(var(--sp-2) + 11px);bottom:-2px;width:1px;background:var(--line2)}
+.c-flow.rail .c-flow-r:last-of-type::after{display:none}
+.c-flow.rail .c-flow-n{grid-column:1;font-size:var(--type-micro);
+  letter-spacing:.16em;color:var(--dim3)}
+.c-flow.rail .c-flow-r.stopped .c-flow-n{color:var(--ink)}
+.c-flow.rail .c-flow-v{grid-column:2;font-size:var(--type-body);
+  color:var(--dim2);font-family:var(--m)}
+.c-flow.rail .c-flow-r.stopped .c-flow-v{color:var(--ink)}
+.c-flow.rail .c-flow-x{display:none}
+.c-flow.rail .c-flow-r.stopped .c-flow-x{display:block;grid-column:1/3;
+  padding-top:var(--sp-1)}
+.c-flow.rail .c-flow-h{color:var(--st-CONTRADICTED);font-size:var(--type-data)}
+.c-flow.rail .c-flow-r:hover{background:var(--hov)}
+.c-flow.rail .c-flow-d{display:none}
+
+/* ── the dock: a quiet index. No boxes, no filled row. ──────────────────── */
+.c-lenses{background:var(--rail-bg);border-top:1px solid var(--line);
+  padding:var(--sp-3) 0}
+.c-lenses button{padding:var(--sp-2) var(--sp-5) var(--sp-2) var(--sp-8);
+  border-left:0}
+.c-lens-i{color:var(--dim3);opacity:.5;top:calc(var(--sp-2) + 1px)}
+.c-lens-n{color:var(--dim3);letter-spacing:.16em;transition:color var(--micro)}
+.c-lens-q{color:var(--dim3);opacity:.55;transition:opacity var(--micro)}
+.c-lens-s{color:var(--dim3);opacity:.5}
+/* Inactive instruments almost disappear — but they still state what they
+   ask. Hiding the question entirely turns the dock back into the menu it was
+   built to stop being, and the whole point of an index is that you can read
+   it. "Almost disappear" is an opacity, not a display:none. */
+.c-lenses button:not(.on) .c-lens-q{opacity:.4}
+.c-lenses button:not(.on):hover .c-lens-n{color:var(--dim)}
+.c-lenses button:not(.on):hover{box-shadow:none;background:var(--hov)}
+/* the seated one carries the room's own field, and a single rule */
+.c-lenses button.on{background:var(--bg);box-shadow:inset 2px 0 0 var(--ink);
+  padding-top:var(--sp-3);padding-bottom:var(--sp-3)}
+.c-lenses button.on .c-lens-i{color:var(--dim2);opacity:1}
+.c-lenses button.on .c-lens-n{color:var(--ink);font-weight:600}
+.c-lenses button.on .c-lens-q{color:var(--dim);opacity:1;height:auto}
+.c-lenses button.on .c-lens-s{color:var(--dim2);opacity:1;font-weight:400}
+
+/* ── the utility bar: furniture, at furniture's weight ──────────────────── */
+#bar{background:var(--rail-bg);border-top:1px solid var(--line)}
+#bar .wm{color:var(--dim3);opacity:1}
+#source-mode,#exec-path{color:var(--dim3)}
+.btn{background:transparent;border-color:var(--line2);color:var(--dim2)}
+.btn:hover{color:var(--ink);border-color:var(--dim3)}
+.btn.go{background:transparent;border-color:var(--line2);color:var(--dim)}
+.btn.go:hover{color:var(--ink);border-color:var(--ink)}
+#bar a.story{color:var(--dim3);border-bottom-color:var(--line2)}
+
+/* ── the collapse, rebuilt: no well, no track, no chart ─────────────────── */
+.o-stage{display:grid;grid-template-columns:minmax(0,1fr) auto;
+  grid-template-areas:"n v" "b b" "x x";
+  gap:var(--sp-2) var(--sp-4);align-items:baseline;
+  padding:var(--sp-4) 0 var(--sp-5);border-bottom:0}
+.o-stage + .o-stage{border-top:1px solid var(--line)}
+.o-stage-n{grid-area:n;font-size:var(--type-micro);letter-spacing:.18em}
+.o-stage-v{grid-area:v;font-size:var(--type-title);letter-spacing:-.02em;
+  min-width:0;text-align:right}
+.o-stage.stopped .o-stage-v{font-size:var(--type-title)}
+/* the rule IS the quantity. It has no container, because a quantity is not a
+   proportion of a box — it is a length beside the lengths above it. */
+.o-bar{grid-area:b;height:3px;background:none;border-radius:0;overflow:visible;
+  margin-top:var(--sp-1)}
+.o-bar i{position:static;display:block;height:3px;border-radius:0}
+.o-stage-x{grid-area:x;padding-top:var(--sp-3)}
+.o-stage.stopped{padding-bottom:var(--sp-6)}
+
+/* The landing must answer five things without scrolling, so the collapse is
+   given exactly the room it needs and no more. The held sentence keeps hero
+   weight — it is the answer to "what happened" — and the blockers below step
+   down to display, because they answer "how big", which is Level 2. */
+.o-stage{padding:var(--sp-3) 0 var(--sp-4)}
+.o-stage.stopped{padding-bottom:var(--sp-5)}
+.o-stage-x{padding-top:var(--sp-2)}
+.o-figs{margin-bottom:var(--sp-6)}
+.o-collapse{margin-bottom:var(--sp-7)}
+.o-h{margin-bottom:var(--sp-3)}
+.c-blk-v{font-size:var(--type-display)}
+
+/* ── the rail on the landing ─────────────────────────────────────────────
+   Same rule as the spine: the rail never draws what the room is drawing. On
+   a settlement the rail is the case — identity, amount, verdict, where it
+   stopped — and the room has no copy of it. On the portfolio the room's own
+   overture states the money, the settlement count and the order count at the
+   size of a headline, so the rail stating them again in miniature was the
+   landing carrying its own summary twice.
+
+   What survives is what the room does NOT say: who this is, and what to do
+   next. */
+.c-subject[data-type=portfolio] .c-case-amt,
+.c-subject[data-type=portfolio] .c-case-meta{display:none}
+.c-subject[data-type=portfolio] .c-case-id{margin-top:0}
+
+/* The dock keeps its natural height and the case takes what is left, so a
+   tall case scrolls inside the rail instead of pushing the instruments off
+   the bottom of the screen. Making the case row `auto` to close the gap on
+   the landing did exactly that: on a settlement the dock ran under the
+   utility bar and INVESTIGATE was printed on top of the wordmark. */
+#subject{overflow-y:auto;min-height:0}
+/* `align-self:end` was written for the grid, where it pinned the dock to the
+   bottom of its row. Inside the spine's COLUMN flex container that same
+   property is the cross axis — it right-aligned the dock and shrank it to its
+   content, so the instruments sat 81px in from the rail's edge. The push to
+   the bottom is margin-top:auto here. */
+.c-lenses{align-self:stretch}
+
+/* ── Trust: the claim is the interface, the state is metadata ────────────
+   Eleven identical bordered badges down the left edge read as a grid, and a
+   grid is the thing this phase set out to remove. Worse, the badge was the
+   first thing on every row and the loudest thing in the section — so the
+   column the eye scanned said NOT VERIFIED eleven times and the sentences
+   that actually name what is not verified were secondary.
+
+   Inverted: the statement leads at reading size, the reason sits under it,
+   and the state moves to the right at metadata weight. Nothing is hidden and
+   nothing is softened — the section still opens on NOT VERIFIED at hero size,
+   once, where it means something. */
+.t-bound{grid-template-columns:minmax(0,1.1fr) minmax(0,1.4fr) auto;
+  grid-template-areas:"w y s";gap:var(--sp-4) var(--sp-6);
+  align-items:baseline;padding:var(--sp-4) 0}
+.t-bound-w{grid-area:w;font-size:var(--type-data);font-weight:500;
+  color:var(--ink);line-height:1.4}
+.t-bound-y{grid-area:y;font-size:var(--type-body);color:var(--dim2)}
+.t-bound-s{grid-area:s;justify-self:end;border:0;background:none;padding:0;
+  border-radius:0;font-family:var(--m);font-size:var(--type-micro);
+  letter-spacing:.16em;color:var(--dim3);white-space:nowrap}
+.t-bounds .t-bound:first-child{border-top:1px solid var(--line)}
+
+/* the three counts: one colour, on the one that is zero */
+.t-adv-f b{color:var(--ink)}
+.t-adv-f:last-child b{color:var(--st-PROVEN)}
+.t-head-k,.t-assert-k{color:var(--dim3)}
+.t-iso{border-top-color:var(--line2)}
+.t-iso-s{color:var(--ink)}
+/* inline code was given a tint and a border, which turned seven filenames
+   into seven little boxes inside one paragraph — the container grammar this
+   phase removes, reintroduced by the fix for it. A monospace face against
+   ink is already the whole signal. */
+.t-iso-n code,.t-adv-n code{background:none;border:0;padding:0;
+  color:var(--ink);font-family:var(--m)}
+
+/* the one remaining ledger box: a state, not a container */
+.j-mv-x{border:0;background:none;padding:0;color:var(--dim2);
+  font-family:var(--m);letter-spacing:.16em}
+
+/* ── the verdict, said rather than badged ────────────────────────────────
+   A pill is a container, and this one appears in the rail, in three rooms and
+   inside two metric strips — the most repeated box in the product. The verdict
+   is a WORD, and the four verdicts are already distinguishable by the word
+   alone; the pill was adding a shape that carried nothing the word did not.
+
+   What replaces it is monospace, letter-spaced, in the verdict's own tone.
+   That still reads as a state rather than as prose, still colour-codes, and
+   still passes a grayscale reading — but it stops drawing a box. */
+.c-status{background:none;border-radius:0;padding:0;font-family:var(--m);
+  font-weight:400;letter-spacing:.16em;text-transform:uppercase}
+.c-status.sm{padding:0}
+.s-PROVEN{background:none} .s-AMBIGUOUS{background:none}
+.s-CONTRADICTED{background:none} .s-INSUFFICIENT{background:none}
+
+/* ── the T-account's closing rule ────────────────────────────────────────
+   The rule is what closes an account, so it runs under BOTH columns as one
+   line. It was drawn as two border-tops on two grid cells with the column gap
+   between them, which reads as two unrelated marks rather than as a total. */
+.j-eff-t{gap:var(--sp-2) 0}
+.j-eff-k{padding-right:var(--sp-7)}
+.j-eff-r.net .j-eff-k,.j-eff-r.net .j-eff-v{border-top:1px solid var(--dim3);
+  padding-top:var(--sp-3);margin-top:var(--sp-2)}
+
+/* ═══════════════════════════════════════════ THE VISUAL RESET · ON A PHONE
+   Not the desktop composition squeezed vertically. Measured at 390×844 the
+   room had 260px and the dock had 240 — the navigation furniture was as tall
+   as the instrument, and Investigate's question was cut off mid-word.
+
+   The reading order is the one the phase specifies: who this is, how much,
+   where it stopped, what this instrument asks, then the answer. So the
+   instrument strip moves ABOVE the room — a person on a phone needs to know
+   which instrument they are in before they read its conclusion — and it
+   becomes one horizontal line instead of seven stacked rows.
+
+   The room gets everything that is left, which is most of the screen. */
+@media (max-width:767px){
+  #app{grid-template-rows:auto auto minmax(0,1fr) auto;
+       grid-template-areas:"case" "inst" "room" "bar"}
+
+  /* the case, in three lines: identity, money, where it stopped */
+  #subject{max-height:none;overflow:visible;border-bottom:1px solid var(--line)}
+  .c-case{padding:var(--sp-3) var(--sp-4);gap:var(--sp-1) var(--sp-3);
+    grid-template-areas:"id amt" "state state" "next next"}
+  .c-case-meta,.c-now{display:none}   /* value date, UTR, agreed/disputed: the rooms own these */
+  .c-case-id .sub{display:none}
+  .c-case-amt .v{font-size:var(--type-title)}
+  .c-case-id .lbl{font-size:var(--type-data)}
+  /* only the stage that stopped — the other four are a chain nobody can read
+     in a 60px band, and the room states the whole chain anyway */
+  .c-state .c-flow-r{display:none}
+  .c-state .c-flow-r.stopped{display:grid;grid-template-columns:auto minmax(0,1fr);
+    padding:var(--sp-2) 0 0 var(--sp-5)}
+  .c-state .c-flow-r.stopped::after{display:none}
+  .c-state .c-flow-x{display:block}
+  .c-next{display:none}               /* the landing's own next action is in the room */
+  .c-subject[data-type=portfolio] .c-next{display:block}
+
+  /* the instrument strip: one line, scrolled sideways, the active one open */
+  .c-lenses{flex-direction:row;align-items:stretch;gap:0;padding:0;
+    overflow-x:auto;scrollbar-width:none;border-top:0;
+    border-bottom:1px solid var(--line);background:var(--rail-bg)}
+  .c-lenses::-webkit-scrollbar{display:none}
+  .c-lenses button{width:auto;flex:0 0 auto;white-space:nowrap;
+    padding:var(--sp-3) var(--sp-4) var(--sp-3) var(--sp-6);border-left:0}
+  .c-lens-i{left:var(--sp-2);top:50%;transform:translateY(-50%)}
+  .c-lens-n{display:inline}
+  .c-lens-q,.c-lens-s{display:none}
+  .c-lenses button.on{background:var(--bg);
+    box-shadow:inset 0 -2px 0 var(--ink),inset 2px 0 0 transparent}
+  .c-lenses button.on .c-lens-q{display:inline;opacity:1;height:auto;
+    margin-left:var(--sp-3);color:var(--dim)}
+
+  #workspace{padding:var(--sp-5) var(--sp-4) var(--sp-8)}
+}
+
+/* The landing owes five answers on the first screen, and on a 390×844 phone
+   the fifth — ₹48,03,127.81 held — was landing at y=877, thirty-three pixels
+   past the fold. Everything above it gives back a little rather than any one
+   fact being dropped or moved somewhere it does not belong. */
+@media (max-width:767px){
+  .o-top{padding-bottom:var(--sp-2);margin-bottom:var(--sp-4)}
+  .o-stmt{margin-bottom:var(--sp-5)}
+  .o-figs{margin-bottom:var(--sp-5);gap:var(--sp-4) var(--sp-6)}
+  .o-h{margin-bottom:var(--sp-2)}
+  .o-stage{padding:var(--sp-2) 0 var(--sp-3)}
+  .o-stage.stopped{padding-bottom:var(--sp-4)}
+  /* the rail's next action keeps its sentence; the value and the case count
+     are stated again by the blocker it points at */
+  .c-subject[data-type=portfolio] .c-nx-v{display:none}
+}
+
+/* At 360×780 — the smallest screen we support — the thesis wraps to four
+   lines and the fifth answer lands 25px past the fold. The thesis is the one
+   element that can give: at 26px it is still by some distance the largest
+   thing on the screen, and it buys back the row that carries ₹48,03,127.81. */
+@media (max-width:400px){
+  :root{--type-statement:26px}
+  .o-figs{gap:var(--sp-3) var(--sp-5)}
+  /* The money that STOPPED outranks the money that entered — on every
+     screen, including this one. So the processed figure gives up the tier,
+     not the held figure: shrinking the wrong one would have inverted the
+     hierarchy the whole landing is built on, and it also buys the vertical
+     space that brings "198 settlements" above the fold. */
+  .o-fig b{font-size:var(--type-title)}
+  .o-stage-x b{font-size:var(--type-display)}
+  .o-stage-x{gap:var(--sp-1) var(--sp-2)}
+  /* "every stage is an instrument — open it" is an invitation to hover, and
+     there is no hover on a phone. Removing it is removing noise rather than
+     shaving a fact, and it is the last row between the reader and the reason
+     the money stopped. */
+  .o-h em{display:none}
+}
+
+
+/* ════════════════════════════════════ ONE VOICE ACROSS BOTH SURFACES
+   The investigation at `/` and this workspace are one product, and a reader
+   who follows "open the instrument" should arrive somewhere that sounds like
+   where they came from. Three faces, and each one means something:
+
+     SERIF     the thesis and the questions — the editorial voice
+     MONO      money, identifiers, states, verdicts — the machine's voice
+     GROTESK   explanations — a person talking
+
+   Only the first tier moves. Money stays monospace, because money is the
+   machine speaking, and a serif ₹48,03,127.81 would be a decorated figure. */
+/* One family across both surfaces, at the ratios the reference actually uses:
+   weight 500, tracking near −.045em, leading equal to the size. The serif was
+   my invention — the reference has no serif anywhere in it. */
+.o-stmt,.i-q h2{font-weight:500;letter-spacing:-.045em;line-height:1}
+.o-stmt i{font-style:normal;color:var(--dim2)}
+/* the way back. The investigation is the front door; a workspace with no door
+   back to it is a room with the corridor removed. */
+#bar a.back{font-family:var(--m);font-size:var(--type-label);
+  letter-spacing:.14em;text-transform:uppercase;color:var(--dim2);
+  text-decoration:none;border-bottom:1px solid var(--line2);padding-bottom:1px;
+  transition:color var(--micro),border-color var(--micro)}
+#bar a.back:hover{color:var(--ink);border-color:var(--ink)}
+
+/* §32 — the same field. A 44px graphite grid that disappears unless looked
+   for, so the workspace stands on the ground the front door stands on. */
+#app{position:relative}
+#app::before{content:"";position:fixed;inset:0;z-index:-1;pointer-events:none;
+  background-image:
+    linear-gradient(rgba(255,255,255,.018) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,255,255,.018) 1px, transparent 1px);
+  background-size:44px 44px}
+:root[data-theme=light] #app::before{display:none}
+
+
+/* ═══════════════════════════════════════════════════ THE CASE FILE SPINE
+   The case and the instruments are ONE object, and they scroll as one.
+
+   They were two grid rows: the case took what the dock left it. Measured at
+   1024x768 that was 179px for 432px of content — all five stages of the
+   chain cut off, a rule terminating in mid-air, and a judge reading a case
+   file with its middle missing. Nobody scrolls a rail; they read what is
+   there and move on.
+
+   As one column the arithmetic disappears. On a tall screen everything shows.
+   On a short one the whole spine scrolls, which is a thing a reader
+   understands, rather than one half of it being silently truncated. */
+#spine{grid-area:case;display:flex;flex-direction:column;min-height:0;
+  overflow-y:auto;overflow-x:hidden;scrollbar-width:thin;
+  background:var(--rail-bg);border-right:1px solid var(--line)}
+#spine::-webkit-scrollbar{width:4px}
+#spine::-webkit-scrollbar-thumb{background:var(--line2)}
+#app{grid-template-areas:"case room" "case room" "bar room"}
+#subject{grid-area:auto;overflow:visible;border-right:0;flex:none}
+#lenses{grid-area:auto;flex:none;margin-top:auto}
+/* the held instrument is one vertical rule — not a filled panel */
+.c-lenses button.on{background:transparent;transform:none;margin-right:0;
+  box-shadow:inset 2px 0 0 var(--ink)}
+@media (max-width:767px){
+  #spine{grid-area:auto;overflow:visible;border-right:0;background:none;
+    display:contents}
+}
+
+/* the run, made visible */
+.c-run{display:flex;flex-direction:column;align-items:flex-start;gap:10px;
+  padding:clamp(28px,5vh,64px) clamp(20px,3vw,44px);max-width:52ch}
+.c-run-h{font-size:clamp(18px,1.7vw,24px);font-weight:500;letter-spacing:-.02em;
+  color:var(--ink)}
+.c-run-t{font-family:var(--mono,ui-monospace,monospace);
+  font-size:clamp(28px,3.6vw,52px);letter-spacing:-.04em;color:var(--st-AMBIGUOUS,#ff655a);
+  font-variant-numeric:tabular-nums;line-height:1}
+.c-run-n{color:var(--dim,rgba(255,255,255,.6));font-size:13px;line-height:1.55}
+
+/* the prepared evidence request */
+.c-ev-go{margin-bottom:10px}
+.c-ev[data-open="1"]{margin-top:6px}
+.c-ev-pre{font-family:var(--mono,ui-monospace,monospace);font-size:11.5px;
+  line-height:1.62;white-space:pre-wrap;word-break:break-word;
+  color:var(--dim,rgba(255,255,255,.72));background:var(--surface-2,#141414);
+  border:1px solid var(--line,rgba(255,255,255,.12));padding:16px 18px;
+  max-height:340px;overflow:auto;scrollbar-width:thin}
+.c-ev-act{display:flex;flex-wrap:wrap;align-items:center;gap:8px 12px;margin-top:10px}
+.c-ev-n{font-family:var(--mono,ui-monospace,monospace);font-size:9px;
+  letter-spacing:.13em;text-transform:uppercase;color:var(--dim-3,rgba(255,255,255,.34))}
+
+/* ── the result ──────────────────────────────────────────────────────────
+   The control room's opening. Same object the landing closes on — verdict,
+   permitted action, and what is left for a person — so following "open the
+   investigation" lands in the same instrument rather than a second product.
+
+   Every size here is a token and every transition is `--micro`. The first
+   version invented a 9px tier and a 150ms duration, which is exactly what the
+   scale and motion contracts exist to catch; they caught it. */
+.r-res{padding:clamp(20px,3vh,34px) clamp(18px,2.4vw,34px) 0}
+.r-head{display:flex;align-items:baseline;gap:14px;flex-wrap:wrap;
+  padding-bottom:clamp(14px,2vh,20px);border-bottom:1px solid var(--line)}
+.r-n{font-family:var(--m);font-weight:400;font-variant-numeric:tabular-nums;
+  font-size:var(--type-statement);letter-spacing:-.05em;line-height:.95;color:var(--ink)}
+.r-h{font-family:var(--m);font-size:var(--type-micro);letter-spacing:.17em;
+  text-transform:uppercase;color:var(--dim-3)}
+.r-states{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));
+  gap:1px;background:var(--line);border-bottom:1px solid var(--line)}
+.r-st{appearance:none;border:0;text-align:left;font:inherit;cursor:pointer;
+  background:var(--bg);padding:clamp(13px,1.8vh,18px) clamp(12px,1.3vw,17px);
+  display:flex;flex-direction:column;gap:5px;transition:background var(--micro)}
+.r-st:hover,.r-st:focus-visible{background:var(--surface-2)}
+.r-st b{font-family:var(--m);font-weight:400;font-variant-numeric:tabular-nums;
+  font-size:var(--type-hero);letter-spacing:-.04em;line-height:1;color:var(--ink)}
+.r-st i{font-style:normal;font-family:var(--m);font-size:var(--type-micro);
+  letter-spacing:.18em;text-transform:uppercase;color:var(--dim-2)}
+.r-st i u{text-decoration:none;margin-left:.5em;padding-left:.5em;
+  border-left:1px solid var(--line);color:var(--ink)}
+.r-st em{font-style:normal;font-size:var(--type-body);line-height:1.45;color:var(--dim-3)}
+.r-st.proven b,.r-st.proven i u{color:var(--st-PROVEN)}
+.r-st.ambiguous b,.r-st.ambiguous i u{color:var(--st-AMBIGUOUS)}
+.r-foot{display:flex;flex-wrap:wrap;gap:14px clamp(22px,3.4vw,52px);
+  padding:clamp(14px,2vh,20px) 0 0;align-items:baseline}
+.r-u{display:flex;flex-direction:column;gap:4px}
+.r-u b{font-family:var(--m);font-weight:400;font-variant-numeric:tabular-nums;
+  font-size:var(--type-display);letter-spacing:-.035em;color:var(--ink)}
+.r-u b.hot{color:var(--st-AMBIGUOUS)}
+.r-u b.ok{color:var(--st-PROVEN)}
+.r-u span{font-family:var(--m);font-size:var(--type-micro);letter-spacing:.15em;
+  text-transform:uppercase;color:var(--dim-3)}
+@media (max-width:720px){.r-states{grid-template-columns:minmax(0,1fr)}}
+
+/* ── the operation ───────────────────────────────────────────────────────
+   Run was a bare button in the rail, so reconciliation read as "press this and
+   numbers appear". These four steps are the pipeline's actual stages, and the
+   controls sit inside the thing they operate. Tokens only. */
+.r-op{padding:clamp(18px,2.6vh,28px) clamp(18px,2.4vw,34px) 0}
+.r-op-h{display:flex;align-items:baseline;gap:12px;flex-wrap:wrap;
+  padding-bottom:clamp(12px,1.6vh,16px);border-bottom:1px solid var(--line)}
+.r-op-t{font-family:var(--m);font-size:var(--type-micro);letter-spacing:.2em;
+  text-transform:uppercase;color:var(--st-AMBIGUOUS)}
+.r-op-m{margin-left:auto;font-family:var(--m);font-size:var(--type-micro);
+  letter-spacing:.12em;text-transform:uppercase;color:var(--dim-3)}
+/* Which seed, and whether it was held out. The run used to be on a seed the
+   policy was calibrated against and nothing on this screen said so — the
+   disclosure lived on the front door, where a judge who opens /app never
+   reads it. */
+.r-op-held{color:var(--proven);font-weight:500}
+
+.r-op-in{display:flex;align-items:baseline;gap:12px clamp(14px,2vw,28px);
+  flex-wrap:wrap;padding:clamp(14px,2vh,20px) 0}
+.r-op-x{display:flex;flex-direction:column;gap:4px}
+.r-op-x b{font-family:var(--m);font-weight:400;font-variant-numeric:tabular-nums;
+  font-size:var(--type-hero);letter-spacing:-.04em;line-height:1;color:var(--ink)}
+.r-op-x span{font-family:var(--m);font-size:var(--type-micro);letter-spacing:.15em;
+  text-transform:uppercase;color:var(--dim-3)}
+.r-op-op{font-family:var(--m);font-size:var(--type-title);color:var(--dim-3);
+  align-self:center}
+.r-op-run{margin-left:auto;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.r-op-ro{font-family:var(--m);font-size:var(--type-micro);letter-spacing:.13em;
+  text-transform:uppercase;color:var(--dim-3);flex-basis:100%}
+.r-op-s{list-style:none;margin:0;padding:0 0 clamp(14px,2vh,20px);
+  display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));
+  gap:clamp(10px,1.4vw,20px)}
+.r-op-s li{display:grid;grid-template-columns:22px minmax(0,1fr);gap:2px 8px;
+  align-items:baseline;padding-top:9px;border-top:1px solid var(--line)}
+.r-op-s i{font-style:normal;font-family:var(--m);font-size:var(--type-micro);
+  color:var(--dim-3)}
+.r-op-s b{font-family:var(--m);font-size:var(--type-micro);letter-spacing:.18em;
+  text-transform:uppercase;color:var(--ink);font-weight:400}
+.r-op-s span{grid-column:2;font-size:var(--type-body);line-height:1.45;
+  color:var(--dim-3)}
+@media (max-width:720px){
+  .r-op-run{margin-left:0;width:100%}
+  .r-op-s{grid-template-columns:minmax(0,1fr)}
+}
+
+/* ── the operator's map ──────────────────────────────────────────────────
+   Six jobs over the seven instruments. The rack is not deleted — it moves
+   under a disclosure, because it is the right tool for inspecting a decision
+   and the wrong first thing to hand someone holding a settlement batch. */
+#jobs{display:flex;flex-direction:column;gap:1px;padding:clamp(10px,1.6vh,16px) 0;
+  overflow-y:auto;min-height:0}
+.j-grp{font-family:var(--m);font-size:var(--type-micro);letter-spacing:.2em;
+  text-transform:uppercase;color:var(--dim-3);padding:14px 16px 6px}
+.j-grp:first-child{padding-top:0}
+.j-b{appearance:none;border:0;background:none;font:inherit;cursor:pointer;
+  text-align:left;padding:9px 16px;display:flex;flex-direction:column;gap:2px;
+  color:var(--dim-2);transition:background var(--micro),color var(--micro);
+  border-left:2px solid transparent}
+.j-b:hover,.j-b:focus-visible{background:var(--surface-2);color:var(--ink)}
+.j-b[aria-current=true]{color:var(--ink);border-left-color:var(--st-AMBIGUOUS);
+  background:var(--surface-2)}
+.j-b i{font-style:normal;font-size:var(--type-micro);color:var(--dim-3);
+  letter-spacing:.02em;text-transform:none}
+/* The rack stays visible. Collapsing it behind a disclosure demoted it and
+   also hid it: four contracts click a lens directly, and every instrument is
+   required to state its question on screen. Both are the right guarantees —
+   an instrument nobody can see is not accessible, it is gone. Secondary by
+   weight and position instead. */
+#j-inst{margin-top:12px;border-top:1px solid var(--line)}
+#j-inst .j-grp{padding-top:12px}
+#j-inst .c-lenses{opacity:.72;transition:opacity var(--micro)}
+#j-inst .c-lenses:hover,#j-inst .c-lenses:focus-within{opacity:1}
+</style>
+<div id=app>
+  <div id=spine>
+    <div id=subject></div>
+    <!-- The operator's map. The seven instruments below are the technical rack
+         and stay exactly as they were; nobody arriving with a settlement batch
+         should have to learn seven nouns before finding the queue. Every entry
+         here routes to a lens that already exists — no new route, no new
+         contract, no new state. -->
+    <nav id=jobs aria-label="Operator workflow">
+      <span class=j-grp>work</span>
+      <button class=j-b data-job=overview>Overview<i>what needs attention</i></button>
+      <button class=j-b data-job=exceptions>Exceptions<i>the cases that stopped</i></button>
+      <button class=j-b data-job=evidence>Evidence<i>what to request</i></button>
+      <button class=j-b data-job=audit>Audit<i>what happened</i></button>
+      <span class=j-grp>system</span>
+      <button class=j-b data-job=policy>Policy<i>what is allowed</i></button>
+      <button class=j-b data-job=trust>Trust<i>what is proved</i></button>
+      <div id=j-inst>
+        <span class=j-grp>instruments</span>
+        <div id=lenses></div>
+      </div>
+    </nav>
+  </div>
+  <div id=bar>
+    <span class=wm>ATTEST</span>
+    <span id=source-mode title="Where the records on screen came from"></span>
+    <span id=exec-path title="Which solver envelope produced these figures"></span>
+    <span id=hint></span>
+    <span class=sp></span>
+    <a class=back href="/">← the investigation</a>
+    <!-- The real control boot() reads. The visible one in Control mirrors into
+         it, and a <select> silently ignores a value it has no option for — so
+         adding 60 to the visible list without adding it here made choosing 60 a
+         no-op that looked like the engine ignoring the request. Both lists are
+         the same list. -->
+    <select class=btn id=size aria-label="Portfolio size" hidden>
+      <option>60</option><option>120</option><option selected>250</option>
+      <option>500</option></select>
+    <button class="btn go" id=run hidden>Run</button>
+  </div>
+  <main id=workspace tabindex=-1></main>
+  <div id=foot><span id=footmeta></span></div>
+</div>
+<div id=live class=sr role=status aria-live=polite></div>
+<script src=guard.js></script>
+<script src=components.js></script>
+<script src=shell.js></script>
+<script src=lens-control.js></script>
+<script src=lens-journal.js></script>
+<script src=lens-evidence.js></script>
+<script src=lens-investigate.js></script>
+<script src=lens-policy.js></script>
+<script src=lens-activity.js></script>
+<script src=lens-trust.js></script>
+<script src=palette.js></script>
+<script>
+'use strict';
+/* §31 — dark is the product, so nothing decides it at boot. A stored
+   preference is still honoured for anyone who set one, and `?theme=light`
+   still works, but neither is offered as a control: the first interactive
+   element on the page was a question about the product's appearance. */
+const root = document.documentElement;
+const forced = new URLSearchParams(location.search).get('theme')
+            || localStorage.getItem('attest.theme');
+if (forced === 'light') root.dataset.theme = 'light';
+document.getElementById('run').onclick = () => bootShell();
+document.getElementById('hint').textContent = 'subject × lens';
+bootShell();
+</script>
